@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   addProductToCart,
@@ -47,7 +48,9 @@ export default function PosDashboard() {
   }, []);
 
   const filteredProducts = useMemo(() => {
-    if (!search.trim()) return productCatalog;
+    if (!search.trim()) {
+      return productCatalog.slice(0, 6);
+    }
 
     const term = search.toLowerCase();
 
@@ -89,7 +92,7 @@ export default function PosDashboard() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-6 text-slate-100">
+    <main className="min-h-screen bg-slate-950 px-4 pb-32 pt-6 text-slate-100 xl:pb-8">
       <div className="mx-auto max-w-7xl">
         <header className="mb-6 rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -104,6 +107,12 @@ export default function PosDashboard() {
               <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
                 Sincronización activa
               </span>
+              <Link
+                href="/sales"
+                className="rounded-full border border-violet-400/60 bg-violet-500/10 px-4 py-2 text-sm font-bold text-violet-200 transition hover:bg-violet-500/20"
+              >
+                Ventas
+              </Link>
               <button
                 type="button"
                 className="rounded-full bg-violet-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-violet-500"
@@ -128,25 +137,29 @@ export default function PosDashboard() {
           />
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
+        <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr] xl:items-start">
           <section className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-lg">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-black text-white">Catálogo</h2>
-              <span className="text-sm text-slate-400">{filteredProducts.length} productos</span>
+              <span className="text-sm text-slate-400">
+                {search.trim() ? `${filteredProducts.length} resultados` : "Vista rápida"}
+              </span>
             </div>
             <ProductGrid products={filteredProducts} onAdd={handleAddToCart} />
           </section>
 
-          <CartPanel
-            cart={cart}
-            products={productCatalog}
-            onChangeQuantity={handleChangeQuantity}
-            onRemove={handleRemove}
-            onCheckout={handleCheckout}
-            subtotal={totals.subtotal}
-            tax={totals.tax}
-            total={totals.total}
-          />
+          <div className="fixed bottom-3 left-3 right-3 z-40 xl:static xl:z-auto">
+            <CartPanel
+              cart={cart}
+              products={productCatalog}
+              onChangeQuantity={handleChangeQuantity}
+              onRemove={handleRemove}
+              onCheckout={handleCheckout}
+              subtotal={totals.subtotal}
+              tax={totals.tax}
+              total={totals.total}
+            />
+          </div>
         </div>
       </div>
     </main>
