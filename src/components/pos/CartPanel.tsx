@@ -2,6 +2,14 @@
 
 import type { CartItem, Product } from "@/types/store";
 
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value ?? 0));
+
 export type CartPanelProps = {
   cart: CartItem[];
   products: Product[];
@@ -53,7 +61,7 @@ export default function CartPanel({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="font-bold text-zinc-900">{product.name}</h3>
-                    <p className="text-sm text-zinc-500">${product.price} c/u</p>
+                    <p className="text-sm text-zinc-500">{formatCurrency(product.price)} c/u</p>
                   </div>
                   <button
                     type="button"
@@ -86,7 +94,7 @@ export default function CartPanel({
                   </div>
 
                   <strong className="text-base font-black text-zinc-900">
-                    ${(product.price * item.quantity).toFixed(2)}
+                    {formatCurrency(product.price * item.quantity)}
                   </strong>
                 </div>
               </div>
@@ -98,15 +106,15 @@ export default function CartPanel({
       <div className="mt-6 space-y-3 border-t border-zinc-200 pt-4">
         <div className="flex items-center justify-between text-sm text-zinc-600">
           <span>Subtotal</span>
-          <strong>${subtotal.toFixed(2)}</strong>
+          <strong>{formatCurrency(subtotal)}</strong>
         </div>
         <div className="flex items-center justify-between text-sm text-zinc-600">
           <span>IVA</span>
-          <strong>${tax.toFixed(2)}</strong>
+          <strong>{formatCurrency(tax)}</strong>
         </div>
         <div className="flex items-center justify-between text-lg font-black text-zinc-900">
           <span>Total</span>
-          <strong>${total.toFixed(2)}</strong>
+          <strong>{formatCurrency(total)}</strong>
         </div>
       </div>
 

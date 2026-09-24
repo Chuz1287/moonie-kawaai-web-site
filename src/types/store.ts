@@ -5,6 +5,7 @@ export type Product = {
   description: string;
   shortDescription: string;
   price: number;
+  cost?: number;
   compareAtPrice?: number;
   stock: number;
   featured: boolean;

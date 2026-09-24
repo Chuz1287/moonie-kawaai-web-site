@@ -15,10 +15,21 @@ import type { CartItem, Product } from "@/types/store";
 import CartPanel from "./CartPanel";
 import ProductGrid from "./ProductGrid";
 
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value ?? 0));
+
 export default function PosDashboard() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("Listo para vender");
+  const [eventName, setEventName] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState("default");
+  const [salesChannels, setSalesChannels] = useState<string[]>([]);
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -42,6 +53,21 @@ export default function PosDashboard() {
 
     void loadProducts();
 
+    const storedChannels = localStorage.getItem("moonie_kawaai_sales_channels");
+    if (storedChannels) {
+      try {
+        const parsed = JSON.parse(storedChannels) as string[];
+        if (!cancelled) {
+          setSalesChannels(parsed);
+          if (parsed.length > 0) {
+            setSelectedEvent(parsed[0]);
+          }
+        }
+      } catch {
+        // ignore malformed local storage
+      }
+    }
+
     return () => {
       cancelled = true;
     };
@@ -61,6 +87,32 @@ export default function PosDashboard() {
         .includes(term)
     );
   }, [productCatalog, search]);
+
+  const inventorySummary = useMemo(() => {
+    const totalInventoryCost = productCatalog.reduce(
+      (sum, product) => sum + (product.cost ?? product.price * 0.7) * product.stock,
+      0
+    );
+    const totalSaleValue = productCatalog.reduce(
+      (sum, product) => sum + product.price * product.stock,
+      0
+    );
+    const grossProfit = totalSaleValue - totalInventoryCost;
+    const grossMarginPercent = totalSaleValue > 0 ? (grossProfit / totalSaleValue) * 100 : 0;
+    const markupPercent = totalInventoryCost > 0 ? (grossProfit / totalInventoryCost) * 100 : 0;
+    const markupExcessPercent = Math.max(0, markupPercent - 100);
+    const markupExcessValue = Math.max(0, grossProfit - totalInventoryCost);
+
+    return {
+      totalInventoryCost,
+      totalSaleValue,
+      grossProfit,
+      grossMarginPercent,
+      markupPercent,
+      markupExcessPercent,
+      markupExcessValue,
+    };
+  }, [productCatalog]);
 
   const totals = useMemo(() => calculateCartTotals(cart, productCatalog), [cart, productCatalog]);
 
@@ -83,12 +135,29 @@ export default function PosDashboard() {
       return;
     }
 
-    const sale = createLocalSaleRecord(cart, productCatalog, "default");
+    const sale = createLocalSaleRecord(cart, productCatalog, selectedEvent || "default");
     saveLocalSale(sale);
 
     const localSales = readLocalSales();
     setStatus(`Venta guardada localmente (${localSales.length} registros)`);
     setCart([]);
+  };
+
+  const handleSaveChannel = () => {
+    const normalized = eventName.trim();
+
+    if (!normalized) {
+      return;
+    }
+
+    setSalesChannels((current) => {
+      const next = current.includes(normalized) ? current : [...current, normalized];
+      localStorage.setItem("moonie_kawaai_sales_channels", JSON.stringify(next));
+      setSelectedEvent(normalized);
+      return next;
+    });
+
+    setEventName("");
   };
 
   return (
@@ -122,10 +191,85 @@ export default function PosDashboard() {
             </div>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm text-slate-300">
-            {status}
+          <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-2xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm text-slate-300">
+              {status}
+            </div>
+
+            <div className="flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-800 p-3">
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                Canal de venta
+              </label>
+              <div className="flex gap-2">
+                <input
+                  value={eventName}
+                  onChange={(event) => setEventName(event.target.value)}
+                  placeholder="Nuevo canal"
+                  className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white placeholder:text-slate-500 focus:border-violet-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveChannel}
+                  className="rounded-xl bg-violet-600 px-3 py-2 text-xs font-bold text-white"
+                >
+                  +
+                </button>
+              </div>
+              <select
+                value={selectedEvent}
+                onChange={(event) => setSelectedEvent(event.target.value)}
+                className="rounded-xl border border-slate-700 bg-slate-950 px-2 py-2 text-sm text-white focus:border-violet-500 focus:outline-none"
+              >
+                <option value="default">Default</option>
+                {salesChannels.map((channel) => (
+                  <option key={channel} value={channel}>
+                    {channel}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </header>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+              Costo total
+            </p>
+            <p className="mt-3 text-2xl font-black text-white">
+              {formatCurrency(inventorySummary.totalInventoryCost)}
+            </p>
+          </div>
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+              Venta total
+            </p>
+            <p className="mt-3 text-2xl font-black text-emerald-300">
+              {formatCurrency(inventorySummary.totalSaleValue)}
+            </p>
+          </div>
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+              Ganancia bruta
+            </p>
+            <p className="mt-3 text-2xl font-black text-violet-300">
+              {formatCurrency(inventorySummary.grossProfit)}
+            </p>
+            <div className="mt-3 space-y-1 text-xs text-slate-300">
+              <p>
+                Margen bruto: <span className="font-bold text-violet-200">{inventorySummary.grossMarginPercent.toFixed(1)}%</span>
+              </p>
+              <p>
+                Markup sobre costo: <span className="font-bold text-emerald-300">{inventorySummary.markupPercent.toFixed(1)}%</span>
+              </p>
+              {inventorySummary.markupExcessPercent > 0 && (
+                <p>
+                  Exceso sobre 100%: <span className="font-bold text-amber-300">{inventorySummary.markupExcessPercent.toFixed(1)}%</span> / <span className="font-bold text-amber-300">{formatCurrency(inventorySummary.markupExcessValue)}</span>
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
 
         <div className="mb-6 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-lg">
           <input
