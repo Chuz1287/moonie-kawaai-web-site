@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { SaleRecord } from "@/services/sales";
-import { groupSalesByDay } from "@/services/sales";
+import { getSaleProfit, groupSalesByDay } from "@/services/sales";
 
 export default function SalesPage() {
   const [sales, setSales] = useState<SaleRecord[]>([]);
@@ -39,6 +39,12 @@ export default function SalesPage() {
   }, []);
 
   const groupedSales = useMemo(() => groupSalesByDay(sales), [sales]);
+  const totalRevenue = sales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0);
+  const totalProfit = sales.reduce((sum, sale) => sum + getSaleProfit(sale), 0);
+
+  function handleDelete(id: string) {
+    setSales((current) => current.filter((sale) => sale.id !== id));
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
@@ -57,6 +63,27 @@ export default function SalesPage() {
           >
             Volver al POS
           </Link>
+        </div>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+              Total vendido
+            </p>
+            <p className="mt-3 text-2xl font-black text-emerald-300">${totalRevenue.toFixed(2)}</p>
+          </div>
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+              Ganancia bruta
+            </p>
+            <p className="mt-3 text-2xl font-black text-violet-300">${totalProfit.toFixed(2)}</p>
+          </div>
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+              Registros
+            </p>
+            <p className="mt-3 text-2xl font-black text-white">{sales.length}</p>
+          </div>
         </div>
 
         {loading ? (
@@ -82,22 +109,40 @@ export default function SalesPage() {
                 </div>
 
                 <div className="overflow-hidden rounded-2xl border border-slate-800">
-                  <div className="grid grid-cols-[1.5fr_1fr_0.8fr_0.8fr] bg-slate-800 px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
+                  <div className="grid grid-cols-[1.4fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] bg-slate-800 px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
                     <span>Producto</span>
                     <span>Serie</span>
-                    <span>Cantidad</span>
+                    <span>Cant.</span>
                     <span>Total</span>
+                    <span>Gan.</span>
+                    <span>Acción</span>
                   </div>
 
                   {group.items.map((sale) => (
                     <div
                       key={`${sale.id}-${sale.hora}`}
-                      className="grid grid-cols-[1.5fr_1fr_0.8fr_0.8fr] border-t border-slate-800 px-4 py-3 text-sm text-slate-200"
+                      className="grid grid-cols-[1.4fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] border-t border-slate-800 px-4 py-3 text-sm text-slate-200"
                     >
                       <span>{sale.personaje}</span>
                       <span>{sale.serie}</span>
                       <span>{sale.cantidad}</span>
                       <span>${Number(sale.total ?? 0).toFixed(2)}</span>
+                      <span>${getSaleProfit(sale).toFixed(2)}</span>
+                      <span className="flex gap-2">
+                        <button
+                          type="button"
+                          className="rounded-md border border-slate-600 px-2 py-1 text-[10px] font-bold text-slate-200"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(sale.id)}
+                          className="rounded-md border border-rose-500/50 bg-rose-500/10 px-2 py-1 text-[10px] font-bold text-rose-200"
+                        >
+                          Borrar
+                        </button>
+                      </span>
                     </div>
                   ))}
                 </div>

@@ -10,6 +10,7 @@ const fallbackProducts: Product[] = [
       "Bebida artesanal de matcha con leche cremosa, sabor suave y un perfil equilibrado para cualquier momento del día.",
     shortDescription: "Matcha premium con leche cremosa.",
     price: 18,
+    cost: 12.6,
     compareAtPrice: 22,
     stock: 24,
     featured: true,
@@ -30,6 +31,7 @@ const fallbackProducts: Product[] = [
       "Cheesecake con base crujiente y mezcla de bayas, ideal para un postre intensamente sabroso y visualmente irresistible.",
     shortDescription: "Cheesecake con bayas frescas.",
     price: 22,
+    cost: 15.4,
     compareAtPrice: 28,
     stock: 12,
     featured: true,
@@ -50,6 +52,7 @@ const fallbackProducts: Product[] = [
       "Panecillo esponjoso con canela y crema de vainilla, perfecto para acompañar el café o para regalar un momento dulce.",
     shortDescription: "Panecillo esponjoso con canela.",
     price: 16,
+    cost: 11.2,
     stock: 18,
     featured: false,
     category: "Bakery",
@@ -69,6 +72,7 @@ const fallbackProducts: Product[] = [
       "Café helado con cacao y leche, un sabor intenso y refrescante para quienes buscan energía y placer a la vez.",
     shortDescription: "Café helado con cacao.",
     price: 20,
+    cost: 14,
     stock: 20,
     featured: true,
     category: "Beverages",
@@ -88,6 +92,7 @@ const fallbackProducts: Product[] = [
       "Preparación liviana con fresas, crema y textura crujiente para una experiencia dulce y refrescante.",
     shortDescription: "Parfait de fresa y crema.",
     price: 26,
+    cost: 18.2,
     compareAtPrice: 32,
     stock: 9,
     featured: true,
@@ -121,6 +126,7 @@ function mapSupabaseProduct(row: Record<string, unknown>): Product {
   const price = Number(row.precio ?? row.price ?? 0);
   const stock = Number(row.stock ?? 0);
   const rawCost = Number(row.costo ?? row.cost ?? 0);
+  const normalizedCost = rawCost > 0 ? rawCost : price > 0 ? price * 0.7 : 0;
   const slug = toSlug(String(row.slug ?? name));
   const featured = stock > 0;
 
@@ -133,6 +139,7 @@ function mapSupabaseProduct(row: Record<string, unknown>): Product {
       .filter(Boolean)
       .join(" • ") || "Artículo disponible",
     price: Number.isFinite(price) ? price : 0,
+    cost: Number.isFinite(normalizedCost) ? normalizedCost : 0,
     compareAtPrice: rawCost > 0 && rawCost > price ? rawCost : undefined,
     stock: Number.isFinite(stock) ? stock : 0,
     featured,

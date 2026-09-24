@@ -16,6 +16,10 @@ export type SaleRecord = {
   created_at?: string | null;
 };
 
+export function getSaleProfit(sale: SaleRecord): number {
+  return Number(sale.ganancia ?? Math.max(0, Number(sale.total ?? 0) - Number(sale.costo_unitario ?? 0) * Number(sale.cantidad ?? 0)));
+}
+
 export function groupSalesByDay(sales: SaleRecord[]) {
   const groups = new Map<string, SaleRecord[]>();
 
