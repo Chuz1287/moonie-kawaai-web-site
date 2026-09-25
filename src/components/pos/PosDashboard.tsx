@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   addProductToCart,
+  applyStockReduction,
   calculateCartTotals,
   createLocalSaleRecord,
   readLocalSales,
@@ -12,6 +13,7 @@ import {
   updateCartItemPrice,
   updateCartItemQuantity,
 } from "@/services/pos";
+import { syncSaleToSupabase } from "@/lib/supabase";
 import type { CartItem, Product } from "@/types/store";
 import CartPanel from "./CartPanel";
 import ProductGrid from "./ProductGrid";
@@ -136,19 +138,40 @@ export default function PosDashboard() {
     setCart((current) => removeProductFromCart(current, productId));
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) {
       setStatus("El carrito está vacío");
       return;
     }
 
     const sale = createLocalSaleRecord(cart, productCatalog, selectedEvent || "default");
-    saveLocalSale(sale);
+    const updatedCatalog = applyStockReduction(cart, productCatalog);
 
-    const localSales = readLocalSales();
-    setStatus(`Venta guardada localmente (${localSales.length} registros)`);
-    setCart([]);
-    setIsCartOpen(false);
+    try {
+      saveLocalSale(sale);
+      const syncResult = await syncSaleToSupabase(sale);
+
+      setProductCatalog(updatedCatalog);
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("moonie_kawaai_product_inventory", JSON.stringify(updatedCatalog));
+      }
+
+      const localSales = readLocalSales();
+      setStatus(
+        syncResult.synced > 0
+          ? `Venta registrada y sincronizada (${localSales.length} locales, ${syncResult.synced} en Supabase)`
+          : `Venta guardada localmente (${localSales.length} registros). ${syncResult.message}`
+      );
+    } catch (error) {
+      saveLocalSale(sale);
+      setProductCatalog(updatedCatalog);
+      setStatus("Venta guardada localmente, pero no se pudo sincronizar con Supabase");
+      console.error("Checkout sync failed", error);
+    } finally {
+      setCart([]);
+      setIsCartOpen(false);
+    }
   };
 
   const handleSaveChannel = () => {
