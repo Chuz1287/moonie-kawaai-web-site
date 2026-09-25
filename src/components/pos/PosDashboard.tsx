@@ -9,6 +9,7 @@ import {
   readLocalSales,
   removeProductFromCart,
   saveLocalSale,
+  updateCartItemPrice,
   updateCartItemQuantity,
 } from "@/services/pos";
 import type { CartItem, Product } from "@/types/store";
@@ -31,6 +32,7 @@ export default function PosDashboard() {
   const [selectedEvent, setSelectedEvent] = useState("default");
   const [salesChannels, setSalesChannels] = useState<string[]>([]);
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,6 +117,7 @@ export default function PosDashboard() {
   }, [productCatalog]);
 
   const totals = useMemo(() => calculateCartTotals(cart, productCatalog), [cart, productCatalog]);
+  const hasCartItems = cart.length > 0;
 
   const handleAddToCart = (product: { id: string; name: string }) => {
     setCart((current) => addProductToCart(current, product.id, 1));
@@ -123,6 +126,10 @@ export default function PosDashboard() {
 
   const handleChangeQuantity = (productId: string, quantity: number) => {
     setCart((current) => updateCartItemQuantity(current, productId, quantity));
+  };
+
+  const handleChangePrice = (productId: string, unitPrice: number) => {
+    setCart((current) => updateCartItemPrice(current, productId, unitPrice));
   };
 
   const handleRemove = (productId: string) => {
@@ -141,6 +148,7 @@ export default function PosDashboard() {
     const localSales = readLocalSales();
     setStatus(`Venta guardada localmente (${localSales.length} registros)`);
     setCart([]);
+    setIsCartOpen(false);
   };
 
   const handleSaveChannel = () => {
@@ -292,19 +300,40 @@ export default function PosDashboard() {
             <ProductGrid products={filteredProducts} onAdd={handleAddToCart} />
           </section>
 
-          <div className="fixed bottom-3 left-3 right-3 z-40 xl:static xl:z-auto">
+          {hasCartItems && !isCartOpen && (
             <CartPanel
               cart={cart}
               products={productCatalog}
               onChangeQuantity={handleChangeQuantity}
+              onChangePrice={handleChangePrice}
               onRemove={handleRemove}
               onCheckout={handleCheckout}
+              onOpen={() => setIsCartOpen(true)}
               subtotal={totals.subtotal}
               tax={totals.tax}
               total={totals.total}
             />
-          </div>
+          )}
         </div>
+
+        {hasCartItems && isCartOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl">
+              <CartPanel
+                cart={cart}
+                products={productCatalog}
+                onChangeQuantity={handleChangeQuantity}
+                onChangePrice={handleChangePrice}
+                onRemove={handleRemove}
+                onCheckout={handleCheckout}
+                onClose={() => setIsCartOpen(false)}
+                subtotal={totals.subtotal}
+                tax={totals.tax}
+                total={totals.total}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
