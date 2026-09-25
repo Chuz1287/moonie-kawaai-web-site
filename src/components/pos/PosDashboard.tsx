@@ -13,7 +13,7 @@ import {
   updateCartItemPrice,
   updateCartItemQuantity,
 } from "@/services/pos";
-import { syncSaleToSupabase } from "@/lib/supabase";
+import { syncCatalogStockToSupabase, syncSaleToSupabase, upsertEventToSupabase } from "@/lib/supabase";
 import type { CartItem, Product } from "@/types/store";
 import CartPanel from "./CartPanel";
 import ProductGrid from "./ProductGrid";
@@ -150,6 +150,7 @@ export default function PosDashboard() {
     try {
       saveLocalSale(sale);
       const syncResult = await syncSaleToSupabase(sale);
+      const stockResult = await syncCatalogStockToSupabase(updatedCatalog);
 
       setProductCatalog(updatedCatalog);
 
@@ -159,9 +160,9 @@ export default function PosDashboard() {
 
       const localSales = readLocalSales();
       setStatus(
-        syncResult.synced > 0
-          ? `Venta registrada y sincronizada (${localSales.length} locales, ${syncResult.synced} en Supabase)`
-          : `Venta guardada localmente (${localSales.length} registros). ${syncResult.message}`
+        syncResult.synced > 0 && stockResult.synced > 0
+          ? `Venta registrada, stock actualizado y sincronizada (${localSales.length} locales, ${syncResult.synced} en Supabase)`
+          : `Venta guardada localmente (${localSales.length} registros). ${stockResult.message || syncResult.message}`
       );
     } catch (error) {
       saveLocalSale(sale);
@@ -174,12 +175,14 @@ export default function PosDashboard() {
     }
   };
 
-  const handleSaveChannel = () => {
+  const handleSaveChannel = async () => {
     const normalized = eventName.trim();
 
     if (!normalized) {
       return;
     }
+
+    const eventRow = await upsertEventToSupabase(normalized);
 
     setSalesChannels((current) => {
       const next = current.includes(normalized) ? current : [...current, normalized];
@@ -187,6 +190,10 @@ export default function PosDashboard() {
       setSelectedEvent(normalized);
       return next;
     });
+
+    if (eventRow) {
+      setStatus(`Evento guardado: ${eventRow.name}`);
+    }
 
     setEventName("");
   };

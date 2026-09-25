@@ -5,8 +5,15 @@ import Link from "next/link";
 import type { SaleRecord } from "@/services/sales";
 import { getSaleProfit, groupSalesByDay } from "@/services/sales";
 
+type EventOption = {
+  id: string;
+  name: string;
+};
+
 export default function SalesPage() {
   const [sales, setSales] = useState<SaleRecord[]>([]);
+  const [events, setEvents] = useState<EventOption[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,6 +21,19 @@ export default function SalesPage() {
 
     async function loadSales() {
       try {
+        const storedEvents = localStorage.getItem("moonie_kawaai_sales_channels");
+        if (storedEvents) {
+          const parsed = JSON.parse(storedEvents) as string[];
+          if (!cancelled) {
+            setEvents(
+              parsed.map((name) => ({
+                id: name,
+                name,
+              }))
+            );
+          }
+        }
+
         const response = await fetch("/api/sales");
         const payload = (await response.json()) as { sales?: SaleRecord[] };
 
@@ -38,9 +58,24 @@ export default function SalesPage() {
     };
   }, []);
 
-  const groupedSales = useMemo(() => groupSalesByDay(sales), [sales]);
-  const totalRevenue = sales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0);
-  const totalProfit = sales.reduce((sum, sale) => sum + getSaleProfit(sale), 0);
+  const filteredSales = useMemo(() => {
+    if (selectedEvent === "all") {
+      return sales;
+    }
+
+    return sales.filter((sale) => (sale.event_id ?? "default") === selectedEvent);
+  }, [sales, selectedEvent]);
+
+  const groupedSales = useMemo(() => groupSalesByDay(filteredSales), [filteredSales]);
+  const totalRevenue = filteredSales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0);
+  const totalProfit = filteredSales.reduce((sum, sale) => sum + getSaleProfit(sale), 0);
+  const getEventName = (eventId?: string | null) => {
+    if (!eventId || eventId === "default") {
+      return "Default";
+    }
+
+    return events.find((event) => event.id === eventId)?.name ?? eventId;
+  };
 
   async function handleDelete(id: string) {
     try {
@@ -94,8 +129,27 @@ export default function SalesPage() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
               Registros
             </p>
-            <p className="mt-3 text-2xl font-black text-white">{sales.length}</p>
+            <p className="mt-3 text-2xl font-black text-white">{filteredSales.length}</p>
           </div>
+        </div>
+
+        <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            Filtrar por evento
+          </label>
+          <select
+            value={selectedEvent}
+            onChange={(event) => setSelectedEvent(event.target.value)}
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-violet-500 focus:outline-none"
+          >
+            <option value="all">Todos los eventos</option>
+            <option value="default">Default</option>
+            {events.map((event) => (
+              <option key={event.id} value={event.id}>
+                {event.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {loading ? (
@@ -123,7 +177,7 @@ export default function SalesPage() {
                 <div className="overflow-hidden rounded-2xl border border-slate-800">
                   <div className="grid grid-cols-[1.4fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] bg-slate-800 px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
                     <span>Producto</span>
-                    <span>Serie</span>
+                    <span>Evento</span>
                     <span>Cant.</span>
                     <span>Total</span>
                     <span>Gan.</span>
@@ -136,7 +190,7 @@ export default function SalesPage() {
                       className="grid grid-cols-[1.4fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] border-t border-slate-800 px-4 py-3 text-sm text-slate-200"
                     >
                       <span>{sale.personaje}</span>
-                      <span>{sale.serie}</span>
+                      <span>{getEventName(sale.event_id)}</span>
                       <span>{sale.cantidad}</span>
                       <span>${Number(sale.total ?? 0).toFixed(2)}</span>
                       <span>${getSaleProfit(sale).toFixed(2)}</span>

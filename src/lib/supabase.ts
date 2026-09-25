@@ -26,6 +26,48 @@ export type SyncSummary = {
   message: string;
 };
 
+export type CatalogProductStockUpdate = {
+  id: string;
+  stock: number;
+};
+
+export type EventRow = {
+  id: string;
+  name: string;
+  created_at?: string | null;
+};
+
+export async function upsertEventToSupabase(name: string): Promise<EventRow | null> {
+  const normalized = name.trim();
+
+  if (!supabase || !normalized) {
+    return null;
+  }
+
+  try {
+    const payload = {
+      id: normalized,
+      name: normalized,
+      created_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from("events")
+      .upsert(payload, { onConflict: "id" })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data as EventRow;
+  } catch (error) {
+    console.error("Error creating event in Supabase", error);
+    return null;
+  }
+}
+
 export async function syncProductsToSupabase(
   products: Product[]
 ): Promise<SyncSummary> {
@@ -56,6 +98,45 @@ export async function syncProductsToSupabase(
       error instanceof Error
         ? error.message
         : "Unknown error while syncing products.";
+
+    return {
+      synced: 0,
+      message,
+    };
+  }
+}
+
+export async function syncCatalogStockToSupabase(
+  products: Array<{ id: string; stock: number }>
+): Promise<SyncSummary> {
+  if (!supabase) {
+    return {
+      synced: 0,
+      message: "Supabase is not configured. El stock quedó localmente actualizado.",
+    };
+  }
+
+  try {
+    const payload = products.map((product) => ({
+      id: String(product.id),
+      stock: Number(product.stock ?? 0),
+    }));
+
+    const { error } = await supabase.from("products").upsert(payload, {
+      onConflict: "id",
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      synced: payload.length,
+      message: "Stock actualizado en Supabase.",
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error while syncing stock.";
 
     return {
       synced: 0,
