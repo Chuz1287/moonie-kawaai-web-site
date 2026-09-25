@@ -42,8 +42,20 @@ export default function SalesPage() {
   const totalRevenue = sales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0);
   const totalProfit = sales.reduce((sum, sale) => sum + getSaleProfit(sale), 0);
 
-  function handleDelete(id: string) {
-    setSales((current) => current.filter((sale) => sale.id !== id));
+  async function handleDelete(id: string) {
+    try {
+      const response = await fetch(`/api/sales/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("No se pudo eliminar la venta");
+      }
+
+      setSales((current) => current.filter((sale) => sale.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (

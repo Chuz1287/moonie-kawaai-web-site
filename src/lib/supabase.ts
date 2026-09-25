@@ -64,21 +64,60 @@ export async function syncProductsToSupabase(
   }
 }
 
-function toSupabaseSaleRows(sale: Sale | PosSaleRecord): Array<Record<string, string | number | null>> {
+type SupabaseSaleRowItem = {
+  productId?: string | number;
+  name?: string;
+  productName?: string;
+  quantity?: number;
+  unitPrice?: number;
+  cantidad?: number;
+  precio_venta_unitario?: number;
+};
+
+type SupabaseSaleLike = {
+  id?: string;
+  saleNumber?: string;
+  createdAt?: string;
+  eventId?: string;
+  items?: SupabaseSaleRowItem[];
+  products?: SupabaseSaleRowItem[];
+};
+
+function toSupabaseSaleRows(sale: Sale | PosSaleRecord | SupabaseSaleLike): Array<Record<string, string | number | null>> {
   const timestamp = new Date(
-    "createdAt" in sale ? sale.createdAt : new Date().toISOString()
+    "createdAt" in sale ? sale.createdAt ?? new Date().toISOString() : new Date().toISOString()
   );
 
-  const items = "items" in sale ? sale.items : sale.products;
+  const items = Array.isArray((sale as SupabaseSaleLike).items)
+    ? (sale as SupabaseSaleLike).items ?? []
+    : Array.isArray((sale as SupabaseSaleLike).products)
+      ? (sale as SupabaseSaleLike).products ?? []
+      : [];
 
   return items.map((item, index) => {
-    const unitPrice = Number("unitPrice" in item ? item.unitPrice : item.precio_venta_unitario ?? 0);
-    const quantity = Number("quantity" in item ? item.quantity : item.cantidad ?? 0);
+    const unitPrice = Number(
+      typeof item.unitPrice === "number"
+        ? item.unitPrice
+        : typeof (item as { precio_venta_unitario?: number }).precio_venta_unitario === "number"
+          ? (item as { precio_venta_unitario?: number }).precio_venta_unitario ?? 0
+          : 0
+    );
+
+    const quantity = Number(
+      typeof item.quantity === "number"
+        ? item.quantity
+        : typeof (item as { cantidad?: number }).cantidad === "number"
+          ? (item as { cantidad?: number }).cantidad ?? 0
+          : 0
+    );
+
     const total = unitPrice * quantity;
+    const saleId = "saleNumber" in sale ? sale.saleNumber ?? sale.id : sale.id ?? "sale-unknown";
+    const itemName = item.productName ?? item.name ?? "Venta";
 
     return {
-      id: `${("saleNumber" in sale ? sale.saleNumber : sale.id)}-${index + 1}`,
-      personaje: String("productName" in item ? item.productName : item.name ?? "Venta"),
+      id: `${saleId}-${index + 1}`,
+      personaje: String(itemName),
       serie: "default",
       tipo: "venta",
       cantidad: quantity,
@@ -87,7 +126,11 @@ function toSupabaseSaleRows(sale: Sale | PosSaleRecord): Array<Record<string, st
       total,
       ganancia: 0,
       fecha: timestamp.toISOString().slice(0, 10),
-      hora: timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false }),
+      hora: timestamp.toLocaleTimeString("es-MX", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
       event_id: "eventId" in sale ? sale.eventId || "default" : "default",
       created_at: timestamp.toISOString(),
     };

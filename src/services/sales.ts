@@ -69,3 +69,34 @@ export async function fetchSalesFromSupabase(): Promise<SaleRecord[]> {
     return [];
   }
 }
+
+export async function deleteSaleFromSupabase(id: string): Promise<boolean> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const anonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !anonKey || !id) {
+    return false;
+  }
+
+  try {
+    const client = createClient(url, anonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+
+    const { data, error } = await client.from("sales").delete().eq("id", id).select();
+
+    if (error) {
+      console.error("Delete sale error:", error);
+      return false;
+    }
+
+    return Array.isArray(data) && data.length > 0;
+  } catch (error) {
+    console.error("Delete sale exception:", error);
+    return false;
+  }
+}
