@@ -3,6 +3,7 @@ import type { CartItem, Product } from "@/types/store";
 export type PosCartLine = {
   product: Product;
   quantity: number;
+  unitPrice: number;
 };
 
 export type PosSaleRecord = {
@@ -21,16 +22,27 @@ export type PosSaleRecord = {
   }>;
 };
 
-export function addProductToCart(cart: CartItem[], productId: string, quantity = 1): CartItem[] {
+export function addProductToCart(
+  cart: CartItem[],
+  productId: string,
+  quantity = 1,
+  unitPrice?: number
+): CartItem[] {
   const existing = cart.find((item) => item.productId === productId);
 
   if (existing) {
     return cart.map((item) =>
-      item.productId === productId ? { ...item, quantity: item.quantity + quantity } : item
+      item.productId === productId
+        ? {
+            ...item,
+            quantity: item.quantity + quantity,
+            ...(unitPrice !== undefined ? { unitPrice } : {}),
+          }
+        : item
     );
   }
 
-  return [...cart, { productId, quantity }];
+  return [...cart, { productId, quantity, ...(unitPrice !== undefined ? { unitPrice } : {}) }];
 }
 
 export function removeProductFromCart(cart: CartItem[], productId: string): CartItem[] {
@@ -42,12 +54,24 @@ export function updateCartItemQuantity(
   productId: string,
   quantity: number
 ): CartItem[] {
-  if (quantity <= 0) {
+  const nextQuantity = Number.isFinite(quantity) ? Math.max(0, quantity) : 0;
+
+  if (nextQuantity <= 0) {
     return removeProductFromCart(cart, productId);
   }
 
   return cart.map((item) =>
-    item.productId === productId ? { ...item, quantity } : item
+    item.productId === productId ? { ...item, quantity: nextQuantity } : item
+  );
+}
+
+export function updateCartItemPrice(
+  cart: CartItem[],
+  productId: string,
+  unitPrice: number
+): CartItem[] {
+  return cart.map((item) =>
+    item.productId === productId ? { ...item, unitPrice: Math.max(0, unitPrice) } : item
   );
 }
 
@@ -60,7 +84,11 @@ export function buildCartLines(cart: CartItem[], products: Product[]): PosCartLi
         return null;
       }
 
-      return { product, quantity: item.quantity };
+      return {
+        product,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice ?? product.price,
+      };
     })
     .filter((entry): entry is PosCartLine => entry !== null);
 }
@@ -68,7 +96,7 @@ export function buildCartLines(cart: CartItem[], products: Product[]): PosCartLi
 export function calculateCartTotals(cart: CartItem[], products: Product[]) {
   const lines = buildCartLines(cart, products);
   const subtotal = lines.reduce(
-    (sum, line) => sum + line.product.price * line.quantity,
+    (sum, line) => sum + line.unitPrice * line.quantity,
     0
   );
   const tax = subtotal * 0.15;
@@ -85,7 +113,7 @@ export function calculateCartTotals(cart: CartItem[], products: Product[]) {
 export function createLocalSaleRecord(cart: CartItem[], products: Product[], eventId = "default"): PosSaleRecord {
   const lines = buildCartLines(cart, products);
   const subtotal = lines.reduce(
-    (sum, line) => sum + line.product.price * line.quantity,
+    (sum, line) => sum + line.unitPrice * line.quantity,
     0
   );
   const tax = subtotal * 0.15;
@@ -103,7 +131,7 @@ export function createLocalSaleRecord(cart: CartItem[], products: Product[], eve
       productId: line.product.id,
       name: line.product.name,
       quantity: line.quantity,
-      unitPrice: line.product.price,
+      unitPrice: line.unitPrice,
     })),
   };
 }

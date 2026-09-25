@@ -18,6 +18,7 @@ export type Product = {
 export type CartItem = {
   productId: string;
   quantity: number;
+  unitPrice?: number;
 };
 
 export type CartSummary = {
