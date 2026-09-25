@@ -1,3 +1,4 @@
+import { db } from "@/lib/db";
 import type { CartItem, Product } from "@/types/store";
 
 export type PosCartLine = {
@@ -140,13 +141,51 @@ export function getPosStorageKey(): string {
   return "moonie_kawaai_pos_local_sales";
 }
 
+export function applyStockReduction(cart: CartItem[], products: Product[]): Product[] {
+  return products.map((product) => {
+    const matchingItem = cart.find((entry) => String(entry.productId) === String(product.id));
+
+    if (!matchingItem) {
+      return product;
+    }
+
+    const currentStock = Number(product.stock ?? 0);
+    const quantity = Number(matchingItem.quantity ?? 0);
+
+    return {
+      ...product,
+      stock: Math.max(0, currentStock - quantity),
+    };
+  });
+}
+
 export function saveLocalSale(sale: PosSaleRecord): void {
   if (typeof window === "undefined") {
     return;
   }
 
   const current = JSON.parse(localStorage.getItem(getPosStorageKey()) ?? "[]") as PosSaleRecord[];
-  localStorage.setItem(getPosStorageKey(), JSON.stringify([...current, sale]));
+  const nextSales = [...current, sale];
+  localStorage.setItem(getPosStorageKey(), JSON.stringify(nextSales));
+
+  try {
+    void db.sales.add({
+      saleNumber: sale.id,
+      items: sale.products.map((item) => ({
+        productId: Number(item.productId) || 0,
+        productName: item.name,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+      total: sale.total,
+      paymentMethod: "cash",
+      status: "completed",
+      createdAt: sale.createdAt,
+      syncedAt: null,
+    });
+  } catch (error) {
+    console.error("No se pudo guardar la venta en Dexie", error);
+  }
 }
 
 export function readLocalSales(): PosSaleRecord[] {
