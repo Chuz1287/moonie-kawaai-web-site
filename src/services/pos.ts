@@ -27,23 +27,42 @@ export function addProductToCart(
   cart: CartItem[],
   productId: string,
   quantity = 1,
-  unitPrice?: number
+  unitPrice?: number,
+  stockLimit?: number
 ): CartItem[] {
+  const normalizedQuantity = Math.max(0, Number(quantity) || 0);
+  const maxAllowed = Number.isFinite(stockLimit) ? Math.max(0, Number(stockLimit ?? 0)) : Number.POSITIVE_INFINITY;
   const existing = cart.find((item) => item.productId === productId);
 
+  if (normalizedQuantity <= 0) {
+    return cart;
+  }
+
   if (existing) {
+    const nextQuantity = Math.min(existing.quantity + normalizedQuantity, maxAllowed);
+
+    if (nextQuantity <= 0) {
+      return cart;
+    }
+
     return cart.map((item) =>
       item.productId === productId
         ? {
             ...item,
-            quantity: item.quantity + quantity,
+            quantity: nextQuantity,
             ...(unitPrice !== undefined ? { unitPrice } : {}),
           }
         : item
     );
   }
 
-  return [...cart, { productId, quantity, ...(unitPrice !== undefined ? { unitPrice } : {}) }];
+  const nextQuantity = Math.min(normalizedQuantity, maxAllowed);
+
+  if (nextQuantity <= 0) {
+    return cart;
+  }
+
+  return [...cart, { productId, quantity: nextQuantity, ...(unitPrice !== undefined ? { unitPrice } : {}) }];
 }
 
 export function removeProductFromCart(cart: CartItem[], productId: string): CartItem[] {
@@ -53,16 +72,18 @@ export function removeProductFromCart(cart: CartItem[], productId: string): Cart
 export function updateCartItemQuantity(
   cart: CartItem[],
   productId: string,
-  quantity: number
+  quantity: number,
+  stockLimit?: number
 ): CartItem[] {
   const nextQuantity = Number.isFinite(quantity) ? Math.max(0, quantity) : 0;
+  const maxAllowed = Number.isFinite(stockLimit) ? Math.max(0, Number(stockLimit ?? 0)) : Number.POSITIVE_INFINITY;
 
   if (nextQuantity <= 0) {
     return removeProductFromCart(cart, productId);
   }
 
   return cart.map((item) =>
-    item.productId === productId ? { ...item, quantity: nextQuantity } : item
+    item.productId === productId ? { ...item, quantity: Math.min(nextQuantity, maxAllowed) } : item
   );
 }
 
@@ -100,8 +121,8 @@ export function calculateCartTotals(cart: CartItem[], products: Product[]) {
     (sum, line) => sum + line.unitPrice * line.quantity,
     0
   );
-  const tax = subtotal * 0.15;
-  const total = subtotal + tax;
+  const tax = 0;
+  const total = subtotal;
 
   return {
     subtotal,
@@ -117,8 +138,8 @@ export function createLocalSaleRecord(cart: CartItem[], products: Product[], eve
     (sum, line) => sum + line.unitPrice * line.quantity,
     0
   );
-  const tax = subtotal * 0.15;
-  const total = subtotal + tax;
+  const tax = 0;
+  const total = subtotal;
 
   return {
     id: `sale-${Date.now()}`,
@@ -155,6 +176,37 @@ export function applyStockReduction(cart: CartItem[], products: Product[]): Prod
     return {
       ...product,
       stock: Math.max(0, currentStock - quantity),
+    };
+  });
+}
+
+export function restoreStockFromSaleItems(
+  products: Product[],
+  saleItems: Array<{ name: string; quantity: number }>
+): Product[] {
+  if (!Array.isArray(saleItems) || saleItems.length === 0) {
+    return products;
+  }
+
+  return products.map((product) => {
+    const matchingQuantity = saleItems.reduce((sum, item) => {
+      const itemName = String(item.name ?? "").trim().toLowerCase();
+      const productName = String(product.name ?? "").trim().toLowerCase();
+
+      if (!itemName || itemName !== productName) {
+        return sum;
+      }
+
+      return sum + Number(item.quantity ?? 0);
+    }, 0);
+
+    if (matchingQuantity <= 0) {
+      return product;
+    }
+
+    return {
+      ...product,
+      stock: Math.max(0, Number(product.stock ?? 0) + matchingQuantity),
     };
   });
 }

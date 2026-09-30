@@ -147,6 +147,7 @@ export async function syncCatalogStockToSupabase(
 
 type SupabaseSaleRowItem = {
   productId?: string | number;
+  product_id?: string | number;
   name?: string;
   productName?: string;
   quantity?: number;
@@ -164,7 +165,7 @@ type SupabaseSaleLike = {
   products?: SupabaseSaleRowItem[];
 };
 
-function toSupabaseSaleRows(sale: Sale | PosSaleRecord | SupabaseSaleLike): Array<Record<string, string | number | null>> {
+function toSupabaseSaleRows(sale: Sale | PosSaleRecord | SupabaseSaleLike): Array<Record<string, string | number | null | object[]>> {
   const timestamp = new Date(
     "createdAt" in sale ? sale.createdAt ?? new Date().toISOString() : new Date().toISOString()
   );
@@ -175,47 +176,26 @@ function toSupabaseSaleRows(sale: Sale | PosSaleRecord | SupabaseSaleLike): Arra
       ? (sale as SupabaseSaleLike).products ?? []
       : [];
 
-  return items.map((item, index) => {
-    const unitPrice = Number(
-      typeof item.unitPrice === "number"
-        ? item.unitPrice
-        : typeof (item as { precio_venta_unitario?: number }).precio_venta_unitario === "number"
-          ? (item as { precio_venta_unitario?: number }).precio_venta_unitario ?? 0
-          : 0
-    );
+  const normalizedItems = items.map((item) => ({
+    productId: item.productId ?? item.product_id ?? null,
+    productName: item.productName ?? item.name ?? "Venta",
+    quantity: Number(item.quantity ?? item.cantidad ?? 0),
+    unitPrice: Number(item.unitPrice ?? item.precio_venta_unitario ?? 0),
+  }));
 
-    const quantity = Number(
-      typeof item.quantity === "number"
-        ? item.quantity
-        : typeof (item as { cantidad?: number }).cantidad === "number"
-          ? (item as { cantidad?: number }).cantidad ?? 0
-          : 0
-    );
+  const rawSaleId = "saleNumber" in sale ? sale.saleNumber ?? sale.id : sale.id ?? "sale-unknown";
+  const saleId = typeof rawSaleId === "string" && rawSaleId.trim() ? rawSaleId : "sale-unknown";
+  const total = "total" in sale ? Number(sale.total ?? 0) : normalizedItems.reduce((sum, item) => sum + Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0), 0);
 
-    const total = unitPrice * quantity;
-    const saleId = "saleNumber" in sale ? sale.saleNumber ?? sale.id : sale.id ?? "sale-unknown";
-    const itemName = item.productName ?? item.name ?? "Venta";
-
-    return {
-      id: `${saleId}-${index + 1}`,
-      personaje: String(itemName),
-      serie: "default",
-      tipo: "venta",
-      cantidad: quantity,
-      precio_venta_unitario: unitPrice,
-      costo_unitario: 0,
-      total,
-      ganancia: 0,
-      fecha: timestamp.toISOString().slice(0, 10),
-      hora: timestamp.toLocaleTimeString("es-MX", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }),
-      event_id: "eventId" in sale ? sale.eventId || "default" : "default",
-      created_at: timestamp.toISOString(),
-    };
-  });
+  return [{
+    sale_number: saleId,
+    items: normalizedItems,
+    total,
+    payment_method: "paymentMethod" in sale && sale.paymentMethod ? sale.paymentMethod : "cash",
+    status: "status" in sale && sale.status ? sale.status : "completed",
+    created_at: timestamp.toISOString(),
+    synced_at: new Date().toISOString(),
+  }];
 }
 
 export async function syncSalesToSupabase(
@@ -229,10 +209,23 @@ export async function syncSalesToSupabase(
   }
 
   try {
-    const payload = sales.flatMap((sale) => toSupabaseSaleRows(sale));
+    const payload = sales.map((sale) => ({
+      sale_number: sale.saleNumber || `sale-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      items: sale.items.map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+      total: Number(sale.total ?? 0),
+      payment_method: sale.paymentMethod || "cash",
+      status: sale.status || "completed",
+      created_at: sale.createdAt || new Date().toISOString(),
+      synced_at: new Date().toISOString(),
+    }));
 
     const { error } = await supabase.from("sales").upsert(payload, {
-      onConflict: "id",
+      onConflict: "sale_number",
     });
 
     if (error) {
@@ -263,10 +256,23 @@ export async function syncSaleToSupabase(sale: PosSaleRecord): Promise<SyncSumma
   }
 
   try {
-    const payload = toSupabaseSaleRows(sale);
+    const payload = [{
+      sale_number: sale.id,
+      items: sale.products.map((item) => ({
+        productId: item.productId,
+        productName: item.name,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+      total: Number(sale.total ?? 0),
+      payment_method: "cash",
+      status: "completed",
+      created_at: sale.createdAt || new Date().toISOString(),
+      synced_at: new Date().toISOString(),
+    }];
 
     const { error } = await supabase.from("sales").upsert(payload, {
-      onConflict: "id",
+      onConflict: "sale_number",
     });
 
     if (error) {

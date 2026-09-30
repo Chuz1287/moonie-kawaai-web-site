@@ -78,7 +78,34 @@ export default function SalesPage() {
   };
 
   async function handleDelete(id: string) {
+    const targetSale = sales.find((sale) => sale.id === id);
+
     try {
+      if (targetSale) {
+        const storedInventory = localStorage.getItem("moonie_kawaai_product_inventory");
+
+        if (storedInventory) {
+          try {
+            const catalog = JSON.parse(storedInventory) as Array<{ id?: string; name?: string; stock?: number }>;
+            const nextCatalog = catalog.map((product) => {
+              const sameName = product.name && targetSale.personaje && product.name === targetSale.personaje;
+              if (!sameName) {
+                return product;
+              }
+
+              return {
+                ...product,
+                stock: Math.max(0, Number(product.stock ?? 0) + Number(targetSale.cantidad ?? 0)),
+              };
+            });
+
+            localStorage.setItem("moonie_kawaai_product_inventory", JSON.stringify(nextCatalog));
+          } catch {
+            // ignore malformed local storage
+          }
+        }
+      }
+
       const response = await fetch(`/api/sales/${id}`, {
         method: "DELETE",
       });
@@ -189,9 +216,9 @@ export default function SalesPage() {
                       key={`${sale.id}-${sale.hora}`}
                       className="grid grid-cols-[1.4fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] border-t border-slate-800 px-4 py-3 text-sm text-slate-200"
                     >
-                      <span>{sale.personaje}</span>
-                      <span>{getEventName(sale.event_id)}</span>
-                      <span>{sale.cantidad}</span>
+                      <span>{sale.personaje ?? sale.items?.[0]?.productName ?? sale.items?.[0]?.name ?? "Venta"}</span>
+                      <span>{getEventName(sale.event_id ?? "default")}</span>
+                      <span>{sale.cantidad ?? sale.items?.[0]?.quantity ?? sale.items?.[0]?.cantidad ?? 0}</span>
                       <span>${Number(sale.total ?? 0).toFixed(2)}</span>
                       <span>${getSaleProfit(sale).toFixed(2)}</span>
                       <span className="flex gap-2">

@@ -14,6 +14,7 @@ import {
   updateCartItemQuantity,
 } from "@/services/pos";
 import { syncCatalogStockToSupabase, syncSaleToSupabase, upsertEventToSupabase } from "@/lib/supabase";
+import { persistCatalogStockToDexie } from "@/lib/db";
 import type { CartItem, Product } from "@/types/store";
 import CartPanel from "./CartPanel";
 import ProductGrid from "./ProductGrid";
@@ -121,13 +122,54 @@ export default function PosDashboard() {
   const totals = useMemo(() => calculateCartTotals(cart, productCatalog), [cart, productCatalog]);
   const hasCartItems = cart.length > 0;
 
-  const handleAddToCart = (product: { id: string; name: string }) => {
-    setCart((current) => addProductToCart(current, product.id, 1));
+  const handleAddToCart = (product: { id: string; name: string; stock?: number }) => {
+    const stockLimit = Math.max(0, Number(product.stock ?? 0));
+
+    setCart((current) => addProductToCart(current, product.id, 1, undefined, stockLimit));
+
+    if (stockLimit <= 0) {
+      setStatus(`${product.name} no tiene stock disponible`);
+      return;
+    }
+
     setStatus(`${product.name} agregado al carrito`);
   };
 
+  const handleAddStock = async (product: Product, quantity: number) => {
+    const amount = Math.max(1, Number(quantity) || 1);
+    const nextCatalog = productCatalog.map((entry) =>
+      entry.id === product.id
+        ? {
+            ...entry,
+            stock: Math.max(0, Number(entry.stock ?? 0) + amount),
+          }
+        : entry
+    );
+
+    setProductCatalog(nextCatalog);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("moonie_kawaai_product_inventory", JSON.stringify(nextCatalog));
+    }
+
+    try {
+      await persistCatalogStockToDexie(nextCatalog);
+      const syncResult = await syncCatalogStockToSupabase(nextCatalog);
+      setStatus(
+        syncResult.synced > 0
+          ? `Stock de ${product.name} actualizado +${amount}. ${syncResult.message}`
+          : `Stock de ${product.name} actualizado localmente +${amount}. ${syncResult.message}`
+      );
+    } catch {
+      setStatus(`Stock de ${product.name} actualizado localmente +${amount}.`);
+    }
+  };
+
   const handleChangeQuantity = (productId: string, quantity: number) => {
-    setCart((current) => updateCartItemQuantity(current, productId, quantity));
+    const product = productCatalog.find((entry) => entry.id === productId);
+    const stockLimit = product ? Math.max(0, Number(product.stock ?? 0)) : Number.POSITIVE_INFINITY;
+
+    setCart((current) => updateCartItemQuantity(current, productId, quantity, stockLimit));
   };
 
   const handleChangePrice = (productId: string, unitPrice: number) => {
@@ -149,6 +191,7 @@ export default function PosDashboard() {
 
     try {
       saveLocalSale(sale);
+      await persistCatalogStockToDexie(updatedCatalog);
       const syncResult = await syncSaleToSupabase(sale);
       const stockResult = await syncCatalogStockToSupabase(updatedCatalog);
 
@@ -327,7 +370,7 @@ export default function PosDashboard() {
                 {search.trim() ? `${filteredProducts.length} resultados` : "Vista rápida"}
               </span>
             </div>
-            <ProductGrid products={filteredProducts} onAdd={handleAddToCart} />
+            <ProductGrid products={filteredProducts} onAdd={handleAddToCart} onAddStock={handleAddStock} />
           </section>
 
           {hasCartItems && !isCartOpen && (
