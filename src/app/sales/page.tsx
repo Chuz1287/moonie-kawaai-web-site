@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { SaleRecord } from "@/services/sales";
-import { getSaleProfit, groupSalesByDay } from "@/services/sales";
+import { fetchSalesFromApi, getSaleProfit, groupSalesByDay } from "@/services/sales";
 
 type EventOption = {
   id: string;
@@ -21,24 +21,10 @@ export default function SalesPage() {
 
     async function loadSales() {
       try {
-        const storedEvents = localStorage.getItem("moonie_kawaai_sales_channels");
-        if (storedEvents) {
-          const parsed = JSON.parse(storedEvents) as string[];
-          if (!cancelled) {
-            setEvents(
-              parsed.map((name) => ({
-                id: name,
-                name,
-              }))
-            );
-          }
-        }
-
-        const response = await fetch("/api/sales");
-        const payload = (await response.json()) as { sales?: SaleRecord[] };
+        const salesFromApi = await fetchSalesFromApi();
 
         if (!cancelled) {
-          setSales(payload.sales ?? []);
+          setSales(salesFromApi);
         }
       } catch {
         if (!cancelled) {
@@ -82,28 +68,7 @@ export default function SalesPage() {
 
     try {
       if (targetSale) {
-        const storedInventory = localStorage.getItem("moonie_kawaai_product_inventory");
-
-        if (storedInventory) {
-          try {
-            const catalog = JSON.parse(storedInventory) as Array<{ id?: string; name?: string; stock?: number }>;
-            const nextCatalog = catalog.map((product) => {
-              const sameName = product.name && targetSale.personaje && product.name === targetSale.personaje;
-              if (!sameName) {
-                return product;
-              }
-
-              return {
-                ...product,
-                stock: Math.max(0, Number(product.stock ?? 0) + Number(targetSale.cantidad ?? 0)),
-              };
-            });
-
-            localStorage.setItem("moonie_kawaai_product_inventory", JSON.stringify(nextCatalog));
-          } catch {
-            // ignore malformed local storage
-          }
-        }
+        console.log("Venta a eliminar:", targetSale);
       }
 
       const response = await fetch(`/api/sales/${id}`, {

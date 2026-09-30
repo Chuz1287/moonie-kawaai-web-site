@@ -28,9 +28,19 @@ export type SaleRecord = {
   event_id?: string | null;
 };
 
+function toSafeDate(value: unknown): Date {
+  if (value === null || value === undefined || value === "") {
+    return new Date();
+  }
+
+  const parsed = new Date(value as string | number | Date);
+
+  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
 function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
   const rawItems = Array.isArray(row.items) ? row.items : [];
-  const timestamp = new Date(String(row.created_at ?? row.createdAt ?? Date.now()));
+  const timestamp = toSafeDate(row.created_at ?? row.createdAt ?? Date.now());
 
   if (rawItems.length > 0) {
     return rawItems.map((item, index) => {
@@ -42,13 +52,18 @@ function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
       const unitPrice = Number(
         itemRecord.unitPrice ?? itemRecord.precio_venta_unitario ?? 0
       );
+      const rawCost = Number(
+        itemRecord.costo_unitario ?? itemRecord.costo ?? itemRecord.cost ?? 0
+      );
+      const computedCost = rawCost > 0 ? rawCost : unitPrice > 0 ? unitPrice * 0.7 : 0;
       const productId = itemRecord.productId ?? itemRecord.product_id ?? null;
+      const computedTotal = Number(row.total ?? quantity * unitPrice);
 
       return {
         id: String(row.id ?? row.sale_number ?? `sale-${timestamp.getTime()}-${index + 1}`),
         sale_number: row.sale_number ? String(row.sale_number) : null,
         items: rawItems as SaleRecord["items"],
-        total: Number(row.total ?? quantity * unitPrice),
+        total: computedTotal,
         payment_method: typeof row.payment_method === "string" ? String(row.payment_method) : "cash",
         status: typeof row.status === "string" ? String(row.status) : "completed",
         created_at: timestamp.toISOString(),
@@ -56,8 +71,8 @@ function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
         personaje: productName,
         cantidad: quantity,
         precio_venta_unitario: unitPrice,
-        costo_unitario: 0,
-        ganancia: 0,
+        costo_unitario: computedCost,
+        ganancia: Number(row.ganancia ?? Math.max(0, computedTotal - computedCost * quantity)),
         fecha: timestamp.toISOString().slice(0, 10),
         hora: timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false }),
         productId: productId ? String(productId) : null,
@@ -67,31 +82,42 @@ function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
 
   const legacyPersonaje = typeof row.personaje === "string" ? row.personaje : "Venta";
   const legacyCantidad = Number(row.cantidad ?? 0);
+  const legacyPrice = Number(row.precio_venta_unitario ?? row.total ?? 0);
+  const rawCost = Number(row.costo_unitario ?? row.costo ?? row.cost ?? 0);
+  const fallbackCost = rawCost > 0 ? rawCost : legacyPrice > 0 ? legacyPrice * 0.7 : 0;
+  const total = Number(row.total ?? 0);
 
   return [{
     id: String(row.id ?? row.sale_number ?? `sale-${timestamp.getTime()}`),
     sale_number: row.sale_number ? String(row.sale_number) : null,
-    total: Number(row.total ?? 0),
+    total,
     payment_method: typeof row.payment_method === "string" ? String(row.payment_method) : "cash",
     status: typeof row.status === "string" ? String(row.status) : "completed",
     created_at: timestamp.toISOString(),
     synced_at: row.synced_at ? String(row.synced_at) : null,
     personaje: legacyPersonaje,
     cantidad: legacyCantidad,
-    precio_venta_unitario: Number(row.precio_venta_unitario ?? row.total ?? 0),
-    costo_unitario: 0,
-    ganancia: 0,
+    precio_venta_unitario: legacyPrice,
+    costo_unitario: fallbackCost,
+    ganancia: Number(row.ganancia ?? Math.max(0, total - fallbackCost * legacyCantidad)),
     fecha: timestamp.toISOString().slice(0, 10),
     hora: timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false }),
   }];
 }
 
 export function getSaleProfit(sale: SaleRecord): number {
-  const baseCost = Number(sale.costo_unitario ?? 0);
   const qty = Number(sale.cantidad ?? 0);
   const revenue = Number(sale.total ?? 0);
+  const baseCost = Number(
+    sale.costo_unitario ?? sale.precio_venta_unitario ?? 0
+  );
+  const fallbackCost = baseCost > 0 ? baseCost : revenue > 0 && qty > 0 ? revenue / qty * 0.7 : 0;
 
-  return Number(sale.ganancia ?? Math.max(0, revenue - baseCost * qty));
+  if (sale.ganancia !== undefined && sale.ganancia !== null && Number(sale.ganancia) >= 0) {
+    return Number(sale.ganancia);
+  }
+
+  return Number(Math.max(0, revenue - fallbackCost * qty));
 }
 
 export function groupSalesByDay(sales: SaleRecord[]) {
@@ -113,12 +139,38 @@ export function groupSalesByDay(sales: SaleRecord[]) {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
+export async function fetchSalesFromApi(): Promise<SaleRecord[]> {
+  try {
+    const response = await fetch("/api/sales");
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = (await response.json()) as { sales?: SaleRecord[] };
+    const sales = Array.isArray(payload.sales) ? payload.sales : [];
+
+    console.log("Ventas cargadas desde Supabase:", sales);
+    return sales;
+  } catch (error) {
+    console.error("Error al cargar ventas desde Supabase:", error);
+    return [];
+  }
+}
+
 export async function fetchSalesFromSupabase(): Promise<SaleRecord[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const anonKey =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  console.log("[sales service] supabase config", {
+    hasUrl: Boolean(url),
+    hasAnonKey: Boolean(anonKey),
+    url: url ? url.replace(/\?.*$/, "") : null,
+  });
+
   if (!url || !anonKey) {
+    console.error("[sales service] Missing Supabase env values");
     return [];
   }
 
@@ -135,18 +187,23 @@ export async function fetchSalesFromSupabase(): Promise<SaleRecord[]> {
     });
 
     if (error || !data) {
+      console.error("[sales service] Supabase query error:", error);
       return [];
     }
 
     const rows = data as Array<Record<string, unknown>>;
     const normalized = rows.flatMap((row) => normalizeSaleRow(row));
-
-    return normalized.sort((a, b) => {
+    const sorted = normalized.sort((a, b) => {
       const aDate = new Date(String(a.created_at ?? a.fecha ?? 0)).getTime();
       const bDate = new Date(String(b.created_at ?? b.fecha ?? 0)).getTime();
       return bDate - aDate;
     });
-  } catch {
+
+    console.log("[sales service] rows returned from Supabase:", sorted.length);
+    console.log("[sales service] first row sample:", sorted[0] ?? null);
+    return sorted;
+  } catch (error) {
+    console.error("[sales service] unexpected fetch error:", error);
     return [];
   }
 }
