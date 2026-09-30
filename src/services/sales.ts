@@ -240,46 +240,44 @@ export async function deleteSaleFromSupabase(id: string): Promise<boolean> {
       return false;
     }
 
-    const itemName = String(saleRecord.personaje ?? saleRecord.items?.[0]?.productName ?? saleRecord.items?.[0]?.name ?? "").trim();
-    const quantity = Number(saleRecord.cantidad ?? saleRecord.items?.[0]?.quantity ?? saleRecord.items?.[0]?.cantidad ?? 0);
+    const itemName = String(
+      saleRecord.personaje ?? saleRecord.items?.[0]?.productName ?? saleRecord.items?.[0]?.name ?? ""
+    ).trim();
+    const quantity = Number(
+      saleRecord.cantidad ?? saleRecord.items?.[0]?.quantity ?? saleRecord.items?.[0]?.cantidad ?? 0
+    );
     const productRefId =
       saleRecord.items?.[0]?.productId ?? saleRecord.items?.[0]?.product_id ?? saleRecord.productId ?? saleRecord.id ?? null;
 
-    const productEntries = Array.isArray(saleRecord.items) ? saleRecord.items : [];
-    const saleLines = productEntries.length > 0 ? productEntries : [{ name: itemName, quantity, productId: productRefId }];
+    const productTargetId = productRefId !== null && productRefId !== undefined ? Number(productRefId) : null;
 
-    for (const line of saleLines) {
-      const lineName = String(line.name ?? line.productName ?? itemName ?? "").trim();
-      const lineQuantity = Number(line.quantity ?? line.cantidad ?? quantity ?? 0);
-      const lineProductId = line.productId ?? line.product_id ?? productRefId ?? null;
+    const { error } = await client.from("sales").delete().eq("id", id);
 
-      if (lineQuantity <= 0) {
-        continue;
-      }
+    if (error) {
+      console.error("Delete sale error:", error);
+      return false;
+    }
 
-      const { data: products, error: catalogError } = await client.from("products").select("id, name, stock");
+    if (quantity > 0) {
+      const { data: products, error: catalogError } = await client
+        .from("products")
+        .select("id, personaje, stock");
 
       if (!catalogError && Array.isArray(products)) {
         const productMatch = products.find((product) => {
-          const candidateId = String(product.id ?? "").trim().toLowerCase();
-          const targetId = String(lineProductId ?? "").trim().toLowerCase();
-
-          if (targetId && candidateId && targetId === candidateId) {
-            return true;
-          }
-
-          const productName = String(product.name ?? "").trim().toLowerCase();
-          return lineName ? productName === lineName.toLowerCase() : false;
+          const candidateId = productTargetId !== null ? Number(product.id ?? 0) === productTargetId : false;
+          const productName = String(product.personaje ?? "").trim().toLowerCase();
+          return candidateId || (itemName ? productName === itemName.toLowerCase() : false);
         });
 
         if (productMatch) {
           const currentStock = Number(productMatch.stock ?? 0);
-          const nextStock = Math.max(0, currentStock + lineQuantity);
+          const nextStock = Math.max(0, currentStock + quantity);
 
           const { error: stockError } = await client
             .from("products")
             .update({ stock: nextStock })
-            .eq("id", productMatch.id);
+            .eq("id", Number(productMatch.id));
 
           if (stockError) {
             console.error("Restore stock error:", stockError);
@@ -288,14 +286,7 @@ export async function deleteSaleFromSupabase(id: string): Promise<boolean> {
       }
     }
 
-    const { data, error } = await client.from("sales").delete().eq("id", id).select();
-
-    if (error) {
-      console.error("Delete sale error:", error);
-      return false;
-    }
-
-    return Array.isArray(data) && data.length > 0;
+    return true;
   } catch (error) {
     console.error("Delete sale exception:", error);
     return false;

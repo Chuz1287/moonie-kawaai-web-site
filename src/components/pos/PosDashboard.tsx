@@ -4,17 +4,13 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   addProductToCart,
-  applyStockReduction,
   calculateCartTotals,
   createLocalSaleRecord,
-  readLocalSales,
   removeProductFromCart,
-  saveLocalSale,
   updateCartItemPrice,
   updateCartItemQuantity,
 } from "@/services/pos";
-import { syncCatalogStockToSupabase, syncSaleToSupabase, upsertEventToSupabase } from "@/lib/supabase";
-import { persistCatalogStockToDexie } from "@/lib/db";
+import { upsertEventToSupabase } from "@/lib/supabase";
 import type { CartItem, Product } from "@/types/store";
 import CartPanel from "./CartPanel";
 import ProductGrid from "./ProductGrid";
@@ -137,31 +133,34 @@ export default function PosDashboard() {
 
   const handleAddStock = async (product: Product, quantity: number) => {
     const amount = Math.max(1, Number(quantity) || 1);
-    const nextCatalog = productCatalog.map((entry) =>
-      entry.id === product.id
-        ? {
-            ...entry,
-            stock: Math.max(0, Number(entry.stock ?? 0) + amount),
-          }
-        : entry
-    );
-
-    setProductCatalog(nextCatalog);
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem("moonie_kawaai_product_inventory", JSON.stringify(nextCatalog));
-    }
 
     try {
-      await persistCatalogStockToDexie(nextCatalog);
-      const syncResult = await syncCatalogStockToSupabase(nextCatalog);
-      setStatus(
-        syncResult.synced > 0
-          ? `Stock de ${product.name} actualizado +${amount}. ${syncResult.message}`
-          : `Stock de ${product.name} actualizado localmente +${amount}. ${syncResult.message}`
+      const response = await fetch("/api/products/stock", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          delta: amount,
+          operation: "add",
+        }),
+      });
+
+      const payload = (await response.json()) as { ok?: boolean; product?: Product; message?: string };
+
+      if (!response.ok || !payload.product) {
+        throw new Error(payload.message ?? "No se pudo actualizar el stock");
+      }
+
+      setProductCatalog((current) =>
+        current.map((entry) => (entry.id === product.id ? payload.product! : entry))
       );
-    } catch {
-      setStatus(`Stock de ${product.name} actualizado localmente +${amount}.`);
+      setStatus(`Stock de ${product.name} actualizado +${amount}. ${payload.message ?? "Sincronizado en vivo."}`);
+      return;
+    } catch (error) {
+      console.error("Add stock API failed", error);
+      setStatus(`No se pudo actualizar el stock de ${product.name} desde la API.`);
     }
   };
 
@@ -187,31 +186,38 @@ export default function PosDashboard() {
     }
 
     const sale = createLocalSaleRecord(cart, productCatalog, selectedEvent || "default");
-    const updatedCatalog = applyStockReduction(cart, productCatalog);
 
     try {
-      saveLocalSale(sale);
-      await persistCatalogStockToDexie(updatedCatalog);
-      const syncResult = await syncSaleToSupabase(sale);
-      const stockResult = await syncCatalogStockToSupabase(updatedCatalog);
+      const response = await fetch("/api/sales", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventId: selectedEvent || "default",
+          cart,
+        }),
+      });
 
-      setProductCatalog(updatedCatalog);
+      const payload = (await response.json()) as {
+        ok?: boolean;
+        sale?: unknown;
+        products?: Product[];
+        message?: string;
+      };
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem("moonie_kawaai_product_inventory", JSON.stringify(updatedCatalog));
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.message ?? "No se pudo registrar la venta");
       }
 
-      const localSales = readLocalSales();
-      setStatus(
-        syncResult.synced > 0 && stockResult.synced > 0
-          ? `Venta registrada, stock actualizado y sincronizada (${localSales.length} locales, ${syncResult.synced} en Supabase)`
-          : `Venta guardada localmente (${localSales.length} registros). ${stockResult.message || syncResult.message}`
-      );
+      if (Array.isArray(payload.products)) {
+        setProductCatalog(payload.products);
+      }
+
+      setStatus(payload.message ?? "Venta registrada y stock actualizado en vivo.");
     } catch (error) {
-      saveLocalSale(sale);
-      setProductCatalog(updatedCatalog);
-      setStatus("Venta guardada localmente, pero no se pudo sincronizar con Supabase");
       console.error("Checkout sync failed", error);
+      setStatus("No se pudo registrar la venta en la API en vivo.");
     } finally {
       setCart([]);
       setIsCartOpen(false);

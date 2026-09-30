@@ -15,6 +15,8 @@ export default function SalesPage() {
   const [events, setEvents] = useState<EventOption[]>([]);
   const [selectedEvent, setSelectedEvent] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [deletingSaleIds, setDeletingSaleIds] = useState<string[]>([]);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -64,24 +66,28 @@ export default function SalesPage() {
   };
 
   async function handleDelete(id: string) {
-    const targetSale = sales.find((sale) => sale.id === id);
+    if (deletingSaleIds.includes(id)) {
+      return;
+    }
 
+    setDeleteError("");
+    setDeletingSaleIds((current) => [...current, id]);
     try {
-      if (targetSale) {
-        console.log("Venta a eliminar:", targetSale);
-      }
-
       const response = await fetch(`/api/sales/${id}`, {
         method: "DELETE",
       });
+      const payload = (await response.json()) as { message?: string };
 
       if (!response.ok) {
-        throw new Error("No se pudo eliminar la venta");
+        setDeleteError(payload.message ?? "No se pudo eliminar la venta.");
+        return;
       }
 
       setSales((current) => current.filter((sale) => sale.id !== id));
     } catch (error) {
-      console.error(error);
+      setDeleteError(error instanceof Error ? error.message : "No se pudo eliminar la venta.");
+    } finally {
+      setDeletingSaleIds((current) => current.filter((saleId) => saleId !== id));
     }
   }
 
@@ -124,6 +130,12 @@ export default function SalesPage() {
             <p className="mt-3 text-2xl font-black text-white">{filteredSales.length}</p>
           </div>
         </div>
+
+        {deleteError && (
+          <p role="alert" className="mb-6 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            {deleteError}
+          </p>
+        )}
 
         <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900 p-4">
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
@@ -196,9 +208,10 @@ export default function SalesPage() {
                         <button
                           type="button"
                           onClick={() => handleDelete(sale.id)}
+                          disabled={deletingSaleIds.includes(sale.id)}
                           className="rounded-md border border-rose-500/50 bg-rose-500/10 px-2 py-1 text-[10px] font-bold text-rose-200"
                         >
-                          Borrar
+                          {deletingSaleIds.includes(sale.id) ? "Borrando..." : "Borrar"}
                         </button>
                       </span>
                     </div>
