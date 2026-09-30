@@ -178,24 +178,28 @@ export async function fetchProductsFromSupabase(): Promise<Product[]> {
   }
 }
 
-export function getProducts(): Product[] {
-  return fallbackProducts;
+export async function getProducts(): Promise<Product[]> {
+  return fetchProductsFromSupabase();
 }
 
-export function getFeaturedProducts(): Product[] {
-  return fallbackProducts.filter((product) => product.featured);
+export async function getFeaturedProducts(): Promise<Product[]> {
+  const products = await getProducts();
+  return products.filter((product) => product.featured);
 }
 
-export function getProductBySlug(slug: string): Product | undefined {
-  return fallbackProducts.find((product) => product.slug === slug);
+export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  const products = await getProducts();
+  return products.find((product) => product.slug === slug);
 }
 
-export function getProductById(id: string): Product | undefined {
-  return fallbackProducts.find((product) => product.id === id);
+export async function getProductById(id: string): Promise<Product | undefined> {
+  const products = await getProducts();
+  return products.find((product) => product.id === id);
 }
 
-export function getCategories(): string[] {
-  return [...new Set(fallbackProducts.map((product) => product.category))];
+export async function getCategories(): Promise<string[]> {
+  const products = await getProducts();
+  return [...new Set(products.map((product) => product.category))];
 }
 
 export function updateStock(productId: string, quantity: number): Product | undefined {

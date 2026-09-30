@@ -1,8 +1,8 @@
 import ProductCard from "@/components/common/ProductCard";
 import { getProducts } from "@/services/catalog";
 
-export default function PLPPage() {
-  const products = getProducts();
+export default async function PLPPage() {
+  const products = await getProducts();
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
