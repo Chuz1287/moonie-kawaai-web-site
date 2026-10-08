@@ -30,6 +30,13 @@ type EventExpense = {
 
 const expenseCategories = ["Stand / piso", "Comida", "Sueldos", "Caseta", "Gasolina"];
 
+function normalizeSearchText(value: string): string {
+  return value
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-MX", {
     style: "currency",
@@ -152,14 +159,19 @@ export default function PosDashboard() {
       return productCatalog.slice(0, 6);
     }
 
-    const term = search.toLowerCase();
+    const term = normalizeSearchText(search.trim());
 
-    return productCatalog.filter((product) =>
-      [product.name, product.category, product.shortDescription]
-        .join(" ")
-        .toLowerCase()
-        .includes(term)
-    );
+    return productCatalog.filter((product) => {
+      const searchableText = normalizeSearchText([
+        product.name,
+        product.category,
+        product.description,
+        product.shortDescription,
+        ...product.tags,
+      ].join(" "));
+
+      return searchableText.includes(term);
+    });
   }, [productCatalog, search]);
 
   const inventorySummary = useMemo(() => {

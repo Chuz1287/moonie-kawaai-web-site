@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { SaleRecord } from "@/services/sales";
-import { fetchSalesFromApi, getSaleProfit, groupSalesByDay } from "@/services/sales";
+import { fetchSalesFromApi, getSaleProfit, groupSalesByEventOrDate } from "@/services/sales";
 
 type EventOption = {
   id: string;
@@ -62,7 +62,14 @@ export default function SalesPage() {
     });
   }, [sales, selectedEvent, selectedDate]);
 
-  const groupedSales = useMemo(() => groupSalesByDay(filteredSales), [filteredSales]);
+  const eventNames = useMemo(
+    () => new Map(events.map((event) => [event.id, event.name])),
+    [events]
+  );
+  const groupedSales = useMemo(
+    () => groupSalesByEventOrDate(filteredSales, eventNames),
+    [filteredSales, eventNames]
+  );
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0);
   const totalProfit = filteredSales.reduce((sum, sale) => sum + getSaleProfit(sale), 0);
   const getEventName = (eventId?: string | null) => {

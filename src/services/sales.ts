@@ -147,6 +147,40 @@ export function groupSalesByDay(sales: SaleRecord[]) {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
+export function groupSalesByEventOrDate(
+  sales: SaleRecord[],
+  eventNames: Map<string, string>
+) {
+  const groups = new Map<string, { label: string; sortDate: string; items: SaleRecord[] }>();
+
+  for (const sale of sales) {
+    const saleDate = sale.fecha || "Sin fecha";
+    const eventId = sale.event_id && sale.event_id !== "default" ? sale.event_id : "";
+    const eventName = eventId ? eventNames.get(eventId) : undefined;
+    const key = eventName && eventId ? `event:${eventId}` : `date:${saleDate}`;
+    const group = groups.get(key) ?? {
+      label: eventName || saleDate,
+      sortDate: saleDate,
+      items: [],
+    };
+
+    group.items.push(sale);
+    if (saleDate > group.sortDate) {
+      group.sortDate = saleDate;
+    }
+    groups.set(key, group);
+  }
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      date: group.label,
+      items: group.items,
+      total: group.items.reduce((sum, sale) => sum + Number(sale.total || 0), 0),
+      sortDate: group.sortDate,
+    }))
+    .sort((a, b) => b.sortDate.localeCompare(a.sortDate) || a.date.localeCompare(b.date));
+}
+
 export async function fetchSalesFromApi(): Promise<SaleRecord[]> {
   try {
     const response = await fetch("/api/sales");
