@@ -5,9 +5,10 @@ import type { CartItem } from "@/types/store";
 export async function POST(request: Request) {
   const body = (await request.json()) as { cart?: CartItem[] };
   const cart = body.cart ?? [];
+  const summary = await calculateCartSummary(cart);
 
   return NextResponse.json({
-    summary: calculateCartSummary(cart),
+    summary,
     cart,
   });
 }

@@ -208,8 +208,8 @@ export async function getCategories(): Promise<string[]> {
   return [...new Set(products.map((product) => product.category))];
 }
 
-export function updateStock(productId: string, quantity: number): Product | undefined {
-  const product = getProductById(productId);
+export async function updateStock(productId: string, quantity: number): Promise<Product | undefined> {
+  const product = await getProductById(productId);
 
   if (!product) {
     return undefined;
