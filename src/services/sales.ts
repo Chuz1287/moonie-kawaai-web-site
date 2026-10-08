@@ -41,6 +41,12 @@ function toSafeDate(value: unknown): Date {
 function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
   const rawItems = Array.isArray(row.items) ? row.items : [];
   const timestamp = toSafeDate(row.created_at ?? row.createdAt ?? Date.now());
+  const saleDate = typeof row.fecha === "string" && row.fecha.trim()
+    ? row.fecha.trim().slice(0, 10)
+    : timestamp.toISOString().slice(0, 10);
+  const saleTime = typeof row.hora === "string" && row.hora.trim()
+    ? row.hora.trim()
+    : timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false });
 
   if (rawItems.length > 0) {
     return rawItems.map((item, index) => {
@@ -73,9 +79,10 @@ function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
         precio_venta_unitario: unitPrice,
         costo_unitario: computedCost,
         ganancia: Number(row.ganancia ?? Math.max(0, computedTotal - computedCost * quantity)),
-        fecha: timestamp.toISOString().slice(0, 10),
-        hora: timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false }),
+        fecha: saleDate,
+        hora: saleTime,
         productId: productId ? String(productId) : null,
+        event_id: row.event_id ? String(row.event_id) : "default",
       };
     });
   }
@@ -100,8 +107,9 @@ function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
     precio_venta_unitario: legacyPrice,
     costo_unitario: fallbackCost,
     ganancia: Number(row.ganancia ?? Math.max(0, total - fallbackCost * legacyCantidad)),
-    fecha: timestamp.toISOString().slice(0, 10),
-    hora: timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false }),
+    fecha: saleDate,
+    hora: saleTime,
+    event_id: row.event_id ? String(row.event_id) : "default",
   }];
 }
 
@@ -194,6 +202,11 @@ export async function fetchSalesFromSupabase(): Promise<SaleRecord[]> {
     const rows = data as Array<Record<string, unknown>>;
     const normalized = rows.flatMap((row) => normalizeSaleRow(row));
     const sorted = normalized.sort((a, b) => {
+      const dateOrder = String(b.fecha ?? "").localeCompare(String(a.fecha ?? ""));
+      if (dateOrder !== 0) {
+        return dateOrder;
+      }
+
       const aDate = new Date(String(a.created_at ?? a.fecha ?? 0)).getTime();
       const bDate = new Date(String(b.created_at ?? b.fecha ?? 0)).getTime();
       return bDate - aDate;

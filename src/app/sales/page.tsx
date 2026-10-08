@@ -14,6 +14,7 @@ export default function SalesPage() {
   const [sales, setSales] = useState<SaleRecord[]>([]);
   const [events, setEvents] = useState<EventOption[]>([]);
   const [selectedEvent, setSelectedEvent] = useState("all");
+  const [selectedDate, setSelectedDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [deletingSaleIds, setDeletingSaleIds] = useState<string[]>([]);
   const [deleteError, setDeleteError] = useState("");
@@ -23,10 +24,17 @@ export default function SalesPage() {
 
     async function loadSales() {
       try {
-        const salesFromApi = await fetchSalesFromApi();
+        const [salesFromApi, eventsResponse] = await Promise.all([
+          fetchSalesFromApi(),
+          fetch("/api/events"),
+        ]);
+        const eventsPayload = (await eventsResponse.json()) as {
+          events?: EventOption[];
+        };
 
         if (!cancelled) {
           setSales(salesFromApi);
+          setEvents(eventsResponse.ok && Array.isArray(eventsPayload.events) ? eventsPayload.events : []);
         }
       } catch {
         if (!cancelled) {
@@ -47,12 +55,12 @@ export default function SalesPage() {
   }, []);
 
   const filteredSales = useMemo(() => {
-    if (selectedEvent === "all") {
-      return sales;
-    }
-
-    return sales.filter((sale) => (sale.event_id ?? "default") === selectedEvent);
-  }, [sales, selectedEvent]);
+    return sales.filter((sale) => {
+      const matchesEvent = selectedEvent === "all" || (sale.event_id ?? "default") === selectedEvent;
+      const matchesDate = !selectedDate || sale.fecha === selectedDate;
+      return matchesEvent && matchesDate;
+    });
+  }, [sales, selectedEvent, selectedDate]);
 
   const groupedSales = useMemo(() => groupSalesByDay(filteredSales), [filteredSales]);
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0);
@@ -138,22 +146,31 @@ export default function SalesPage() {
         )}
 
         <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-            Filtrar por evento
-          </label>
-          <select
-            value={selectedEvent}
-            onChange={(event) => setSelectedEvent(event.target.value)}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-violet-500 focus:outline-none"
-          >
-            <option value="all">Todos los eventos</option>
-            <option value="default">Default</option>
-            {events.map((event) => (
-              <option key={event.id} value={event.id}>
-                {event.name}
-              </option>
-            ))}
-          </select>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+              Filtrar por evento
+              <select
+                value={selectedEvent}
+                onChange={(event) => setSelectedEvent(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-normal normal-case tracking-normal text-white focus:border-violet-500 focus:outline-none"
+              >
+                <option value="all">Todos los eventos</option>
+                <option value="default">Default</option>
+                {events.map((event) => (
+                  <option key={event.id} value={event.id}>{event.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+              Filtrar por fecha
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(event) => setSelectedDate(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-normal normal-case tracking-normal text-white focus:border-violet-500 focus:outline-none"
+              />
+            </label>
+          </div>
         </div>
 
         {loading ? (
