@@ -58,14 +58,25 @@ export function usePosModule() {
 
   const addToCart = useCallback((product: Product) => {
     setCart((current) => {
+      const maxAllowed = Math.max(0, Number(product.stock ?? 0));
       const existing = current.find((item) => item.productId === product.id);
 
       if (existing) {
+        const nextQuantity = Math.min(existing.quantity + 1, maxAllowed);
+
+        if (nextQuantity <= 0) {
+          return current;
+        }
+
         return current.map((item) =>
           item.productId === product.id
-            ? { ...item, quantity: Math.min(item.quantity + 1, product.stock) }
+            ? { ...item, quantity: nextQuantity }
             : item
         );
+      }
+
+      if (maxAllowed <= 0) {
+        return current;
       }
 
       return [
@@ -91,21 +102,24 @@ export function usePosModule() {
         return;
       }
 
+      const product = products.find((entry) => entry.id === productId);
+      const maxAllowed = product ? Math.max(0, Number(product.stock ?? 0)) : Number.POSITIVE_INFINITY;
+
       setCart((current) =>
         current.map((item) =>
-          item.productId === productId ? { ...item, quantity } : item
+          item.productId === productId ? { ...item, quantity: Math.min(quantity, maxAllowed) } : item
         )
       );
     },
-    [removeFromCart]
+    [products, removeFromCart]
   );
 
   const subtotal = useMemo(() => {
     return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }, [cart]);
 
-  const tax = subtotal * 0.15;
-  const total = subtotal + tax;
+  const tax = 0;
+  const total = subtotal;
 
   const saveSale = useCallback(async () => {
     if (cart.length === 0) {

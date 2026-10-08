@@ -26,6 +26,48 @@ export type SyncSummary = {
   message: string;
 };
 
+export type CatalogProductStockUpdate = {
+  id: string;
+  stock: number;
+};
+
+export type EventRow = {
+  id: string;
+  name: string;
+  created_at?: string | null;
+};
+
+export async function upsertEventToSupabase(name: string): Promise<EventRow | null> {
+  const normalized = name.trim();
+
+  if (!supabase || !normalized) {
+    return null;
+  }
+
+  try {
+    const payload = {
+      id: normalized,
+      name: normalized,
+      created_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from("events")
+      .upsert(payload, { onConflict: "id" })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data as EventRow;
+  } catch (error) {
+    console.error("Error creating event in Supabase", error);
+    return null;
+  }
+}
+
 export async function syncProductsToSupabase(
   products: Product[]
 ): Promise<SyncSummary> {
@@ -64,34 +106,96 @@ export async function syncProductsToSupabase(
   }
 }
 
-function toSupabaseSaleRows(sale: Sale | PosSaleRecord): Array<Record<string, string | number | null>> {
-  const timestamp = new Date(
-    "createdAt" in sale ? sale.createdAt : new Date().toISOString()
-  );
+export async function syncCatalogStockToSupabase(
+  products: Array<{ id: string; stock: number }>
+): Promise<SyncSummary> {
+  if (!supabase) {
+    return {
+      synced: 0,
+      message: "Supabase is not configured. El stock quedó localmente actualizado.",
+    };
+  }
 
-  const items = "items" in sale ? sale.items : sale.products;
+  try {
+    const payload = products.map((product) => ({
+      id: String(product.id),
+      stock: Number(product.stock ?? 0),
+    }));
 
-  return items.map((item, index) => {
-    const unitPrice = Number("unitPrice" in item ? item.unitPrice : item.precio_venta_unitario ?? 0);
-    const quantity = Number("quantity" in item ? item.quantity : item.cantidad ?? 0);
-    const total = unitPrice * quantity;
+    const { error } = await supabase.from("products").upsert(payload, {
+      onConflict: "id",
+    });
+
+    if (error) {
+      throw error;
+    }
 
     return {
-      id: `${("saleNumber" in sale ? sale.saleNumber : sale.id)}-${index + 1}`,
-      personaje: String("productName" in item ? item.productName : item.name ?? "Venta"),
-      serie: "default",
-      tipo: "venta",
-      cantidad: quantity,
-      precio_venta_unitario: unitPrice,
-      costo_unitario: 0,
-      total,
-      ganancia: 0,
-      fecha: timestamp.toISOString().slice(0, 10),
-      hora: timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false }),
-      event_id: "eventId" in sale ? sale.eventId || "default" : "default",
-      created_at: timestamp.toISOString(),
+      synced: payload.length,
+      message: "Stock actualizado en Supabase.",
     };
-  });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error while syncing stock.";
+
+    return {
+      synced: 0,
+      message,
+    };
+  }
+}
+
+type SupabaseSaleRowItem = {
+  productId?: string | number;
+  product_id?: string | number;
+  name?: string;
+  productName?: string;
+  quantity?: number;
+  unitPrice?: number;
+  cantidad?: number;
+  precio_venta_unitario?: number;
+};
+
+type SupabaseSaleLike = {
+  id?: string;
+  saleNumber?: string;
+  createdAt?: string;
+  eventId?: string;
+  items?: SupabaseSaleRowItem[];
+  products?: SupabaseSaleRowItem[];
+};
+
+function toSupabaseSaleRows(sale: Sale | PosSaleRecord | SupabaseSaleLike): Array<Record<string, string | number | null | object[]>> {
+  const timestamp = new Date(
+    "createdAt" in sale ? sale.createdAt ?? new Date().toISOString() : new Date().toISOString()
+  );
+
+  const items = Array.isArray((sale as SupabaseSaleLike).items)
+    ? (sale as SupabaseSaleLike).items ?? []
+    : Array.isArray((sale as SupabaseSaleLike).products)
+      ? (sale as SupabaseSaleLike).products ?? []
+      : [];
+
+  const normalizedItems = items.map((item) => ({
+    productId: item.productId ?? item.product_id ?? null,
+    productName: item.productName ?? item.name ?? "Venta",
+    quantity: Number(item.quantity ?? item.cantidad ?? 0),
+    unitPrice: Number(item.unitPrice ?? item.precio_venta_unitario ?? 0),
+  }));
+
+  const rawSaleId = "saleNumber" in sale ? sale.saleNumber ?? sale.id : sale.id ?? "sale-unknown";
+  const saleId = typeof rawSaleId === "string" && rawSaleId.trim() ? rawSaleId : "sale-unknown";
+  const total = "total" in sale ? Number(sale.total ?? 0) : normalizedItems.reduce((sum, item) => sum + Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0), 0);
+
+  return [{
+    sale_number: saleId,
+    items: normalizedItems,
+    total,
+    payment_method: "paymentMethod" in sale && sale.paymentMethod ? sale.paymentMethod : "cash",
+    status: "status" in sale && sale.status ? sale.status : "completed",
+    created_at: timestamp.toISOString(),
+    synced_at: new Date().toISOString(),
+  }];
 }
 
 export async function syncSalesToSupabase(
@@ -105,10 +209,23 @@ export async function syncSalesToSupabase(
   }
 
   try {
-    const payload = sales.flatMap((sale) => toSupabaseSaleRows(sale));
+    const payload = sales.map((sale) => ({
+      sale_number: sale.saleNumber || `sale-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      items: sale.items.map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+      total: Number(sale.total ?? 0),
+      payment_method: sale.paymentMethod || "cash",
+      status: sale.status || "completed",
+      created_at: sale.createdAt || new Date().toISOString(),
+      synced_at: new Date().toISOString(),
+    }));
 
     const { error } = await supabase.from("sales").upsert(payload, {
-      onConflict: "id",
+      onConflict: "sale_number",
     });
 
     if (error) {
@@ -139,10 +256,23 @@ export async function syncSaleToSupabase(sale: PosSaleRecord): Promise<SyncSumma
   }
 
   try {
-    const payload = toSupabaseSaleRows(sale);
+    const payload = [{
+      sale_number: sale.id,
+      items: sale.products.map((item) => ({
+        productId: item.productId,
+        productName: item.name,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+      total: Number(sale.total ?? 0),
+      payment_method: "cash",
+      status: "completed",
+      created_at: sale.createdAt || new Date().toISOString(),
+      synced_at: new Date().toISOString(),
+    }];
 
     const { error } = await supabase.from("sales").upsert(payload, {
-      onConflict: "id",
+      onConflict: "sale_number",
     });
 
     if (error) {

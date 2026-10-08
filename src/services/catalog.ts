@@ -121,8 +121,9 @@ function toSlug(value: string): string {
 }
 
 function mapSupabaseProduct(row: Record<string, unknown>): Product {
-  const name = String(row.personaje ?? row.name ?? "Producto sin nombre");
-  const category = String(row.tipo ?? row.category ?? "General");
+  const name = String(row.personaje ?? row.character ?? row.name ?? "Producto sin nombre");
+  const category = String(row.tipo ?? row.category ?? row.categoria ?? "General");
+  const anime = row.anime ?? row.serie ?? row.series;
   const price = Number(row.precio ?? row.price ?? 0);
   const stock = Number(row.stock ?? 0);
   const rawCost = Number(row.costo ?? row.cost ?? 0);
@@ -134,7 +135,10 @@ function mapSupabaseProduct(row: Record<string, unknown>): Product {
     id: String(row.id ?? slug),
     slug,
     name,
-    description: `${category} ${row.serie ? `- ${String(row.serie)}` : ""}`.trim(),
+    description: [category, anime, row.personaje, row.character, row.characters]
+      .filter(Boolean)
+      .map(String)
+      .join(" "),
     shortDescription: [row.caja ? String(row.caja) : null, row.marca ? String(row.marca) : null]
       .filter(Boolean)
       .join(" • ") || "Artículo disponible",
@@ -146,7 +150,9 @@ function mapSupabaseProduct(row: Record<string, unknown>): Product {
     category,
     image: String(row.image ?? defaultImage),
     gallery: [String(row.image ?? defaultImage), defaultImage],
-    tags: [row.serie, row.tipo, row.marca].filter(Boolean).map(String),
+    tags: [anime, row.personaje, row.character, row.characters, row.tipo, row.categoria, row.marca]
+      .filter(Boolean)
+      .map(String),
   };
 }
 
@@ -178,28 +184,32 @@ export async function fetchProductsFromSupabase(): Promise<Product[]> {
   }
 }
 
-export function getProducts(): Product[] {
-  return fallbackProducts;
+export async function getProducts(): Promise<Product[]> {
+  return fetchProductsFromSupabase();
 }
 
-export function getFeaturedProducts(): Product[] {
-  return fallbackProducts.filter((product) => product.featured);
+export async function getFeaturedProducts(): Promise<Product[]> {
+  const products = await getProducts();
+  return products.filter((product) => product.featured);
 }
 
-export function getProductBySlug(slug: string): Product | undefined {
-  return fallbackProducts.find((product) => product.slug === slug);
+export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  const products = await getProducts();
+  return products.find((product) => product.slug === slug);
 }
 
-export function getProductById(id: string): Product | undefined {
-  return fallbackProducts.find((product) => product.id === id);
+export async function getProductById(id: string): Promise<Product | undefined> {
+  const products = await getProducts();
+  return products.find((product) => product.id === id);
 }
 
-export function getCategories(): string[] {
-  return [...new Set(fallbackProducts.map((product) => product.category))];
+export async function getCategories(): Promise<string[]> {
+  const products = await getProducts();
+  return [...new Set(products.map((product) => product.category))];
 }
 
-export function updateStock(productId: string, quantity: number): Product | undefined {
-  const product = getProductById(productId);
+export async function updateStock(productId: string, quantity: number): Promise<Product | undefined> {
+  const product = await getProductById(productId);
 
   if (!product) {
     return undefined;

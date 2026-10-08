@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { deleteSaleFromSupabase } from "@/services/sales";
 
 export async function DELETE(
   _request: Request,
@@ -6,10 +7,23 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
+  const deleted = await deleteSaleFromSupabase(id);
+
+  if (!deleted) {
+    return NextResponse.json(
+      {
+        ok: false,
+        id,
+        message: "La venta no existe o no se pudo eliminar en Supabase",
+      },
+      { status: 404 }
+    );
+  }
+
   return NextResponse.json({
     ok: true,
     id,
-    message: "Venta eliminada localmente",
+    message: "Venta eliminada correctamente",
   });
 }
 

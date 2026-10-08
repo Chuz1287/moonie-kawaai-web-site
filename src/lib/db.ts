@@ -103,3 +103,49 @@ export async function seedProducts(): Promise<void> {
     },
   ]);
 }
+
+export async function persistCatalogStockToDexie(
+  catalog: Array<{ id?: string | number; name?: string; code?: string; stock: number }>
+): Promise<void> {
+  if (!Array.isArray(catalog) || catalog.length === 0) {
+    return;
+  }
+
+  const now = new Date().toISOString();
+
+  for (const product of catalog) {
+    const nextStock = Number(product.stock ?? 0);
+    const lookupName = String(product.name ?? "").trim();
+    const lookupCode = String(product.code ?? "").trim();
+
+    if (!lookupName && !lookupCode && product.id === undefined) {
+      continue;
+    }
+
+    let existing: Product | undefined;
+
+    if (lookupCode) {
+      existing = await db.products.where("code").equals(lookupCode).first();
+    }
+
+    if (!existing && lookupName) {
+      existing = await db.products.where("name").equals(lookupName).first();
+    }
+
+    if (!existing && product.id !== undefined) {
+      const productId = Number(product.id);
+      if (Number.isFinite(productId) && productId > 0) {
+        existing = await db.products.get(productId);
+      }
+    }
+
+    if (!existing) {
+      continue;
+    }
+
+    await db.products.update(existing.id!, {
+      stock: Math.max(0, nextStock),
+      updatedAt: now,
+    });
+  }
+}

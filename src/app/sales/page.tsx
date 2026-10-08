@@ -3,22 +3,38 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { SaleRecord } from "@/services/sales";
-import { getSaleProfit, groupSalesByDay } from "@/services/sales";
+import { fetchSalesFromApi, getSaleProfit, groupSalesByEventOrDate } from "@/services/sales";
+
+type EventOption = {
+  id: string;
+  name: string;
+};
 
 export default function SalesPage() {
   const [sales, setSales] = useState<SaleRecord[]>([]);
+  const [events, setEvents] = useState<EventOption[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState("all");
+  const [selectedDate, setSelectedDate] = useState("");
   const [loading, setLoading] = useState(true);
+  const [deletingSaleIds, setDeletingSaleIds] = useState<string[]>([]);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadSales() {
       try {
-        const response = await fetch("/api/sales");
-        const payload = (await response.json()) as { sales?: SaleRecord[] };
+        const [salesFromApi, eventsResponse] = await Promise.all([
+          fetchSalesFromApi(),
+          fetch("/api/events"),
+        ]);
+        const eventsPayload = (await eventsResponse.json()) as {
+          events?: EventOption[];
+        };
 
         if (!cancelled) {
-          setSales(payload.sales ?? []);
+          setSales(salesFromApi);
+          setEvents(eventsResponse.ok && Array.isArray(eventsPayload.events) ? eventsPayload.events : []);
         }
       } catch {
         if (!cancelled) {
@@ -38,12 +54,56 @@ export default function SalesPage() {
     };
   }, []);
 
-  const groupedSales = useMemo(() => groupSalesByDay(sales), [sales]);
-  const totalRevenue = sales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0);
-  const totalProfit = sales.reduce((sum, sale) => sum + getSaleProfit(sale), 0);
+  const filteredSales = useMemo(() => {
+    return sales.filter((sale) => {
+      const matchesEvent = selectedEvent === "all" || (sale.event_id ?? "default") === selectedEvent;
+      const matchesDate = !selectedDate || sale.fecha === selectedDate;
+      return matchesEvent && matchesDate;
+    });
+  }, [sales, selectedEvent, selectedDate]);
 
-  function handleDelete(id: string) {
-    setSales((current) => current.filter((sale) => sale.id !== id));
+  const eventNames = useMemo(
+    () => new Map(events.map((event) => [event.id, event.name])),
+    [events]
+  );
+  const groupedSales = useMemo(
+    () => groupSalesByEventOrDate(filteredSales, eventNames),
+    [filteredSales, eventNames]
+  );
+  const totalRevenue = filteredSales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0);
+  const totalProfit = filteredSales.reduce((sum, sale) => sum + getSaleProfit(sale), 0);
+  const getEventName = (eventId?: string | null) => {
+    if (!eventId || eventId === "default") {
+      return "Default";
+    }
+
+    return events.find((event) => event.id === eventId)?.name ?? eventId;
+  };
+
+  async function handleDelete(id: string) {
+    if (deletingSaleIds.includes(id)) {
+      return;
+    }
+
+    setDeleteError("");
+    setDeletingSaleIds((current) => [...current, id]);
+    try {
+      const response = await fetch(`/api/sales/${id}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json()) as { message?: string };
+
+      if (!response.ok) {
+        setDeleteError(payload.message ?? "No se pudo eliminar la venta.");
+        return;
+      }
+
+      setSales((current) => current.filter((sale) => sale.id !== id));
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : "No se pudo eliminar la venta.");
+    } finally {
+      setDeletingSaleIds((current) => current.filter((saleId) => saleId !== id));
+    }
   }
 
   return (
@@ -82,7 +142,41 @@ export default function SalesPage() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
               Registros
             </p>
-            <p className="mt-3 text-2xl font-black text-white">{sales.length}</p>
+            <p className="mt-3 text-2xl font-black text-white">{filteredSales.length}</p>
+          </div>
+        </div>
+
+        {deleteError && (
+          <p role="alert" className="mb-6 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            {deleteError}
+          </p>
+        )}
+
+        <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+              Filtrar por evento
+              <select
+                value={selectedEvent}
+                onChange={(event) => setSelectedEvent(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-normal normal-case tracking-normal text-white focus:border-violet-500 focus:outline-none"
+              >
+                <option value="all">Todos los eventos</option>
+                <option value="default">Default</option>
+                {events.map((event) => (
+                  <option key={event.id} value={event.id}>{event.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+              Filtrar por fecha
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(event) => setSelectedDate(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-normal normal-case tracking-normal text-white focus:border-violet-500 focus:outline-none"
+              />
+            </label>
           </div>
         </div>
 
@@ -111,7 +205,7 @@ export default function SalesPage() {
                 <div className="overflow-hidden rounded-2xl border border-slate-800">
                   <div className="grid grid-cols-[1.4fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] bg-slate-800 px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
                     <span>Producto</span>
-                    <span>Serie</span>
+                    <span>Evento</span>
                     <span>Cant.</span>
                     <span>Total</span>
                     <span>Gan.</span>
@@ -123,9 +217,9 @@ export default function SalesPage() {
                       key={`${sale.id}-${sale.hora}`}
                       className="grid grid-cols-[1.4fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] border-t border-slate-800 px-4 py-3 text-sm text-slate-200"
                     >
-                      <span>{sale.personaje}</span>
-                      <span>{sale.serie}</span>
-                      <span>{sale.cantidad}</span>
+                      <span>{sale.personaje ?? sale.items?.[0]?.productName ?? sale.items?.[0]?.name ?? "Venta"}</span>
+                      <span>{getEventName(sale.event_id ?? "default")}</span>
+                      <span>{sale.cantidad ?? sale.items?.[0]?.quantity ?? sale.items?.[0]?.cantidad ?? 0}</span>
                       <span>${Number(sale.total ?? 0).toFixed(2)}</span>
                       <span>${getSaleProfit(sale).toFixed(2)}</span>
                       <span className="flex gap-2">
@@ -138,9 +232,10 @@ export default function SalesPage() {
                         <button
                           type="button"
                           onClick={() => handleDelete(sale.id)}
+                          disabled={deletingSaleIds.includes(sale.id)}
                           className="rounded-md border border-rose-500/50 bg-rose-500/10 px-2 py-1 text-[10px] font-bold text-rose-200"
                         >
-                          Borrar
+                          {deletingSaleIds.includes(sale.id) ? "Borrando..." : "Borrar"}
                         </button>
                       </span>
                     </div>

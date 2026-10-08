@@ -2,9 +2,9 @@ import Link from "next/link";
 import ProductCard from "@/components/common/ProductCard";
 import { getFeaturedProducts, getProducts } from "@/services/catalog";
 
-export default function HomePage() {
-  const featured = getFeaturedProducts();
-  const featuredList = getProducts();
+export default async function HomePage() {
+  const featured = await getFeaturedProducts();
+  const featuredList = await getProducts();
 
   return (
     <main className="bg-zinc-50 text-zinc-900">

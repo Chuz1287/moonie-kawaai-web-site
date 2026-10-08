@@ -14,11 +14,55 @@ create table if not exists public.sales (
   sale_number text not null unique,
   items jsonb not null default '[]'::jsonb,
   total numeric(12,2) not null default 0,
+  event_id text not null default 'default',
   payment_method text not null check (payment_method in ('cash', 'card', 'transfer')),
   status text not null default 'pending' check (status in ('pending', 'completed', 'synced')),
   created_at timestamptz not null default now(),
   synced_at timestamptz
 );
+
+create table if not exists public.events (
+  id text primary key,
+  name text not null unique,
+  location text not null default '',
+  created_at timestamptz not null default now()
+);
+
+alter table public.events
+  add column if not exists location text not null default '';
+
+create table if not exists public.event_expenses (
+  id uuid primary key default gen_random_uuid(),
+  event_id text not null references public.events (id) on delete cascade,
+  category text not null,
+  description text not null,
+  amount numeric(12,2) not null check (amount > 0),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_event_expenses_event_created
+  on public.event_expenses (event_id, created_at desc);
+
+grant select, insert, update, delete on public.events to anon, authenticated;
+grant select, insert, update, delete on public.event_expenses to anon, authenticated;
+
+alter table public.events enable row level security;
+alter table public.event_expenses enable row level security;
+
+drop policy if exists "Public can manage events" on public.events;
+create policy "Public can manage events" on public.events
+  for all to anon, authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "Public can manage event expenses" on public.event_expenses;
+create policy "Public can manage event expenses" on public.event_expenses
+  for all to anon, authenticated
+  using (true)
+  with check (true);
+
+alter table public.sales
+  add column if not exists event_id text not null default 'default';
 
 create index if not exists idx_products_category on public.products (category);
 create index if not exists idx_products_name on public.products (name);

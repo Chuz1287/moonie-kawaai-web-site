@@ -1,9 +1,10 @@
-import { getProductById } from "@/services/catalog";
+import { getProducts } from "@/services/catalog";
 import type { CartItem, CartSummary } from "@/types/store";
 
-export function calculateCartSummary(cart: CartItem[]): CartSummary {
+export async function calculateCartSummary(cart: CartItem[]): Promise<CartSummary> {
+  const products = await getProducts();
   const subtotal = cart.reduce((sum, item) => {
-    const product = getProductById(item.productId);
+    const product = products.find((entry) => entry.id === item.productId);
 
     if (!product) {
       return sum;

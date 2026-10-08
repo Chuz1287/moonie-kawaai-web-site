@@ -1,12 +1,12 @@
 import { calculateCartSummary } from "@/services/cart";
 
-export default function CartPage() {
+export default async function CartPage() {
   const cart = [
     { productId: "prod-001", quantity: 2 },
     { productId: "prod-004", quantity: 1 },
   ];
 
-  const summary = calculateCartSummary(cart);
+  const summary = await calculateCartSummary(cart);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">

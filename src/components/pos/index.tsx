@@ -124,10 +124,6 @@ export default function PosModule() {
               <span>Subtotal</span>
               <strong>${subtotal.toFixed(2)}</strong>
             </div>
-            <div>
-              <span>Tax</span>
-              <strong>${tax.toFixed(2)}</strong>
-            </div>
             <div className={styles.totalRow}>
               <span>Total</span>
               <strong>${total.toFixed(2)}</strong>
