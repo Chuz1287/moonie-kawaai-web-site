@@ -449,12 +449,6 @@ export default function PosDashboard() {
               >
                 Ventas
               </Link>
-              <button
-                type="button"
-                className="rounded-full bg-violet-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-violet-500"
-              >
-                Sincronizar
-              </button>
             </div>
           </div>
 

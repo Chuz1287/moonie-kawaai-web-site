@@ -1,6 +1,6 @@
 {
   "name": "moonie-kawaai-web-site",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
-    "dexie": "^4.4.6",
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
