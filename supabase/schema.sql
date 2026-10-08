@@ -64,6 +64,9 @@ create policy "Public can manage event expenses" on public.event_expenses
 alter table public.sales
   add column if not exists event_id text not null default 'default';
 
+alter table public.sales
+  add column if not exists items jsonb not null default '[]'::jsonb;
+
 create index if not exists idx_products_category on public.products (category);
 create index if not exists idx_products_name on public.products (name);
 create index if not exists idx_sales_status on public.sales (status);
