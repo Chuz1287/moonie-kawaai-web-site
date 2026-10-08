@@ -25,11 +25,15 @@ create table if not exists public.events (
   id text primary key,
   name text not null unique,
   location text not null default '',
+  is_active boolean not null default true,
   created_at timestamptz not null default now()
 );
 
 alter table public.events
   add column if not exists location text not null default '';
+
+alter table public.events
+  add column if not exists is_active boolean not null default true;
 
 create table if not exists public.event_expenses (
   id uuid primary key default gen_random_uuid(),

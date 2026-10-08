@@ -7,6 +7,7 @@ type EventRecord = {
   id: string;
   name: string;
   location?: string | null;
+  is_active: boolean;
 };
 
 type ExpenseRecord = {
@@ -39,6 +40,7 @@ export default function EventsPage() {
   const [status, setStatus] = useState("");
   const [isSavingEvent, setIsSavingEvent] = useState(false);
   const [isSavingExpense, setIsSavingExpense] = useState(false);
+  const [updatingEvent, setUpdatingEvent] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -148,6 +150,78 @@ export default function EventsPage() {
     }
   }
 
+  async function handleToggleEventStatus() {
+    if (!selectedEvent || updatingEvent) return;
+
+    const nextIsActive = !selectedEvent.is_active;
+    setUpdatingEvent(true);
+    setStatus("");
+
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(selectedEvent.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: nextIsActive }),
+      });
+      const payload = (await response.json()) as { event?: EventRecord; message?: string };
+
+      if (!response.ok || !payload.event) {
+        throw new Error(payload.message ?? "No se pudo actualizar el evento.");
+      }
+
+      setEvents((current) =>
+        current.map((event) => event.id === payload.event!.id ? payload.event! : event)
+      );
+
+      if (!nextIsActive && localStorage.getItem("moonie_kawaai_selected_event") === selectedEvent.id) {
+        localStorage.setItem("moonie_kawaai_selected_event", "default");
+      }
+
+      setStatus(nextIsActive
+        ? `${payload.event.name} reactivado. Ya puede seleccionarse en el POS.`
+        : `${payload.event.name} cerrado. Se conserva en el historial y ya no acepta ventas.`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "No se pudo actualizar el evento.");
+    } finally {
+      setUpdatingEvent(false);
+    }
+  }
+
+  async function handleDeleteEvent() {
+    if (!selectedEvent || updatingEvent) return;
+
+    if (!window.confirm(
+      `¿Eliminar "${selectedEvent.name}" y sus gastos? No se puede eliminar un evento que tenga ventas asociadas.`
+    )) {
+      return;
+    }
+
+    setUpdatingEvent(true);
+    setStatus("");
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(selectedEvent.id)}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json()) as { message?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "No se pudo eliminar el evento.");
+      }
+
+      setEvents((current) => current.filter((event) => event.id !== selectedEvent.id));
+      setSelectedEventId("");
+      setExpenses([]);
+      if (localStorage.getItem("moonie_kawaai_selected_event") === selectedEvent.id) {
+        localStorage.setItem("moonie_kawaai_selected_event", "default");
+      }
+      setStatus(`Evento "${selectedEvent.name}" y sus gastos eliminados.`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "No se pudo eliminar el evento.");
+    } finally {
+      setUpdatingEvent(false);
+    }
+  }
+
   async function handleCreateExpense(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const expenseCategory = category === "__custom__" ? customCategory.trim() : category;
@@ -217,16 +291,52 @@ export default function EventsPage() {
 
           <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
             <label className="block text-sm font-semibold text-slate-300">
-              Evento activo
+              Evento para administrar
               <select value={selectedEventId} onChange={(event) => {
                 setSelectedEventId(event.target.value);
-                localStorage.setItem("moonie_kawaai_selected_event", event.target.value);
+                const chosenEvent = events.find((item) => item.id === event.target.value);
+                if (chosenEvent?.is_active) {
+                  localStorage.setItem("moonie_kawaai_selected_event", chosenEvent.id);
+                }
               }} className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white">
                 <option value="">Selecciona un evento</option>
-                {events.map((event) => <option key={event.id} value={event.id}>{event.name}</option>)}
+                {events.map((event) => <option key={event.id} value={event.id}>
+                  {event.name}{event.is_active ? "" : " (Cerrado)"}
+                </option>)}
               </select>
             </label>
-            {selectedEvent && <p className="mt-3 text-sm text-slate-400">Lugar: {selectedEvent.location || "Sin especificar"}</p>}
+            {selectedEvent && (
+              <>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm text-slate-400">Lugar: {selectedEvent.location || "Sin especificar"}</p>
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                    selectedEvent.is_active
+                      ? "bg-emerald-500/10 text-emerald-300"
+                      : "bg-slate-700 text-slate-300"
+                  }`}>
+                    {selectedEvent.is_active ? "Activo" : "Cerrado"}
+                  </span>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleToggleEventStatus()}
+                    disabled={updatingEvent}
+                    className="rounded-xl border border-violet-400/50 px-3 py-2 text-sm font-bold text-violet-200 disabled:opacity-50"
+                  >
+                    {updatingEvent ? "Actualizando..." : selectedEvent.is_active ? "Cerrar evento" : "Reactivar evento"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleDeleteEvent()}
+                    disabled={updatingEvent}
+                    className="rounded-xl border border-rose-500/50 px-3 py-2 text-sm font-bold text-rose-200 disabled:opacity-50"
+                  >
+                    Eliminar evento
+                  </button>
+                </div>
+              </>
+            )}
             <div className="mt-5 flex items-end justify-between border-t border-slate-800 pt-4">
               <span className="text-sm text-slate-400">Gastos registrados</span>
               <strong className="text-2xl text-rose-300">{formatCurrency(totalExpenses)}</strong>

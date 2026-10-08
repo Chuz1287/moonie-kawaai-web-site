@@ -17,6 +17,7 @@ type EventOption = {
   id: string;
   name: string;
   location?: string | null;
+  is_active: boolean;
 };
 
 type EventExpense = {
@@ -100,7 +101,7 @@ export default function PosDashboard() {
 
     async function loadEvents() {
       try {
-        const response = await fetch("/api/events");
+        const response = await fetch("/api/events?active=true");
         const payload = (await response.json()) as { events?: EventOption[]; message?: string };
 
         if (!response.ok) {

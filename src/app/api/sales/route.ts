@@ -52,6 +52,25 @@ export async function POST(request: Request) {
       },
     });
 
+    const eventId = String(body.eventId || "default");
+    if (eventId !== "default") {
+      const { data: event, error: eventError } = await client
+        .from("events")
+        .select("id, is_active")
+        .eq("id", eventId)
+        .maybeSingle();
+
+      if (eventError) {
+        throw new Error(`No se pudo validar el evento seleccionado: ${eventError.message}`);
+      }
+      if (!event) {
+        return NextResponse.json({ ok: false, message: "El evento seleccionado ya no existe." }, { status: 404 });
+      }
+      if (!event.is_active) {
+        return NextResponse.json({ ok: false, message: "Este evento está cerrado y ya no acepta ventas." }, { status: 409 });
+      }
+    }
+
     const productIds = cart
       .map((item) => String(item.productId ?? ""))
       .filter(Boolean);
@@ -151,7 +170,7 @@ export async function POST(request: Request) {
       ganancia: total - totalCost,
       fecha: now.toLocaleDateString("en-CA"),
       hora: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }),
-      event_id: body.eventId || "default",
+      event_id: eventId,
       created_at: now.toISOString(),
     };
     const salePayload = { ...legacySalePayload, items: saleItems };

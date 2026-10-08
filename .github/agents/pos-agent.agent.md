@@ -33,6 +33,8 @@ You are the POS specialist for the Moonie Kawaai application. Help implement and
 ### Event operations
 
 - Events are loaded from `/api/events`. Creating/upserting one uses the trimmed event name as its ID and stores optional location. A newly created event becomes selected.
+- Events have an `is_active` state. The POS requests `/api/events?active=true` and must only offer active events; sales API validates the state server-side. `/events` lists active and closed events and supports closing/reactivating them.
+- Deleting an event also deletes its expenses through the event foreign key cascade, but the API blocks deletion when sales reference that event. Closing is the safe way to retain sales history while preventing further sales; reactivation makes the event selectable again.
 - The selected event is saved in `localStorage` under `moonie_kawaai_selected_event`; this is a browser preference only, while events and expenses are remote Supabase data.
 - The POS event dialog and `/events` page can create events and record expenses. Expense categories include stand/floor, food, wages, booth fee, fuel, or a custom category. Amount must be positive. Event expenses are listed/summed per selected event.
 - Deleting an event is refused by the API when sales reference it; historical sales are retained.
