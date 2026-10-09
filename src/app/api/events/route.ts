@@ -18,17 +18,25 @@ function getClient() {
   });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const client = getClient();
 
   if (!client) {
     return NextResponse.json({ message: "Supabase no está configurado." }, { status: 500 });
   }
 
-  const { data, error } = await client
+  const { searchParams } = new URL(request.url);
+  const onlyActive = searchParams.get("active") === "true";
+  let query = client
     .from("events")
-    .select("id, name, location, created_at")
+    .select("id, name, location, created_at, is_active")
     .order("created_at", { ascending: true });
+
+  if (onlyActive) {
+    query = query.eq("is_active", true);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ message: error.message }, { status: 500 });
@@ -55,8 +63,8 @@ export async function POST(request: Request) {
 
     const { data, error } = await client
       .from("events")
-      .upsert({ id: name, name, location }, { onConflict: "id" })
-      .select("id, name, location, created_at")
+      .upsert({ id: name, name, location, is_active: true }, { onConflict: "id" })
+      .select("id, name, location, created_at, is_active")
       .single();
 
     if (error) {

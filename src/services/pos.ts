@@ -1,26 +1,9 @@
-import { db } from "@/lib/db";
 import type { CartItem, Product } from "@/types/store";
 
 export type PosCartLine = {
   product: Product;
   quantity: number;
   unitPrice: number;
-};
-
-export type PosSaleRecord = {
-  id: string;
-  eventId: string;
-  itemCount: number;
-  subtotal: number;
-  tax: number;
-  total: number;
-  createdAt: string;
-  products: Array<{
-    productId: string;
-    name: string;
-    quantity: number;
-    unitPrice: number;
-  }>;
 };
 
 export function addProductToCart(
@@ -130,120 +113,4 @@ export function calculateCartTotals(cart: CartItem[], products: Product[]) {
     total,
     itemCount: lines.reduce((sum, line) => sum + line.quantity, 0),
   };
-}
-
-export function createLocalSaleRecord(cart: CartItem[], products: Product[], eventId = "default"): PosSaleRecord {
-  const lines = buildCartLines(cart, products);
-  const subtotal = lines.reduce(
-    (sum, line) => sum + line.unitPrice * line.quantity,
-    0
-  );
-  const tax = 0;
-  const total = subtotal;
-
-  return {
-    id: `sale-${Date.now()}`,
-    eventId,
-    itemCount: lines.reduce((sum, line) => sum + line.quantity, 0),
-    subtotal,
-    tax,
-    total,
-    createdAt: new Date().toISOString(),
-    products: lines.map((line) => ({
-      productId: line.product.id,
-      name: line.product.name,
-      quantity: line.quantity,
-      unitPrice: line.unitPrice,
-    })),
-  };
-}
-
-export function getPosStorageKey(): string {
-  return "moonie_kawaai_pos_local_sales";
-}
-
-export function applyStockReduction(cart: CartItem[], products: Product[]): Product[] {
-  return products.map((product) => {
-    const matchingItem = cart.find((entry) => String(entry.productId) === String(product.id));
-
-    if (!matchingItem) {
-      return product;
-    }
-
-    const currentStock = Number(product.stock ?? 0);
-    const quantity = Number(matchingItem.quantity ?? 0);
-
-    return {
-      ...product,
-      stock: Math.max(0, currentStock - quantity),
-    };
-  });
-}
-
-export function restoreStockFromSaleItems(
-  products: Product[],
-  saleItems: Array<{ name: string; quantity: number }>
-): Product[] {
-  if (!Array.isArray(saleItems) || saleItems.length === 0) {
-    return products;
-  }
-
-  return products.map((product) => {
-    const matchingQuantity = saleItems.reduce((sum, item) => {
-      const itemName = String(item.name ?? "").trim().toLowerCase();
-      const productName = String(product.name ?? "").trim().toLowerCase();
-
-      if (!itemName || itemName !== productName) {
-        return sum;
-      }
-
-      return sum + Number(item.quantity ?? 0);
-    }, 0);
-
-    if (matchingQuantity <= 0) {
-      return product;
-    }
-
-    return {
-      ...product,
-      stock: Math.max(0, Number(product.stock ?? 0) + matchingQuantity),
-    };
-  });
-}
-
-export function saveLocalSale(sale: PosSaleRecord): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const current = JSON.parse(localStorage.getItem(getPosStorageKey()) ?? "[]") as PosSaleRecord[];
-  const nextSales = [...current, sale];
-  localStorage.setItem(getPosStorageKey(), JSON.stringify(nextSales));
-
-  try {
-    void db.sales.add({
-      saleNumber: sale.id,
-      items: sale.products.map((item) => ({
-        productId: Number(item.productId) || 0,
-        productName: item.name,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-      })),
-      total: sale.total,
-      paymentMethod: "cash",
-      status: "completed",
-      createdAt: sale.createdAt,
-      syncedAt: null,
-    });
-  } catch (error) {
-    console.error("No se pudo guardar la venta en Dexie", error);
-  }
-}
-
-export function readLocalSales(): PosSaleRecord[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  return JSON.parse(localStorage.getItem(getPosStorageKey()) ?? "[]") as PosSaleRecord[];
 }

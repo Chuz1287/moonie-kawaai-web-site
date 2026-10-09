@@ -52,6 +52,25 @@ export async function POST(request: Request) {
       },
     });
 
+    const eventId = String(body.eventId || "default");
+    if (eventId !== "default") {
+      const { data: event, error: eventError } = await client
+        .from("events")
+        .select("id, is_active")
+        .eq("id", eventId)
+        .maybeSingle();
+
+      if (eventError) {
+        throw new Error(`No se pudo validar el evento seleccionado: ${eventError.message}`);
+      }
+      if (!event) {
+        return NextResponse.json({ ok: false, message: "El evento seleccionado ya no existe." }, { status: 404 });
+      }
+      if (!event.is_active) {
+        return NextResponse.json({ ok: false, message: "Este evento está cerrado y ya no acepta ventas." }, { status: 409 });
+      }
+    }
+
     const productIds = cart
       .map((item) => String(item.productId ?? ""))
       .filter(Boolean);
@@ -131,30 +150,49 @@ export async function POST(request: Request) {
       (sum, item) => sum + Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0),
       0
     );
+    const totalCost = saleItems.reduce(
+      (sum, item) => sum + Number(item.costo_unitario ?? 0) * Number(item.quantity ?? 0),
+      0
+    );
 
     const saleId = `sale-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
     const now = new Date();
     const firstLine = saleItems[0];
+    const legacySalePayload = {
+      id: saleId,
+      personaje: firstLine?.productName ?? "Venta",
+      serie: "General",
+      tipo: "Venta",
+      cantidad: firstLine ? Number(firstLine.quantity ?? 0) : 0,
+      precio_venta_unitario: firstLine ? Number(firstLine.unitPrice ?? 0) : 0,
+      costo_unitario: firstLine ? Number(firstLine.costo_unitario ?? 0) : 0,
+      total,
+      ganancia: total - totalCost,
+      fecha: now.toLocaleDateString("en-CA"),
+      hora: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }),
+      event_id: eventId,
+      created_at: now.toISOString(),
+    };
+    const salePayload = { ...legacySalePayload, items: saleItems };
 
-    const { data: createdSale, error: saleError } = await client
+    let { data: createdSale, error: saleError } = await client
       .from("sales")
-      .insert({
-        id: saleId,
-        personaje: firstLine?.productName ?? "Venta",
-        serie: "General",
-        tipo: "Venta",
-        cantidad: firstLine ? Number(firstLine.quantity ?? 0) : 0,
-        precio_venta_unitario: firstLine ? Number(firstLine.unitPrice ?? 0) : 0,
-        costo_unitario: firstLine ? Number(firstLine.costo_unitario ?? 0) : 0,
-        total,
-        ganancia: Math.max(0, total - (firstLine ? Number(firstLine.costo_unitario ?? 0) * Number(firstLine.quantity ?? 0) : 0)),
-        fecha: now.toLocaleDateString("en-CA"),
-        hora: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }),
-        event_id: body.eventId || "default",
-        created_at: now.toISOString(),
-      })
+      .insert(salePayload)
       .select()
       .single();
+
+    if (
+      saleError &&
+      /(?:column .*items.* does not exist|could not find .*items.*column)/i.test(saleError.message)
+    ) {
+      const legacyInsert = await client
+        .from("sales")
+        .insert(legacySalePayload)
+        .select()
+        .single();
+      createdSale = legacyInsert.data;
+      saleError = legacyInsert.error;
+    }
 
     if (saleError || !createdSale) {
       return NextResponse.json(

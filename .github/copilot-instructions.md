@@ -5,40 +5,40 @@
 Cuando el usuario te pida **"Ejecutar Skill de Inicialización"** o **"Generar Módulo [Nombre]"**, debes crear de forma autónoma la siguiente estructura y archivos sin omitting código ni dejar placeholders:
 
 ### Comandos de Ejecución Automática:
-1. **Inicialización de Base de Datos Offline (Dexie.js)**:
-   - Crear `src/lib/db.ts` con el esquema para `products` y `sales`.
+1. **Persistencia y backend**:
+   - El POS existente usa Supabase mediante las rutas API del proyecto. No crear una base de datos cliente paralela ni duplicar el catálogo.
 2. **Inicialización de Cliente Supabase**:
    - Crear `src/lib/supabase.ts` para la conexión y sincronización remota.
 3. **Estructura Modular Estricta (Estilo Angular)**:
    Al solicitar un nuevo módulo (ej. `pos`, `catalog`, `erp`), debes generar dentro de `src/components/[modulo]/`:
    - `index.tsx`: Componente principal UI (JSX limpio).
-   - `[modulo].logic.ts`: Hook o lógica de negocio (Dexie/Supabase, estados).
+   - `[modulo].logic.ts`: Hook o lógica de negocio conectado a los servicios y tipos existentes.
    - `[modulo].module.scss`: Estilos encapsulados con SASS.
 
 ---
 
 ### Ejemplo de Prompt para Activar el Skill:
-`@copilot Ejecuta el Skill de Inicialización para crear la base de datos Dexie en src/lib/db.ts y el primer módulo del POS en src/components/pos`
+`@copilot Ejecuta el Skill de Inicialización para conectar el módulo POS con el catálogo y las rutas API existentes`
 
 ## ⚡ 5. SKILL: GENERADOR AUTOMÁTICO DE MÓDULOS Y ESTRUCTURA BASE
 
 Cuando el usuario te pida **"Ejecutar Skill de Inicialización"** o **"Generar Módulo [Nombre]"**, debes crear de forma autónoma la siguiente estructura y archivos sin omitting código ni dejar placeholders:
 
 ### Comandos de Ejecución Automática:
-1. **Inicialización de Base de Datos Offline (Dexie.js)**:
-   - Crear `src/lib/db.ts` con el esquema para `products` y `sales`.
+1. **Persistencia y backend**:
+   - El POS existente usa Supabase mediante las rutas API del proyecto. No crear una base de datos cliente paralela ni duplicar el catálogo.
 2. **Inicialización de Cliente Supabase**:
    - Crear `src/lib/supabase.ts` para la conexión y sincronización remota.
 3. **Estructura Modular Estricta (Estilo Angular)**:
    Al solicitar un nuevo módulo (ej. `pos`, `catalog`, `erp`), debes generar dentro de `src/components/[modulo]/`:
    - `index.tsx`: Componente principal UI (JSX limpio).
-   - `[modulo].logic.ts`: Hook o lógica de negocio (Dexie/Supabase, estados).
+   - `[modulo].logic.ts`: Hook o lógica de negocio conectado a los servicios y tipos existentes.
    - `[modulo].module.scss`: Estilos encapsulados con SASS.
 
 ---
 
 ### Ejemplo de Prompt para Activar el Skill:
-`@copilot Ejecuta el Skill de Inicialización para crear la base de datos Dexie en src/lib/db.ts y el primer módulo del POS en src/components/pos`
+`@copilot Ejecuta el Skill de Inicialización para conectar el módulo POS con el catálogo y las rutas API existentes`
 
 ## 📸 6. SKILL: CONFIGURACIÓN Y SERVICIO DE MEDIA (CLOUDINARY)
 
