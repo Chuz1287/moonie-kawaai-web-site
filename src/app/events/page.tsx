@@ -8,6 +8,8 @@ type EventRecord = {
   name: string;
   location?: string | null;
   is_active: boolean;
+  start_date: string | null;
+  end_date: string | null;
 };
 
 type ExpenseRecord = {
@@ -34,6 +36,10 @@ export default function EventsPage() {
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
   const [eventName, setEventName] = useState("");
   const [eventLocation, setEventLocation] = useState("");
+  const [eventStartDate, setEventStartDate] = useState("");
+  const [eventEndDate, setEventEndDate] = useState("");
+  const [managedStartDate, setManagedStartDate] = useState("");
+  const [managedEndDate, setManagedEndDate] = useState("");
   const [category, setCategory] = useState(expenseCategories[0]);
   const [customCategory, setCustomCategory] = useState("");
   const [amount, setAmount] = useState("");
@@ -58,11 +64,10 @@ export default function EventsPage() {
           const loadedEvents = Array.isArray(payload.events) ? payload.events : [];
           setEvents(loadedEvents);
           const savedEvent = localStorage.getItem("moonie_kawaai_selected_event");
-          setSelectedEventId(
-            loadedEvents.some((event) => event.id === savedEvent)
-              ? savedEvent ?? ""
-              : loadedEvents[0]?.id ?? ""
-          );
+          const initialEvent = loadedEvents.find((event) => event.id === savedEvent) ?? loadedEvents[0];
+          setSelectedEventId(initialEvent?.id ?? "");
+          setManagedStartDate(initialEvent?.start_date ?? "");
+          setManagedEndDate(initialEvent?.end_date ?? "");
         }
       } catch (error) {
         if (!cancelled) {
@@ -118,7 +123,11 @@ export default function EventsPage() {
 
   async function handleCreateEvent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!eventName.trim() || isSavingEvent) return;
+    if (!eventName.trim() || !eventStartDate || !eventEndDate || isSavingEvent) return;
+    if (eventEndDate < eventStartDate) {
+      setStatus("La fecha de fin debe ser igual o posterior a la fecha de inicio.");
+      return;
+    }
 
     setIsSavingEvent(true);
     setStatus("");
@@ -126,7 +135,12 @@ export default function EventsPage() {
       const response = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: eventName.trim(), location: eventLocation.trim() }),
+        body: JSON.stringify({
+          name: eventName.trim(),
+          location: eventLocation.trim(),
+          start_date: eventStartDate,
+          end_date: eventEndDate,
+        }),
       });
       const payload = (await response.json()) as { event?: EventRecord; message?: string };
 
@@ -139,14 +153,52 @@ export default function EventsPage() {
         payload.event!,
       ]);
       setSelectedEventId(payload.event.id);
+      setManagedStartDate(payload.event.start_date ?? "");
+      setManagedEndDate(payload.event.end_date ?? "");
       localStorage.setItem("moonie_kawaai_selected_event", payload.event.id);
       setEventName("");
       setEventLocation("");
+      setEventStartDate("");
+      setEventEndDate("");
       setStatus(`Evento activo: ${payload.event.name}`);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "No se pudo guardar el evento.");
     } finally {
       setIsSavingEvent(false);
+    }
+  }
+
+  async function handleSaveEventDates() {
+    if (!selectedEvent || !managedStartDate || !managedEndDate || updatingEvent) return;
+    if (managedEndDate < managedStartDate) {
+      setStatus("La fecha de fin debe ser igual o posterior a la fecha de inicio.");
+      return;
+    }
+
+    setUpdatingEvent(true);
+    setStatus("");
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(selectedEvent.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ start_date: managedStartDate, end_date: managedEndDate }),
+      });
+      const payload = (await response.json()) as { event?: EventRecord; message?: string };
+
+      if (!response.ok || !payload.event) {
+        throw new Error(payload.message ?? "No se pudieron guardar las fechas del evento.");
+      }
+
+      setEvents((current) =>
+        current.map((event) => event.id === payload.event!.id ? payload.event! : event)
+      );
+      setManagedStartDate(payload.event.start_date ?? "");
+      setManagedEndDate(payload.event.end_date ?? "");
+      setStatus(`Fechas de ${payload.event.name} actualizadas.`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "No se pudieron guardar las fechas del evento.");
+    } finally {
+      setUpdatingEvent(false);
     }
   }
 
@@ -284,7 +336,31 @@ export default function EventsPage() {
               Lugar
               <input value={eventLocation} onChange={(event) => setEventLocation(event.target.value)} placeholder="Recinto o ciudad" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500" />
             </label>
-            <button disabled={isSavingEvent || !eventName.trim()} className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm text-slate-300">
+                Fecha de inicio
+                <input
+                  required
+                  type="date"
+                  value={eventStartDate}
+                  max={eventEndDate || undefined}
+                  onChange={(event) => setEventStartDate(event.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                />
+              </label>
+              <label className="block text-sm text-slate-300">
+                Fecha de fin
+                <input
+                  required
+                  type="date"
+                  value={eventEndDate}
+                  min={eventStartDate || undefined}
+                  onChange={(event) => setEventEndDate(event.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                />
+              </label>
+            </div>
+            <button disabled={isSavingEvent || !eventName.trim() || !eventStartDate || !eventEndDate} className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">
               {isSavingEvent ? "Guardando..." : "Crear y activar evento"}
             </button>
           </form>
@@ -295,6 +371,8 @@ export default function EventsPage() {
               <select value={selectedEventId} onChange={(event) => {
                 setSelectedEventId(event.target.value);
                 const chosenEvent = events.find((item) => item.id === event.target.value);
+                setManagedStartDate(chosenEvent?.start_date ?? "");
+                setManagedEndDate(chosenEvent?.end_date ?? "");
                 if (chosenEvent?.is_active) {
                   localStorage.setItem("moonie_kawaai_selected_event", chosenEvent.id);
                 }
@@ -317,7 +395,40 @@ export default function EventsPage() {
                     {selectedEvent.is_active ? "Activo" : "Cerrado"}
                   </span>
                 </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm text-slate-300">
+                    Desde
+                    <input
+                      type="date"
+                      required
+                      value={managedStartDate}
+                      max={managedEndDate || undefined}
+                      onChange={(event) => setManagedStartDate(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                    />
+                  </label>
+                  <label className="block text-sm text-slate-300">
+                    Hasta
+                    <input
+                      type="date"
+                      required
+                      value={managedEndDate}
+                      min={managedStartDate || undefined}
+                      onChange={(event) => setManagedEndDate(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                    />
+                  </label>
+                </div>
                 <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleSaveEventDates()}
+                    disabled={updatingEvent || !managedStartDate || !managedEndDate ||
+                      (managedStartDate === selectedEvent.start_date && managedEndDate === selectedEvent.end_date)}
+                    className="rounded-xl border border-sky-400/50 px-3 py-2 text-sm font-bold text-sky-200 disabled:opacity-50"
+                  >
+                    Guardar fechas
+                  </button>
                   <button
                     type="button"
                     onClick={() => void handleToggleEventStatus()}

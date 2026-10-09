@@ -18,6 +18,8 @@ type EventOption = {
   name: string;
   location?: string | null;
   is_active: boolean;
+  start_date: string | null;
+  end_date: string | null;
 };
 
 type EventExpense = {
@@ -62,6 +64,8 @@ export default function PosDashboard() {
   const [status, setStatus] = useState("Listo para vender");
   const [eventName, setEventName] = useState("");
   const [eventLocation, setEventLocation] = useState("");
+  const [eventStartDate, setEventStartDate] = useState("");
+  const [eventEndDate, setEventEndDate] = useState("");
   const [selectedEvent, setSelectedEvent] = useState("default");
   const [salesChannels, setSalesChannels] = useState<EventOption[]>([]);
   const [eventPerformance, setEventPerformance] = useState<EventPerformance | null>(null);
@@ -364,16 +368,28 @@ export default function PosDashboard() {
   const handleSaveChannel = async () => {
     const normalized = eventName.trim();
 
-    if (!normalized || isSavingEvent) {
+    if (!normalized || !eventStartDate || !eventEndDate || isSavingEvent) {
+      return;
+    }
+    if (eventEndDate < eventStartDate) {
+      const message = "La fecha de fin debe ser igual o posterior a la fecha de inicio.";
+      setEventModalStatus(message);
+      setStatus(message);
       return;
     }
 
     setIsSavingEvent(true);
+    setEventModalStatus("");
     try {
       const response = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: normalized, location: eventLocation.trim() }),
+        body: JSON.stringify({
+          name: normalized,
+          location: eventLocation.trim(),
+          start_date: eventStartDate,
+          end_date: eventEndDate,
+        }),
       });
       const payload = (await response.json()) as { event?: EventOption; message?: string };
 
@@ -393,6 +409,8 @@ export default function PosDashboard() {
       setEventExpenses([]);
       setEventName("");
       setEventLocation("");
+      setEventStartDate("");
+      setEventEndDate("");
     } catch (error) {
       const message = error instanceof Error ? error.message : "No se pudo guardar el evento.";
       setStatus(message);
@@ -696,9 +714,33 @@ export default function PosDashboard() {
                     className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
                   />
                 </label>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm font-semibold text-slate-300">
+                    Fecha de inicio
+                    <input
+                      required
+                      type="date"
+                      value={eventStartDate}
+                      max={eventEndDate || undefined}
+                      onChange={(event) => setEventStartDate(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                    />
+                  </label>
+                  <label className="block text-sm font-semibold text-slate-300">
+                    Fecha de fin
+                    <input
+                      required
+                      type="date"
+                      value={eventEndDate}
+                      min={eventStartDate || undefined}
+                      onChange={(event) => setEventEndDate(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                    />
+                  </label>
+                </div>
                 <button
                   type="submit"
-                  disabled={isSavingEvent || !eventName.trim()}
+                  disabled={isSavingEvent || !eventName.trim() || !eventStartDate || !eventEndDate}
                   className="w-full rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
                 >
                   {isSavingEvent ? "Guardando..." : "Crear y activar evento"}
