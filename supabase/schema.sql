@@ -26,6 +26,11 @@ create table if not exists public.events (
   name text not null unique,
   location text not null default '',
   is_active boolean not null default true,
+  start_date date,
+  end_date date,
+  constraint events_date_range_valid check (
+    start_date is null or end_date is null or start_date <= end_date
+  ),
   created_at timestamptz not null default now()
 );
 
@@ -34,6 +39,25 @@ alter table public.events
 
 alter table public.events
   add column if not exists is_active boolean not null default true;
+
+alter table public.events
+  add column if not exists start_date date,
+  add column if not exists end_date date;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'events_date_range_valid'
+      and conrelid = 'public.events'::regclass
+  ) then
+    alter table public.events
+      add constraint events_date_range_valid
+      check (start_date is null or end_date is null or start_date <= end_date);
+  end if;
+end
+$$;
 
 create table if not exists public.event_expenses (
   id uuid primary key default gen_random_uuid(),

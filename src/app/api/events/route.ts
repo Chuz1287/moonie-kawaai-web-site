@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   const onlyActive = searchParams.get("active") === "true";
   let query = client
     .from("events")
-    .select("id, name, location, created_at, is_active")
+    .select("id, name, location, created_at, is_active, start_date, end_date")
     .order("created_at", { ascending: true });
 
   if (onlyActive) {
@@ -47,12 +47,25 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { name?: string; location?: string };
+    const body = (await request.json()) as {
+      name?: string;
+      location?: string;
+      start_date?: string;
+      end_date?: string;
+    };
     const name = String(body.name ?? "").trim();
     const location = String(body.location ?? "").trim();
+    const startDate = String(body.start_date ?? "");
+    const endDate = String(body.end_date ?? "");
 
     if (!name) {
       return NextResponse.json({ message: "El nombre del evento es obligatorio." }, { status: 400 });
+    }
+    if (!isValidDate(startDate) || !isValidDate(endDate) || endDate < startDate) {
+      return NextResponse.json(
+        { message: "Indica un rango de fechas válido; la fecha de fin no puede ser anterior a la de inicio." },
+        { status: 400 }
+      );
     }
 
     const client = getClient();
@@ -63,8 +76,15 @@ export async function POST(request: Request) {
 
     const { data, error } = await client
       .from("events")
-      .upsert({ id: name, name, location, is_active: true }, { onConflict: "id" })
-      .select("id, name, location, created_at, is_active")
+      .upsert({
+        id: name,
+        name,
+        location,
+        start_date: startDate,
+        end_date: endDate,
+        is_active: true,
+      }, { onConflict: "id" })
+      .select("id, name, location, created_at, is_active, start_date, end_date")
       .single();
 
     if (error) {
@@ -78,4 +98,13 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+function isValidDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }

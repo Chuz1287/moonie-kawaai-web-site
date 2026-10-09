@@ -18,16 +18,51 @@ function getClient() {
   });
 }
 
+function isValidDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const body = (await request.json()) as { is_active?: boolean };
+    const body = (await request.json()) as {
+      is_active?: boolean;
+      start_date?: string;
+      end_date?: string;
+    };
 
-    if (typeof body.is_active !== "boolean") {
-      return NextResponse.json({ message: "Indica si el evento debe estar activo o cerrado." }, { status: 400 });
+    const hasStatusUpdate = typeof body.is_active === "boolean";
+    const hasDateUpdate = body.start_date !== undefined || body.end_date !== undefined;
+
+    if (!hasStatusUpdate && !hasDateUpdate) {
+      return NextResponse.json({ message: "Indica el estado o las fechas que deseas actualizar." }, { status: 400 });
+    }
+
+    const update: { is_active?: boolean; start_date?: string; end_date?: string } = {};
+    if (hasStatusUpdate) {
+      update.is_active = body.is_active;
+    }
+    if (hasDateUpdate) {
+      const startDate = String(body.start_date ?? "");
+      const endDate = String(body.end_date ?? "");
+
+      if (!isValidDate(startDate) || !isValidDate(endDate) || endDate < startDate) {
+        return NextResponse.json(
+          { message: "Indica un rango de fechas válido; la fecha de fin no puede ser anterior a la de inicio." },
+          { status: 400 }
+        );
+      }
+
+      update.start_date = startDate;
+      update.end_date = endDate;
     }
 
     const client = getClient();
@@ -37,9 +72,9 @@ export async function PATCH(
 
     const { data, error } = await client
       .from("events")
-      .update({ is_active: body.is_active })
+      .update(update)
       .eq("id", id)
-      .select("id, name, location, created_at, is_active")
+      .select("id, name, location, created_at, is_active, start_date, end_date")
       .maybeSingle();
 
     if (error) {
@@ -51,7 +86,9 @@ export async function PATCH(
 
     return NextResponse.json({
       event: data,
-      message: body.is_active ? "Evento reactivado." : "Evento cerrado.",
+      message: hasDateUpdate
+        ? "Fechas del evento actualizadas."
+        : body.is_active ? "Evento reactivado." : "Evento cerrado.",
     });
   } catch (error) {
     return NextResponse.json(
