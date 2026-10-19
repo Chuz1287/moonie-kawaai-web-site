@@ -52,6 +52,23 @@ export async function POST(request: Request) {
       },
     });
 
+    const { error: saleSchemaError } = await client
+      .from("sales")
+      .select("items")
+      .limit(1);
+
+    if (saleSchemaError) {
+      console.error("Sale items column is unavailable:", saleSchemaError);
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            "No se puede registrar la venta porque Supabase aún no tiene el detalle de productos (columna sales.items). Ejecuta la migración 20261008_add_sales_items.sql.",
+        },
+        { status: 503 }
+      );
+    }
+
     const eventId = String(body.eventId || "default");
     if (eventId !== "default") {
       const { data: event, error: eventError } = await client
@@ -175,26 +192,14 @@ export async function POST(request: Request) {
     };
     const salePayload = { ...legacySalePayload, items: saleItems };
 
-    let { data: createdSale, error: saleError } = await client
+    const { data: createdSale, error: saleError } = await client
       .from("sales")
       .insert(salePayload)
       .select()
       .single();
 
-    if (
-      saleError &&
-      /(?:column .*items.* does not exist|could not find .*items.*column)/i.test(saleError.message)
-    ) {
-      const legacyInsert = await client
-        .from("sales")
-        .insert(legacySalePayload)
-        .select()
-        .single();
-      createdSale = legacyInsert.data;
-      saleError = legacyInsert.error;
-    }
-
     if (saleError || !createdSale) {
+      console.error("Sale insert failed:", saleError);
       return NextResponse.json(
         {
           ok: false,
