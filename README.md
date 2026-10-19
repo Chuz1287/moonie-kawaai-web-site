@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Moonie Kawaai
 
-## Getting Started
+Aplicación web construida con Next.js, React y TypeScript. El proyecto se puede
+desarrollar en Windows, macOS y Linux usando Node.js y npm.
 
-First, run the development server:
+## Requisitos
+
+- Node.js 20.9.0 o posterior.
+- npm (incluido con Node.js).
+- Credenciales de Supabase para usar las funciones conectadas al catálogo,
+  ventas y eventos.
+
+Comprueba las versiones instaladas:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+node --version
+npm --version
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Instalación
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Clona el repositorio y ejecuta estos comandos desde la carpeta del proyecto en
+PowerShell, Símbolo del sistema, Terminal de macOS o una terminal Linux:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm ci
+npm run dev
+```
 
-## Learn More
+Abre [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+Se usa `npm ci` para instalar las versiones exactas del `package-lock.json`.
+No es necesario ejecutar comandos de Bash ni cambiar las rutas según el sistema
+operativo. Usa npm en lugar de mezclar gestores de paquetes en el mismo checkout.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Variables de entorno
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Crea un archivo `.env.local` en la raíz del proyecto y configura las credenciales
+del proyecto Supabase:
 
-## Deploy on Vercel
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://<tu-proyecto>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<tu-clave-anon>
+SUPABASE_URL=https://<tu-proyecto>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<tu-clave-de-servidor>
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Solicita esos valores al administrador del proyecto. Mantén `.env.local` privado:
+no lo subas a Git ni compartas la clave de servidor. Las funciones de carga de
+imágenes también pueden requerir las variables públicas de Cloudinary definidas
+en `src/lib/cloudinary.ts`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Comandos
+
+```bash
+npm run dev    # servidor de desarrollo
+npm run lint   # ESLint
+npm run build  # compilación de producción
+npm start      # sirve la compilación (después de npm run build)
+```
+
+## Solución de problemas
+
+- Si `npm ci` informa de una versión de Node.js no compatible, instala Node.js
+  20.9.0 o posterior y vuelve a abrir la terminal.
+- Si la aplicación abre pero el catálogo, las ventas o los eventos no cargan,
+  revisa que `.env.local` tenga las credenciales de Supabase correctas y reinicia
+  `npm run dev`.
+- Si el puerto 3000 está ocupado, detén la otra aplicación que lo usa o inicia
+  el servidor en otro puerto con `npm run dev -- --port 3001`.
