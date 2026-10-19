@@ -122,12 +122,55 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
               {model.salesChannels.map((event) => (
                 <li key={event.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-white">{event.name}</p>
+                    {model.editingEventId === event.id ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <label className="sr-only" htmlFor={`event-name-${event.id}`}>
+                          Nombre de {event.name}
+                        </label>
+                        <input
+                          id={`event-name-${event.id}`}
+                          value={model.editingEventName}
+                          onChange={(inputEvent) =>
+                            model.setEditingEventName(inputEvent.target.value)
+                          }
+                          className="min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm font-semibold text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => void model.handleRenameEvent(event)}
+                          disabled={!model.editingEventName.trim() || model.editingEventName.trim() === event.name}
+                          className="rounded-lg border border-emerald-500/40 px-2 py-1 text-xs font-bold text-emerald-200 disabled:opacity-50"
+                        >
+                          Guardar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => model.setEditingEventId("")}
+                          className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-300"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="truncate text-sm font-semibold text-white">{event.name}</p>
+                    )}
                     <p className="truncate text-xs text-slate-400">
                       {event.location || "Lugar sin especificar"}
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-2">
+                    {model.editingEventId !== event.id && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          model.setEditingEventId(event.id);
+                          model.setEditingEventName(event.name);
+                        }}
+                        className="rounded-lg border border-sky-500/40 px-3 py-1.5 text-xs font-bold text-sky-200 hover:border-sky-400"
+                      >
+                        Renombrar
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => model.setManagedEventId(event.id)}
@@ -160,7 +203,11 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
               Administrar gastos de
               <select
                 value={model.managedEventId}
-                onChange={(event) => model.setManagedEventId(event.target.value)}
+                onChange={(event) => {
+                  model.setManagedEventId(event.target.value);
+                  model.setEditingExpenseId("");
+                  model.setEditingExpenseAmount("");
+                }}
                 disabled={model.salesChannels.length === 0}
                 className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
               >
@@ -243,7 +290,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                   model.eventExpenses.map((expense) => (
                     <article
                       key={expense.id}
-                      className="flex items-center justify-between gap-3 px-4 py-3"
+                      className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-white">
@@ -253,9 +300,64 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                           {new Date(expense.created_at).toLocaleDateString("es-MX")}
                         </p>
                       </div>
-                      <strong className="shrink-0 text-sm text-rose-300">
-                        {formatPosCurrency(Number(expense.amount))}
-                      </strong>
+                      <div className="flex items-center gap-2">
+                        {model.editingExpenseId === expense.id ? (
+                          <>
+                            <label
+                              className="sr-only"
+                              htmlFor={`event-expense-amount-${expense.id}`}
+                            >
+                              Importe de {expense.category}
+                            </label>
+                            <input
+                              id={`event-expense-amount-${expense.id}`}
+                              type="number"
+                              min="0.01"
+                              step="0.01"
+                              value={model.editingExpenseAmount}
+                              onChange={(inputEvent) =>
+                                model.setEditingExpenseAmount(inputEvent.target.value)
+                              }
+                              className="w-28 rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-right text-sm text-white"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => void model.handleUpdateEventExpense(expense)}
+                              disabled={model.isUpdatingExpense || !model.editingExpenseAmount}
+                              className="rounded-lg border border-emerald-500/40 px-2 py-1 text-xs font-bold text-emerald-200 disabled:opacity-50"
+                            >
+                              Guardar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                model.setEditingExpenseId("");
+                                model.setEditingExpenseAmount("");
+                              }}
+                              disabled={model.isUpdatingExpense}
+                              className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-300 disabled:opacity-50"
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <strong className="shrink-0 text-sm text-rose-300">
+                              {formatPosCurrency(Number(expense.amount))}
+                            </strong>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                model.setEditingExpenseId(expense.id);
+                                model.setEditingExpenseAmount(String(expense.amount));
+                              }}
+                              className="rounded-lg border border-sky-500/40 px-2 py-1 text-xs font-bold text-sky-200"
+                            >
+                              Editar importe
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </article>
                   ))
                 )}

@@ -88,3 +88,52 @@ export async function POST(
     );
   }
 }
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = (await request.json()) as {
+      expenseId?: string;
+      amount?: number;
+    };
+    const expenseId = String(body.expenseId ?? "").trim();
+    const amount = Number(body.amount);
+
+    if (!expenseId || !Number.isFinite(amount) || amount <= 0) {
+      return NextResponse.json(
+        { message: "Indica un gasto válido y un importe mayor que cero." },
+        { status: 400 }
+      );
+    }
+
+    const client = getClient();
+    if (!client) {
+      return NextResponse.json({ message: "Supabase no está configurado." }, { status: 500 });
+    }
+
+    const { data, error } = await client
+      .from("event_expenses")
+      .update({ amount })
+      .eq("id", expenseId)
+      .eq("event_id", id)
+      .select("id, event_id, category, description, amount, created_at")
+      .maybeSingle();
+
+    if (error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+    if (!data) {
+      return NextResponse.json({ message: "El gasto no existe para este evento." }, { status: 404 });
+    }
+
+    return NextResponse.json({ expense: data, message: "Importe del gasto actualizado." });
+  } catch (error) {
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "No se pudo actualizar el gasto." },
+      { status: 500 }
+    );
+  }
+}
