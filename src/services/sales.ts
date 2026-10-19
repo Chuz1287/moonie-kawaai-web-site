@@ -12,6 +12,7 @@ export type SaleRecord = {
     cantidad?: number | null;
     unitPrice?: number | null;
     precio_venta_unitario?: number | null;
+    costo_unitario?: number | null;
   }>;
   total: number;
   payment_method?: string | null;
@@ -26,6 +27,7 @@ export type SaleRecord = {
   fecha?: string;
   hora?: string;
   event_id?: string | null;
+  productId?: string | null;
 };
 
 function toSafeDate(value: unknown): Date {
@@ -38,9 +40,25 @@ function toSafeDate(value: unknown): Date {
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 
-function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
+export function compareSalesNewestFirst(a: SaleRecord, b: SaleRecord): number {
+  const aTimestamp = Date.parse(String(a.created_at ?? ""));
+  const bTimestamp = Date.parse(String(b.created_at ?? ""));
+  const safeATimestamp = Number.isFinite(aTimestamp) ? aTimestamp : Date.parse(`${a.fecha ?? ""}T${a.hora ?? "00:00:00"}`);
+  const safeBTimestamp = Number.isFinite(bTimestamp) ? bTimestamp : Date.parse(`${b.fecha ?? ""}T${b.hora ?? "00:00:00"}`);
+
+  if (Number.isFinite(safeATimestamp) && Number.isFinite(safeBTimestamp) && safeATimestamp !== safeBTimestamp) {
+    return safeBTimestamp - safeATimestamp;
+  }
+
+  return String(b.id).localeCompare(String(a.id));
+}
+
+function normalizeSaleRow(row: Record<string, unknown>): SaleRecord {
   const rawItems = Array.isArray(row.items) ? row.items : [];
-  const timestamp = toSafeDate(row.created_at ?? row.createdAt ?? Date.now());
+  const rawCreatedAt = row.created_at ?? row.createdAt;
+  const timestamp = rawCreatedAt
+    ? toSafeDate(rawCreatedAt)
+    : toSafeDate(`${String(row.fecha ?? new Date(0).toISOString().slice(0, 10))}T${String(row.hora ?? "00:00:00")}`);
   const saleDate = typeof row.fecha === "string" && row.fecha.trim()
     ? row.fecha.trim().slice(0, 10)
     : timestamp.toISOString().slice(0, 10);
@@ -48,72 +66,68 @@ function normalizeSaleRow(row: Record<string, unknown>): SaleRecord[] {
     ? row.hora.trim()
     : timestamp.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false });
 
-  if (rawItems.length > 0) {
-    return rawItems.map((item, index) => {
-      const itemRecord = item as Record<string, unknown>;
-      const productName = String(
-        itemRecord.productName ?? itemRecord.name ?? `Producto ${index + 1}`
-      );
-      const quantity = Number(itemRecord.quantity ?? itemRecord.cantidad ?? 0);
-      const unitPrice = Number(
-        itemRecord.unitPrice ?? itemRecord.precio_venta_unitario ?? 0
-      );
-      const rawCost = Number(
-        itemRecord.costo_unitario ?? itemRecord.costo ?? itemRecord.cost ?? 0
-      );
-      const computedCost = rawCost > 0 ? rawCost : unitPrice > 0 ? unitPrice * 0.7 : 0;
-      const productId = itemRecord.productId ?? itemRecord.product_id ?? null;
-      const computedTotal = Number(row.total ?? quantity * unitPrice);
-
-      return {
-        id: String(row.id ?? row.sale_number ?? `sale-${timestamp.getTime()}-${index + 1}`),
-        sale_number: row.sale_number ? String(row.sale_number) : null,
-        items: rawItems as SaleRecord["items"],
-        total: computedTotal,
-        payment_method: typeof row.payment_method === "string" ? String(row.payment_method) : "cash",
-        status: typeof row.status === "string" ? String(row.status) : "completed",
-        created_at: timestamp.toISOString(),
-        synced_at: row.synced_at ? String(row.synced_at) : null,
-        personaje: productName,
-        cantidad: quantity,
-        precio_venta_unitario: unitPrice,
-        costo_unitario: computedCost,
-        ganancia: Number(row.ganancia ?? Math.max(0, computedTotal - computedCost * quantity)),
-        fecha: saleDate,
-        hora: saleTime,
-        productId: productId ? String(productId) : null,
-        event_id: row.event_id ? String(row.event_id) : "default",
-      };
-    });
-  }
+  const normalizedItems = rawItems.map((item, index) => {
+    const itemRecord = item as Record<string, unknown>;
+    const unitPrice = Number(itemRecord.unitPrice ?? itemRecord.precio_venta_unitario ?? 0);
+    const rawCost = Number(itemRecord.costo_unitario ?? itemRecord.costo ?? itemRecord.cost ?? 0);
+    return {
+      ...itemRecord,
+      productId: itemRecord.productId ?? itemRecord.product_id ?? null,
+      productName: String(itemRecord.productName ?? itemRecord.name ?? `Producto ${index + 1}`),
+      quantity: Number(itemRecord.quantity ?? itemRecord.cantidad ?? 0),
+      unitPrice,
+      costo_unitario: rawCost > 0 ? rawCost : unitPrice > 0 ? unitPrice * 0.7 : 0,
+    };
+  });
+  const firstItem = normalizedItems[0];
+  const lineTotal = normalizedItems.reduce(
+    (sum, item) => sum + Number(item.unitPrice ?? 0) * Number(item.quantity ?? 0),
+    0
+  );
+  const lineProfit = normalizedItems.reduce(
+    (sum, item) =>
+      sum + (Number(item.unitPrice ?? 0) - Number(item.costo_unitario ?? 0)) * Number(item.quantity ?? 0),
+    0
+  );
+  const total = Number(row.total ?? lineTotal);
 
   const legacyPersonaje = typeof row.personaje === "string" ? row.personaje : "Venta";
   const legacyCantidad = Number(row.cantidad ?? 0);
-  const legacyPrice = Number(row.precio_venta_unitario ?? row.total ?? 0);
+  const legacyPrice = Number(row.precio_venta_unitario ?? (firstItem ? firstItem.unitPrice : row.total) ?? 0);
   const rawCost = Number(row.costo_unitario ?? row.costo ?? row.cost ?? 0);
   const fallbackCost = rawCost > 0 ? rawCost : legacyPrice > 0 ? legacyPrice * 0.7 : 0;
-  const total = Number(row.total ?? 0);
 
-  return [{
+  return {
     id: String(row.id ?? row.sale_number ?? `sale-${timestamp.getTime()}`),
     sale_number: row.sale_number ? String(row.sale_number) : null,
+    items: normalizedItems as SaleRecord["items"],
     total,
     payment_method: typeof row.payment_method === "string" ? String(row.payment_method) : "cash",
     status: typeof row.status === "string" ? String(row.status) : "completed",
     created_at: timestamp.toISOString(),
     synced_at: row.synced_at ? String(row.synced_at) : null,
-    personaje: legacyPersonaje,
-    cantidad: legacyCantidad,
+    personaje: firstItem ? String(firstItem.productName) : legacyPersonaje,
+    cantidad: firstItem ? Number(firstItem.quantity ?? 0) : legacyCantidad,
     precio_venta_unitario: legacyPrice,
-    costo_unitario: fallbackCost,
-    ganancia: Number(row.ganancia ?? Math.max(0, total - fallbackCost * legacyCantidad)),
+    costo_unitario: firstItem ? Number(firstItem.costo_unitario ?? 0) : fallbackCost,
+    ganancia: Number(row.ganancia ?? (normalizedItems.length ? lineProfit : Math.max(0, total - fallbackCost * legacyCantidad))),
     fecha: saleDate,
     hora: saleTime,
     event_id: row.event_id ? String(row.event_id) : "default",
-  }];
+    productId: firstItem?.productId ? String(firstItem.productId) : (row.productId ? String(row.productId) : null),
+  };
 }
 
 export function getSaleProfit(sale: SaleRecord): number {
+  if (sale.items?.length) {
+    return sale.items.reduce((sum, item) => {
+      const quantity = Number(item.quantity ?? item.cantidad ?? 0);
+      const unitPrice = Number(item.unitPrice ?? item.precio_venta_unitario ?? 0);
+      const unitCost = Number(item.costo_unitario ?? unitPrice * 0.7);
+      return sum + (unitPrice - unitCost) * quantity;
+    }, 0);
+  }
+
   const qty = Number(sale.cantidad ?? 0);
   const revenue = Number(sale.total ?? 0);
   const baseCost = Number(
@@ -131,8 +145,8 @@ export function getSaleProfit(sale: SaleRecord): number {
 export function groupSalesByDay(sales: SaleRecord[]) {
   const groups = new Map<string, SaleRecord[]>();
 
-  for (const sale of sales) {
-    const key = sale.fecha || sale.created_at || "Sin fecha";
+  for (const sale of [...sales].sort(compareSalesNewestFirst)) {
+    const key = sale.created_at?.slice(0, 10) || sale.fecha || "Sin fecha";
     const existing = groups.get(key) ?? [];
     existing.push(sale);
     groups.set(key, existing);
@@ -141,7 +155,7 @@ export function groupSalesByDay(sales: SaleRecord[]) {
   return Array.from(groups.entries())
     .map(([date, items]) => ({
       date,
-      items,
+      items: items.sort(compareSalesNewestFirst),
       total: items.reduce((sum, item) => sum + Number(item.total || 0), 0),
     }))
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -151,16 +165,18 @@ export function groupSalesByEventOrDate(
   sales: SaleRecord[],
   eventNames: Map<string, string>
 ) {
-  const groups = new Map<string, { label: string; sortDate: string; items: SaleRecord[] }>();
+  const groups = new Map<string, { label: string; sortDate: string; sortTimestamp: number; items: SaleRecord[] }>();
 
-  for (const sale of sales) {
+  for (const sale of [...sales].sort(compareSalesNewestFirst)) {
     const saleDate = sale.fecha || "Sin fecha";
+    const saleTimestamp = Date.parse(String(sale.created_at ?? "")) || Date.parse(`${saleDate}T${sale.hora ?? "00:00:00"}`) || 0;
     const eventId = sale.event_id && sale.event_id !== "default" ? sale.event_id : "";
     const eventName = eventId ? eventNames.get(eventId) : undefined;
     const key = eventName && eventId ? `event:${eventId}` : `date:${saleDate}`;
     const group = groups.get(key) ?? {
       label: eventName || saleDate,
       sortDate: saleDate,
+      sortTimestamp: saleTimestamp,
       items: [],
     };
 
@@ -168,36 +184,30 @@ export function groupSalesByEventOrDate(
     if (saleDate > group.sortDate) {
       group.sortDate = saleDate;
     }
+    group.sortTimestamp = Math.max(group.sortTimestamp, saleTimestamp);
     groups.set(key, group);
   }
 
   return Array.from(groups.values())
     .map((group) => ({
       date: group.label,
-      items: group.items,
+      items: group.items.sort(compareSalesNewestFirst),
       total: group.items.reduce((sum, sale) => sum + Number(sale.total || 0), 0),
       sortDate: group.sortDate,
+      sortTimestamp: group.sortTimestamp,
     }))
-    .sort((a, b) => b.sortDate.localeCompare(a.sortDate) || a.date.localeCompare(b.date));
+    .sort((a, b) => b.sortTimestamp - a.sortTimestamp || b.sortDate.localeCompare(a.sortDate) || a.date.localeCompare(b.date));
 }
 
 export async function fetchSalesFromApi(): Promise<SaleRecord[]> {
-  try {
-    const response = await fetch("/api/sales");
+  const response = await fetch("/api/sales");
+  const payload = (await response.json()) as { sales?: SaleRecord[]; message?: string };
 
-    if (!response.ok) {
-      return [];
-    }
-
-    const payload = (await response.json()) as { sales?: SaleRecord[] };
-    const sales = Array.isArray(payload.sales) ? payload.sales : [];
-
-    console.log("Ventas cargadas desde Supabase:", sales);
-    return sales;
-  } catch (error) {
-    console.error("Error al cargar ventas desde Supabase:", error);
-    return [];
+  if (!response.ok) {
+    throw new Error(payload.message ?? "No se pudieron cargar las ventas.");
   }
+
+  return Array.isArray(payload.sales) ? payload.sales : [];
 }
 
 export async function fetchSalesFromSupabase(): Promise<SaleRecord[]> {
@@ -234,17 +244,7 @@ export async function fetchSalesFromSupabase(): Promise<SaleRecord[]> {
     }
 
     const rows = data as Array<Record<string, unknown>>;
-    const normalized = rows.flatMap((row) => normalizeSaleRow(row));
-    const sorted = normalized.sort((a, b) => {
-      const dateOrder = String(b.fecha ?? "").localeCompare(String(a.fecha ?? ""));
-      if (dateOrder !== 0) {
-        return dateOrder;
-      }
-
-      const aDate = new Date(String(a.created_at ?? a.fecha ?? 0)).getTime();
-      const bDate = new Date(String(b.created_at ?? b.fecha ?? 0)).getTime();
-      return bDate - aDate;
-    });
+    const sorted = rows.map((row) => normalizeSaleRow(row)).sort(compareSalesNewestFirst);
 
     console.log("[sales service] rows returned from Supabase:", sorted.length);
     console.log("[sales service] first row sample:", sorted[0] ?? null);
@@ -255,87 +255,73 @@ export async function fetchSalesFromSupabase(): Promise<SaleRecord[]> {
   }
 }
 
-export async function deleteSaleFromSupabase(id: string): Promise<boolean> {
+export type SaleMutationResult = {
+  ok: boolean;
+  message?: string;
+  status?: number;
+};
+
+function getSupabaseCredentials() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-  const anonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return { url, key };
+}
 
-  if (!url || !anonKey || !id) {
-    return false;
+function getMutationErrorMessage(error: unknown): string {
+  if (error && typeof error === "object" && "message" in error) {
+    return String(error.message);
   }
+  return "No se pudo guardar la venta.";
+}
 
+export async function updateSaleInSupabase(
+  id: string,
+  items: Array<{ productId: string; quantity: number; unitPrice: number }>
+): Promise<SaleMutationResult> {
+  const { url, key } = getSupabaseCredentials();
+  if (!url || !key || !id) {
+    return { ok: false, status: 500, message: "Supabase no está configurado." };
+  }
   try {
-    const client = createClient(url, anonKey, {
+    const client = createClient(url, key, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
       },
     });
-
-    const { data: saleRecord, error: fetchError } = await client
-      .from("sales")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (fetchError) {
-      console.error("Fetch sale before delete error:", fetchError);
-      return false;
+    const { error } = await client.rpc("update_sale_with_inventory", {
+      sale_id: id,
+      new_items: items,
+    });
+    if (error) {
+      console.error("Update sale error:", error);
+      return { ok: false, status: /no existe|not found/i.test(error.message) ? 404 : 409, message: error.message };
     }
+    return { ok: true };
+  } catch (error) {
+    console.error("Update sale exception:", error);
+    return { ok: false, status: 500, message: getMutationErrorMessage(error) };
+  }
+}
 
-    if (!saleRecord) {
-      return false;
-    }
+export async function deleteSaleFromSupabase(id: string): Promise<SaleMutationResult> {
+  const { url, key } = getSupabaseCredentials();
+  if (!url || !key || !id) {
+    return { ok: false, status: 500, message: "Supabase no está configurado." };
+  }
 
-    const itemName = String(
-      saleRecord.personaje ?? saleRecord.items?.[0]?.productName ?? saleRecord.items?.[0]?.name ?? ""
-    ).trim();
-    const quantity = Number(
-      saleRecord.cantidad ?? saleRecord.items?.[0]?.quantity ?? saleRecord.items?.[0]?.cantidad ?? 0
-    );
-    const productRefId =
-      saleRecord.items?.[0]?.productId ?? saleRecord.items?.[0]?.product_id ?? saleRecord.productId ?? saleRecord.id ?? null;
-
-    const productTargetId = productRefId !== null && productRefId !== undefined ? Number(productRefId) : null;
-
-    const { error } = await client.from("sales").delete().eq("id", id);
-
+  try {
+    const client = createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { error } = await client.rpc("delete_sale_with_inventory", { sale_id: id });
     if (error) {
       console.error("Delete sale error:", error);
-      return false;
+      return { ok: false, status: /no existe|not found/i.test(error.message) ? 404 : 409, message: error.message };
     }
-
-    if (quantity > 0) {
-      const { data: products, error: catalogError } = await client
-        .from("products")
-        .select("id, personaje, stock");
-
-      if (!catalogError && Array.isArray(products)) {
-        const productMatch = products.find((product) => {
-          const candidateId = productTargetId !== null ? Number(product.id ?? 0) === productTargetId : false;
-          const productName = String(product.personaje ?? "").trim().toLowerCase();
-          return candidateId || (itemName ? productName === itemName.toLowerCase() : false);
-        });
-
-        if (productMatch) {
-          const currentStock = Number(productMatch.stock ?? 0);
-          const nextStock = Math.max(0, currentStock + quantity);
-
-          const { error: stockError } = await client
-            .from("products")
-            .update({ stock: nextStock })
-            .eq("id", Number(productMatch.id));
-
-          if (stockError) {
-            console.error("Restore stock error:", stockError);
-          }
-        }
-      }
-    }
-
-    return true;
+    return { ok: true };
   } catch (error) {
     console.error("Delete sale exception:", error);
-    return false;
+    return { ok: false, status: 500, message: getMutationErrorMessage(error) };
   }
 }

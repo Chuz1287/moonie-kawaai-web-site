@@ -80,6 +80,7 @@ export default function PosDashboard() {
   const [eventModalStatus, setEventModalStatus] = useState("");
   const [isSavingEvent, setIsSavingEvent] = useState(false);
   const [isSavingExpense, setIsSavingExpense] = useState(false);
+  const [isExportingProducts, setIsExportingProducts] = useState(false);
   const [deletingEventId, setDeletingEventId] = useState("");
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -420,6 +421,41 @@ export default function PosDashboard() {
     }
   };
 
+  const handleExportProducts = async () => {
+    if (isExportingProducts) {
+      return;
+    }
+
+    setIsExportingProducts(true);
+    try {
+      const response = await fetch("/api/products/export");
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { message?: string };
+        throw new Error(payload.message ?? "No se pudo descargar el catálogo.");
+      }
+
+      const file = await response.blob();
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `catalogo-productos-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setStatus("Catálogo de Supabase descargado en Excel.");
+    } catch (error) {
+      setStatus(
+        error instanceof Error
+          ? error.message
+          : "No se pudo descargar el catálogo."
+      );
+    } finally {
+      setIsExportingProducts(false);
+    }
+  };
+
   const handleSaveEventExpense = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const category = expenseCategory === "__custom__" ? customExpenseCategory.trim() : expenseCategory;
@@ -510,10 +546,18 @@ export default function PosDashboard() {
               <h1 className="mt-2 text-3xl font-black text-white">Monie Kawaai POS</h1>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
                 Sincronización activa
               </span>
+              <button
+                type="button"
+                onClick={() => void handleExportProducts()}
+                disabled={isExportingProducts}
+                className="rounded-full border border-emerald-400/60 bg-emerald-500/10 px-4 py-2 text-sm font-bold text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-wait disabled:opacity-60"
+              >
+                {isExportingProducts ? "Preparando Excel..." : "Descargar catálogo (.xlsx)"}
+              </button>
               <Link
                 href="/sales"
                 className="rounded-full border border-violet-400/60 bg-violet-500/10 px-4 py-2 text-sm font-bold text-violet-200 transition hover:bg-violet-500/20"
