@@ -35,20 +35,29 @@ export async function PATCH(
     const { id } = await params;
     const body = (await request.json()) as {
       is_active?: boolean;
+      name?: string;
       start_date?: string;
       end_date?: string;
     };
 
     const hasStatusUpdate = typeof body.is_active === "boolean";
+    const hasNameUpdate = body.name !== undefined;
     const hasDateUpdate = body.start_date !== undefined || body.end_date !== undefined;
 
-    if (!hasStatusUpdate && !hasDateUpdate) {
-      return NextResponse.json({ message: "Indica el estado o las fechas que deseas actualizar." }, { status: 400 });
+    if (!hasStatusUpdate && !hasNameUpdate && !hasDateUpdate) {
+      return NextResponse.json({ message: "Indica el nombre, el estado o las fechas que deseas actualizar." }, { status: 400 });
     }
 
-    const update: { is_active?: boolean; start_date?: string; end_date?: string } = {};
+    const update: { is_active?: boolean; name?: string; start_date?: string; end_date?: string } = {};
     if (hasStatusUpdate) {
       update.is_active = body.is_active;
+    }
+    if (hasNameUpdate) {
+      const name = String(body.name ?? "").trim();
+      if (!name) {
+        return NextResponse.json({ message: "El nombre del evento es obligatorio." }, { status: 400 });
+      }
+      update.name = name;
     }
     if (hasDateUpdate) {
       const startDate = String(body.start_date ?? "");
@@ -78,6 +87,12 @@ export async function PATCH(
       .maybeSingle();
 
     if (error) {
+      if (error.code === "23505") {
+        return NextResponse.json(
+          { message: "Ya existe un evento con ese nombre." },
+          { status: 409 }
+        );
+      }
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
     if (!data) {
@@ -86,7 +101,9 @@ export async function PATCH(
 
     return NextResponse.json({
       event: data,
-      message: hasDateUpdate
+      message: hasNameUpdate
+        ? "Nombre del evento actualizado."
+        : hasDateUpdate
         ? "Fechas del evento actualizadas."
         : body.is_active ? "Evento reactivado." : "Evento cerrado.",
     });

@@ -70,8 +70,13 @@ export function usePosDashboard() {
   const [customExpenseCategory, setCustomExpenseCategory] = useState("");
   const [expenseAmount, setExpenseAmount] = useState("");
   const [eventModalStatus, setEventModalStatus] = useState("");
+  const [editingEventId, setEditingEventId] = useState("");
+  const [editingEventName, setEditingEventName] = useState("");
+  const [editingExpenseId, setEditingExpenseId] = useState("");
+  const [editingExpenseAmount, setEditingExpenseAmount] = useState("");
   const [isSavingEvent, setIsSavingEvent] = useState(false);
   const [isSavingExpense, setIsSavingExpense] = useState(false);
+  const [isUpdatingExpense, setIsUpdatingExpense] = useState(false);
   const [isExportingProducts, setIsExportingProducts] = useState(false);
   const [deletingEventId, setDeletingEventId] = useState("");
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
@@ -409,6 +414,40 @@ export function usePosDashboard() {
     }
   };
 
+  const handleRenameEvent = async (event: EventOption) => {
+    const name = editingEventName.trim();
+    if (!name || name === event.name || editingEventId !== event.id) {
+      return;
+    }
+
+    setEditingEventId("");
+    setEventModalStatus("");
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(event.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const payload = (await response.json()) as { event?: EventOption; message?: string };
+
+      if (!response.ok || !payload.event) {
+        throw new Error(payload.message ?? "No se pudo actualizar el nombre del evento.");
+      }
+
+      setSalesChannels((current) =>
+        current.map((item) => item.id === payload.event!.id ? payload.event! : item)
+      );
+      setEventModalStatus(`Nombre de evento actualizado a "${payload.event.name}".`);
+      setStatus(`Nombre de evento actualizado a "${payload.event.name}".`);
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : "No se pudo actualizar el nombre del evento.";
+      setEditingEventId(event.id);
+      setEventModalStatus(message);
+    }
+  };
+
   const handleExportProducts = async () => {
     if (isExportingProducts) {
       return;
@@ -491,6 +530,51 @@ export function usePosDashboard() {
     }
   };
 
+  const handleUpdateEventExpense = async (expense: EventExpense) => {
+    const amount = Number(editingExpenseAmount);
+    if (!managedEventId || !Number.isFinite(amount) || amount <= 0 || isUpdatingExpense) {
+      setEventModalStatus("Ingresa un importe mayor que cero.");
+      return;
+    }
+
+    setIsUpdatingExpense(true);
+    setEventModalStatus("");
+    try {
+      const response = await fetch(
+        `/api/events/${encodeURIComponent(managedEventId)}/expenses`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ expenseId: expense.id, amount }),
+        }
+      );
+      const payload = (await response.json()) as {
+        expense?: EventExpense;
+        message?: string;
+      };
+
+      if (!response.ok || !payload.expense) {
+        throw new Error(payload.message ?? "No se pudo actualizar el gasto.");
+      }
+
+      setEventExpenses((current) =>
+        current.map((item) => item.id === payload.expense!.id ? payload.expense! : item)
+      );
+      setEditingExpenseId("");
+      setEditingExpenseAmount("");
+      setEventModalStatus("Importe del gasto actualizado.");
+      if (managedEventId === selectedEvent) {
+        setEventPerformanceRefresh((current) => current + 1);
+      }
+    } catch (error) {
+      setEventModalStatus(
+        error instanceof Error ? error.message : "No se pudo actualizar el gasto."
+      );
+    } finally {
+      setIsUpdatingExpense(false);
+    }
+  };
+
   const handleDeleteEvent = async (event: EventOption) => {
     if (
       deletingEventId ||
@@ -565,8 +649,17 @@ export function usePosDashboard() {
     expenseAmount,
     setExpenseAmount,
     eventModalStatus,
+    editingEventId,
+    setEditingEventId,
+    editingEventName,
+    setEditingEventName,
+    editingExpenseId,
+    setEditingExpenseId,
+    editingExpenseAmount,
+    setEditingExpenseAmount,
     isSavingEvent,
     isSavingExpense,
+    isUpdatingExpense,
     isExportingProducts,
     deletingEventId,
     productCatalog,
@@ -584,8 +677,10 @@ export function usePosDashboard() {
     handleRemove,
     handleCheckout,
     handleSaveChannel,
+    handleRenameEvent,
     handleExportProducts,
     handleSaveEventExpense,
+    handleUpdateEventExpense,
     handleDeleteEvent,
   };
 }

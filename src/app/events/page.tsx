@@ -34,6 +34,7 @@ export default function EventsPage() {
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [selectedEventId, setSelectedEventId] = useState("");
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
+  const [managedEventName, setManagedEventName] = useState("");
   const [eventName, setEventName] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [eventStartDate, setEventStartDate] = useState("");
@@ -47,6 +48,9 @@ export default function EventsPage() {
   const [isSavingEvent, setIsSavingEvent] = useState(false);
   const [isSavingExpense, setIsSavingExpense] = useState(false);
   const [updatingEvent, setUpdatingEvent] = useState(false);
+  const [editingExpenseId, setEditingExpenseId] = useState("");
+  const [editingExpenseAmount, setEditingExpenseAmount] = useState("");
+  const [updatingExpense, setUpdatingExpense] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,6 +70,7 @@ export default function EventsPage() {
           const savedEvent = localStorage.getItem("moonie_kawaai_selected_event");
           const initialEvent = loadedEvents.find((event) => event.id === savedEvent) ?? loadedEvents[0];
           setSelectedEventId(initialEvent?.id ?? "");
+          setManagedEventName(initialEvent?.name ?? "");
           setManagedStartDate(initialEvent?.start_date ?? "");
           setManagedEndDate(initialEvent?.end_date ?? "");
         }
@@ -165,6 +170,36 @@ export default function EventsPage() {
       setStatus(error instanceof Error ? error.message : "No se pudo guardar el evento.");
     } finally {
       setIsSavingEvent(false);
+    }
+  }
+
+  async function handleSaveEventName() {
+    const name = managedEventName.trim();
+    if (!selectedEvent || !name || name === selectedEvent.name || updatingEvent) return;
+
+    setUpdatingEvent(true);
+    setStatus("");
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(selectedEvent.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const payload = (await response.json()) as { event?: EventRecord; message?: string };
+
+      if (!response.ok || !payload.event) {
+        throw new Error(payload.message ?? "No se pudo actualizar el nombre del evento.");
+      }
+
+      setEvents((current) =>
+        current.map((event) => event.id === payload.event!.id ? payload.event! : event)
+      );
+      setManagedEventName(payload.event.name);
+      setStatus(`Nombre de evento actualizado a "${payload.event.name}".`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "No se pudo actualizar el nombre del evento.");
+    } finally {
+      setUpdatingEvent(false);
     }
   }
 
@@ -309,6 +344,48 @@ export default function EventsPage() {
     }
   }
 
+  async function handleSaveExpenseAmount(expense: ExpenseRecord) {
+    const updatedAmount = Number(editingExpenseAmount);
+    if (
+      !selectedEventId ||
+      !Number.isFinite(updatedAmount) ||
+      updatedAmount <= 0 ||
+      updatingExpense
+    ) {
+      setStatus("Ingresa un importe mayor que cero.");
+      return;
+    }
+
+    setUpdatingExpense(true);
+    setStatus("");
+    try {
+      const response = await fetch(
+        `/api/events/${encodeURIComponent(selectedEventId)}/expenses`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ expenseId: expense.id, amount: updatedAmount }),
+        }
+      );
+      const payload = (await response.json()) as { expense?: ExpenseRecord; message?: string };
+
+      if (!response.ok || !payload.expense) {
+        throw new Error(payload.message ?? "No se pudo actualizar el gasto.");
+      }
+
+      setExpenses((current) =>
+        current.map((item) => item.id === payload.expense!.id ? payload.expense! : item)
+      );
+      setEditingExpenseId("");
+      setEditingExpenseAmount("");
+      setStatus("Importe del gasto actualizado.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "No se pudo actualizar el gasto.");
+    } finally {
+      setUpdatingExpense(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
       <div className="mx-auto max-w-6xl">
@@ -371,8 +448,11 @@ export default function EventsPage() {
               <select value={selectedEventId} onChange={(event) => {
                 setSelectedEventId(event.target.value);
                 const chosenEvent = events.find((item) => item.id === event.target.value);
+                setManagedEventName(chosenEvent?.name ?? "");
                 setManagedStartDate(chosenEvent?.start_date ?? "");
                 setManagedEndDate(chosenEvent?.end_date ?? "");
+                setEditingExpenseId("");
+                setEditingExpenseAmount("");
                 if (chosenEvent?.is_active) {
                   localStorage.setItem("moonie_kawaai_selected_event", chosenEvent.id);
                 }
@@ -385,6 +465,25 @@ export default function EventsPage() {
             </label>
             {selectedEvent && (
               <>
+                <div className="mt-4 flex flex-wrap items-end gap-3">
+                  <label className="min-w-[220px] flex-1 text-sm text-slate-300">
+                    Nombre del evento
+                    <input
+                      required
+                      value={managedEventName}
+                      onChange={(event) => setManagedEventName(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => void handleSaveEventName()}
+                    disabled={updatingEvent || !managedEventName.trim() || managedEventName.trim() === selectedEvent.name}
+                    className="rounded-xl border border-violet-400/50 px-3 py-2 text-sm font-bold text-violet-200 disabled:opacity-50"
+                  >
+                    Guardar nombre
+                  </button>
+                </div>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm text-slate-400">Lugar: {selectedEvent.location || "Sin especificar"}</p>
                   <span className={`rounded-full px-3 py-1 text-xs font-bold ${
@@ -487,7 +586,57 @@ export default function EventsPage() {
                       <p className="font-semibold text-white">{expense.category}</p>
                       <p className="mt-1 text-xs text-slate-400">{new Date(expense.created_at).toLocaleDateString("es-MX")}</p>
                     </div>
-                    <strong className="text-rose-300">{formatCurrency(Number(expense.amount))}</strong>
+                    <div className="flex items-center gap-2">
+                      {editingExpenseId === expense.id ? (
+                        <>
+                          <label className="sr-only" htmlFor={`expense-amount-${expense.id}`}>
+                            Importe de {expense.category}
+                          </label>
+                          <input
+                            id={`expense-amount-${expense.id}`}
+                            type="number"
+                            min="0.01"
+                            step="0.01"
+                            value={editingExpenseAmount}
+                            onChange={(event) => setEditingExpenseAmount(event.target.value)}
+                            className="w-32 rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-right text-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => void handleSaveExpenseAmount(expense)}
+                            disabled={updatingExpense || !editingExpenseAmount}
+                            className="rounded-lg border border-emerald-500/50 px-2 py-1 text-xs font-bold text-emerald-200 disabled:opacity-50"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingExpenseId("");
+                              setEditingExpenseAmount("");
+                            }}
+                            disabled={updatingExpense}
+                            className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-300 disabled:opacity-50"
+                          >
+                            Cancelar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <strong className="text-rose-300">{formatCurrency(Number(expense.amount))}</strong>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingExpenseId(expense.id);
+                              setEditingExpenseAmount(String(expense.amount));
+                            }}
+                            className="rounded-lg border border-sky-500/50 px-2 py-1 text-xs font-bold text-sky-200"
+                          >
+                            Editar importe
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </article>
                 ))}
               </div>
