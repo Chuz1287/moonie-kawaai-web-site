@@ -1,5 +1,5 @@
-import SalesHistory from "@/components/sales";
+import SalesHistoryPage from "@/pages/sales";
 
 export default function SalesPage() {
-  return <SalesHistory />;
+  return <SalesHistoryPage />;
 }
