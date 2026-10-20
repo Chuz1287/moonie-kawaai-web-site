@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { getSaleLineName, getSaleLines, type SalesHistoryModel } from "../sales.logic";
 import { getSaleProfit, type SaleRecord } from "@/services/sales";
 import SaleActions from "./SaleActions";
+import styles from "./SalesTicketCard.module.scss";
 
 type SalesListProps = {
   model: SalesHistoryModel;
@@ -22,6 +24,102 @@ function SaleActionsFor({
       onEdit={model.startEditing}
       onDelete={(item) => void model.handleDelete(item)}
     />
+  );
+}
+
+function TicketCard({
+  sale,
+  model,
+}: {
+  sale: SaleRecord;
+  model: SalesHistoryModel;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { getEventName } = model;
+  const lines = getSaleLines(sale);
+  const profit = getSaleProfit(sale);
+
+  return (
+    <article className={styles["sales-ticket"]}>
+      <div className={styles["ticket-header"]}>
+        <div className={styles["ticket-info"]}>
+          <h3 className={styles["ticket-number"]}>Ticket {sale.sale_number ?? sale.id}</h3>
+          <div className={styles["ticket-meta"]}>
+            <span>{sale.fecha}</span>
+            <span>{sale.hora}</span>
+            <span>{getEventName(sale.event_id)}</span>
+          </div>
+          <span className={styles["ticket-status"]}>Completado</span>
+        </div>
+
+        <div className={styles["ticket-amount"]}>
+          <div className={styles["amount-value"]}>${Number(sale.total ?? 0).toFixed(2)}</div>
+          <div className={styles["amount-label"]}>Total</div>
+          <div className={styles["profit"]}>
+            <div className={styles["profit-value"]}>Ganancia ${profit.toFixed(2)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles["products-section"]}>
+        <button
+          type="button"
+          className={styles["products-toggle"]}
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <span>Productos ({lines.length})</span>
+          <span className={`${styles["toggle-icon"]} ${isExpanded ? "" : styles["collapsed"]}`}>
+            ▼
+          </span>
+        </button>
+
+        <div className={`${styles["products-list"]} ${isExpanded ? "" : styles["collapsed"]}`}>
+          {lines.map((line, index) => {
+            const quantity = Number(line.quantity ?? line.cantidad ?? 0);
+            const unitPrice = Number(line.unitPrice ?? line.precio_venta_unitario ?? 0);
+            const total = quantity * unitPrice;
+
+            return (
+              <div key={`${sale.id}-${line.productId ?? line.product_id ?? index}`} className={styles["product-item"]}>
+                <div className={styles["product-image"]}>
+                  {/* Placeholder - agregar imagen real si es disponible */}
+                  <div style={{ width: "100%", height: "100%", background: "rgb(30 41 59)" }} />
+                </div>
+
+                <div className={styles["product-info"]}>
+                  <h4 className={styles["product-name"]}>{getSaleLineName(line)}</h4>
+                  <p className={styles["product-id"]}>ID: {line.productId ?? line.product_id ?? "—"}</p>
+                </div>
+
+                <div className={styles["product-metrics"]}>
+                  <div className={styles["metric"]}>
+                    <span className={styles["metric-label"]}>Cantidad</span>
+                    <span className={styles["metric-value"]}>{quantity}</span>
+                  </div>
+                  <div className={styles["metric"]}>
+                    <span className={styles["metric-label"]}>Precio</span>
+                    <span className={styles["metric-value"]}>${unitPrice.toFixed(2)}</span>
+                  </div>
+                  <div className={styles["metric"]}>
+                    <span className={styles["metric-label"]}>Total</span>
+                    <span className={styles["metric-value"]}>${total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={styles["warning"]}>
+        <div className={styles["warning-icon"]}>⚠</div>
+        <div className={styles["warning-text"]}>No editable: faltan IDs de producto para ajustar el inventario con seguridad.</div>
+      </div>
+
+      <div className={styles["actions"]}>
+        <SaleActionsFor sale={sale} model={model} />
+      </div>
+    </article>
   );
 }
 
@@ -73,67 +171,7 @@ export default function SalesList({ model }: SalesListProps) {
             </div>
             <div className="space-y-3">
               {group.items.map((sale) => (
-                <article
-                  key={sale.id}
-                  className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4"
-                >
-                  <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-bold text-white">
-                        Ticket {sale.sale_number ?? sale.id}
-                      </h3>
-                      <p className="mt-1 text-xs text-slate-400">
-                        {sale.fecha} · {sale.hora} · {getEventName(sale.event_id)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-emerald-300">
-                        ${Number(sale.total ?? 0).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        Ganancia ${getSaleProfit(sale).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mb-4 overflow-x-auto rounded-xl border border-slate-800">
-                    <table className="w-full min-w-[520px] text-left text-sm">
-                      <thead className="bg-slate-800 text-xs uppercase text-slate-300">
-                        <tr>
-                          <th className="px-3 py-2">Pieza</th>
-                          <th className="px-3 py-2">ID</th>
-                          <th className="px-3 py-2">Cant.</th>
-                          <th className="px-3 py-2">Precio</th>
-                          <th className="px-3 py-2">Importe</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {getSaleLines(sale).map((line, index) => {
-                          const quantity = Number(line.quantity ?? line.cantidad ?? 0);
-                          const unitPrice = Number(
-                            line.unitPrice ?? line.precio_venta_unitario ?? 0
-                          );
-                          return (
-                            <tr
-                              key={`${sale.id}-${line.productId ?? line.product_id ?? index}`}
-                              className="border-t border-slate-800 text-slate-200"
-                            >
-                              <td className="px-3 py-2">{getSaleLineName(line)}</td>
-                              <td className="px-3 py-2 text-slate-400">
-                                {line.productId ?? line.product_id ?? "—"}
-                              </td>
-                              <td className="px-3 py-2">{quantity}</td>
-                              <td className="px-3 py-2">${unitPrice.toFixed(2)}</td>
-                              <td className="px-3 py-2">
-                                ${(quantity * unitPrice).toFixed(2)}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                  <SaleActionsFor sale={sale} model={model} />
-                </article>
+                <TicketCard key={sale.id} sale={sale} model={model} />
               ))}
             </div>
           </section>

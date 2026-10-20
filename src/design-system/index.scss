@@ -1,0 +1,16 @@
+// ═══════════════════════════════════════════════════════════════
+// MOONIE KAWAAI - DESIGN SYSTEM INDEX
+// ═══════════════════════════════════════════════════════════════
+// 
+// Exporta todas las variables y mixins del design system
+// 
+// Uso: @import "@/design-system";
+// ═══════════════════════════════════════════════════════════════
+
+@import "@/design-system/_variables.scss";
+@import "@/design-system/_mixins.scss";
+
+// Components (comentados hasta que se usen)
+// @import "@/design-system/components/button.module.scss";
+// @import "@/design-system/components/card.module.scss";
+// @import "@/design-system/components/input.module.scss";

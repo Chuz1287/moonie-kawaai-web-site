@@ -1,0 +1,119 @@
+// ═══════════════════════════════════════════════════════════════
+// MOONIE KAWAAI - INPUT COMPONENT
+// ═══════════════════════════════════════════════════════════════
+
+@import "@/design-system/_variables.scss";
+@import "@/design-system/_mixins.scss";
+
+.input-group {
+  @include flex-column;
+  gap: $spacing-sm;
+  width: 100%;
+
+  label {
+    font-weight: $font-weight-semibold;
+    font-size: $text-sm;
+    color: $color-text-primary;
+  }
+
+  .input-help {
+    font-size: $text-xs;
+    color: $color-text-tertiary;
+  }
+
+  .input-error {
+    font-size: $text-xs;
+    color: $color-error;
+  }
+}
+
+.input {
+  @include border-radius($radius-md);
+  @include transition-all;
+  @include border-all(1px, $color-border-light);
+
+  padding: $spacing-sm $spacing-md;
+  font-family: $font-family-base;
+  font-size: $text-base;
+  background-color: $color-bg-primary;
+  color: $color-text-primary;
+
+  &::placeholder {
+    color: $color-text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+  }
+
+  &:disabled {
+    background-color: $color-bg-tertiary;
+    color: $color-text-muted;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &--error {
+    border-color: $color-error;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+
+  &--success {
+    border-color: $color-success;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+  }
+
+  &--lg {
+    padding: $spacing-md $spacing-lg;
+    font-size: $text-lg;
+  }
+
+  &--sm {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $text-sm;
+  }
+}
+
+.textarea {
+  @extend .input;
+  resize: vertical;
+  min-height: 100px;
+  font-family: $font-family-base;
+}
+
+.select {
+  @extend .input;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right $spacing-md center;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.checkbox,
+.radio {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  accent-color: $color-primary;
+
+  &:focus {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}

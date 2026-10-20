@@ -1,0 +1,231 @@
+// ═══════════════════════════════════════════════════════════════
+// MOONIE KAWAAI - DESIGN SYSTEM MIXINS
+// ═══════════════════════════════════════════════════════════════
+
+@use "@/design-system/_variables.scss" as vars;
+
+// ─── MEDIA QUERIES ───────────────────────────────────────────────
+@mixin mobile {
+  @media (min-width: vars.$mobile) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: vars.$tablet) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: vars.$desktop) {
+    @content;
+  }
+}
+
+@mixin largeDesktop {
+  @media (min-width: vars.$largeDesktop) {
+    @content;
+  }
+}
+
+// ─── FLEXBOX ──────────────────────────────────────────────────────
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// ─── GRID ─────────────────────────────────────────────────────────
+@mixin grid-center {
+  display: grid;
+  place-items: center;
+}
+
+@mixin grid-cols($cols) {
+  display: grid;
+  grid-template-columns: repeat($cols, 1fr);
+}
+
+@mixin grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+// ─── TIPOGRAFÍA ───────────────────────────────────────────────────
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-truncate($lines: 3) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin text-heading {
+  font-family: vars.$font-family-base;
+  font-weight: vars.$font-weight-bold;
+  line-height: 1.2;
+}
+
+// ─── TEMA (Light/Dark) ────────────────────────────────────────────
+@mixin dark-mode {
+  @media (prefers-color-scheme: dark) {
+    @content;
+  }
+}
+
+@mixin light-mode {
+  @media (prefers-color-scheme: light) {
+    @content;
+  }
+}
+
+@mixin theme($isDark: true) {
+  @if $isDark {
+    color: vars.$color-text-primary;
+    background-color: vars.$color-bg-primary;
+  } @else {
+    color: vars.$light-color-text-primary;
+    background-color: vars.$light-color-bg-primary;
+  }
+}
+
+// ─── SOMBRAS ──────────────────────────────────────────────────────
+@mixin shadow-sm {
+  box-shadow: vars.$shadow-sm;
+}
+
+@mixin shadow-md {
+  box-shadow: vars.$shadow-md;
+}
+
+@mixin shadow-lg {
+  box-shadow: vars.$shadow-lg;
+}
+
+@mixin shadow-xl {
+  box-shadow: vars.$shadow-xl;
+}
+
+@mixin shadow-2xl {
+  box-shadow: vars.$shadow-2xl;
+}
+
+// ─── BORDES Y RADIUS ──────────────────────────────────────────────
+@mixin border-radius($size: vars.$radius-md) {
+  border-radius: $size;
+}
+
+@mixin border-all($width: 1px, $color: vars.$color-border-default) {
+  border: $width solid $color;
+}
+
+@mixin border-top($width: 1px, $color: vars.$color-border-default) {
+  border-top: $width solid $color;
+}
+
+@mixin border-bottom($width: 1px, $color: vars.$color-border-default) {
+  border-bottom: $width solid $color;
+}
+
+// ─── TRANSICIONES ─────────────────────────────────────────────────
+@mixin transition($property: all, $duration: vars.$transition-base) {
+  transition: $property $duration;
+}
+
+@mixin transition-all($duration: vars.$transition-base) {
+  transition: all $duration;
+}
+
+// ─── ESTADOS ──────────────────────────────────────────────────────
+@mixin hover-primary {
+  &:hover {
+    background-color: vars.$color-primary-dark;
+    color: vars.$color-primary-contrast;
+    @include transition-all;
+  }
+}
+
+@mixin focus-ring {
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px vars.$color-primary;
+  }
+}
+
+// ─── ACCESIBILIDAD ────────────────────────────────────────────────
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@mixin skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: $color-primary;
+  color: $color-primary-contrast;
+  padding: $spacing-sm $spacing-md;
+  text-decoration: none;
+  z-index: 100;
+
+  &:focus {
+    top: 0;
+  }
+}
+
+// ─── UTILIDADES ───────────────────────────────────────────────────
+@mixin aspect-ratio($width, $height) {
+  aspect-ratio: $width / $height;
+}
+
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}

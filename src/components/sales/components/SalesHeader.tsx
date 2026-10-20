@@ -9,7 +9,7 @@ type SalesHeaderProps = {
 
 export default function SalesHeader({ loading, onRefresh }: SalesHeaderProps) {
   return (
-    <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <header className="Header_Sales mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-violet-400">
           Historial

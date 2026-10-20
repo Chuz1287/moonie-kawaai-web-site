@@ -1,0 +1,125 @@
+// ═══════════════════════════════════════════════════════════════
+// MOONIE KAWAAI - BUTTON COMPONENT
+// ═══════════════════════════════════════════════════════════════
+
+@import "@/design-system/_variables.scss";
+@import "@/design-system/_mixins.scss";
+
+.btn {
+  @include flex-center;
+  @include border-radius($radius-lg);
+  @include transition-all;
+
+  padding: $spacing-sm $spacing-lg;
+  font-family: $font-family-base;
+  font-weight: $font-weight-semibold;
+  font-size: $text-base;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  gap: $spacing-sm;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @include focus-ring;
+
+  // ─── VARIANTES ──────────────────────────────────────────────────
+
+  &--primary {
+    background-color: $color-primary;
+    color: $color-primary-contrast;
+
+    &:hover {
+      background-color: $color-primary-dark;
+    }
+
+    &:disabled {
+      background-color: $color-border-light;
+      color: $color-text-muted;
+      cursor: not-allowed;
+    }
+  }
+
+  &--secondary {
+    background-color: $color-secondary;
+    color: $color-secondary-contrast;
+
+    &:hover {
+      background-color: $color-secondary-dark;
+    }
+
+    &:disabled {
+      background-color: $color-border-light;
+      cursor: not-allowed;
+    }
+  }
+
+  &--success {
+    background-color: $color-success;
+    color: white;
+
+    &:hover {
+      background-color: $color-success-dark;
+    }
+  }
+
+  &--error {
+    background-color: $color-error;
+    color: white;
+
+    &:hover {
+      background-color: $color-error-dark;
+    }
+  }
+
+  &--outline {
+    background-color: transparent;
+    border: 1px solid $color-border-light;
+    color: $color-text-primary;
+
+    &:hover {
+      background-color: $color-bg-secondary;
+      border-color: $color-primary;
+    }
+  }
+
+  &--ghost {
+    background-color: transparent;
+    color: $color-text-primary;
+
+    &:hover {
+      background-color: $color-bg-tertiary;
+    }
+  }
+
+  // ─── TAMAÑOS ────────────────────────────────────────────────────
+
+  &--sm {
+    padding: $spacing-xs $spacing-md;
+    font-size: $text-sm;
+  }
+
+  &--lg {
+    padding: $spacing-md $spacing-xl;
+    font-size: $text-lg;
+  }
+
+  &--block {
+    width: 100%;
+  }
+
+  // ─── ESTADOS ────────────────────────────────────────────────────
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--loading {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}

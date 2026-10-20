@@ -1,0 +1,309 @@
+@charset "UTF-8";
+/* Tarjeta de ticket de venta */
+@media (min-width: 0px) {
+  .sales-ticket {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgb(30, 41, 59);
+    background: rgba(15, 23, 42, 0.7);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  .sales-ticket:hover {
+    border-color: rgb(51, 65, 85);
+    background: rgba(15, 23, 42, 0.9);
+  }
+  .sales-ticket {
+    /* Header del ticket */
+  }
+  .sales-ticket .ticket-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .sales-ticket {
+    /* Productos */
+    /* Producto item */
+    /* Advertencia */
+    /* Acciones */
+  }
+}
+@media (min-width: 0px) and (min-width: 640px) {
+  .sales-ticket .ticket-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+@media (min-width: 0px) {
+  .sales-ticket .ticket-header .ticket-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+  .sales-ticket .ticket-header .ticket-info .ticket-number {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+  }
+  .sales-ticket .ticket-header .ticket-info .ticket-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: rgb(148, 163, 184);
+  }
+  .sales-ticket .ticket-header .ticket-info .ticket-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .sales-ticket .ticket-header .ticket-info .ticket-meta span::before {
+    content: "•";
+  }
+  .sales-ticket .ticket-header .ticket-info .ticket-meta span:first-child::before {
+    content: "";
+  }
+  .sales-ticket .ticket-header .ticket-info .ticket-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: -moz-fit-content;
+    width: fit-content;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(134, 239, 172);
+  }
+  .sales-ticket .ticket-header .ticket-info .ticket-status.reembolsado {
+    background: rgba(59, 130, 246, 0.15);
+    color: rgb(147, 197, 253);
+  }
+  .sales-ticket .ticket-header .ticket-info .ticket-status::before {
+    content: "✓";
+  }
+  .sales-ticket .ticket-header .ticket-amount {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+}
+@media (min-width: 0px) and (max-width: 639px) {
+  .sales-ticket .ticket-header .ticket-amount {
+    align-items: flex-start;
+  }
+}
+@media (min-width: 0px) {
+  .sales-ticket .ticket-header .ticket-amount .amount-value {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 800;
+    color: rgb(134, 239, 172);
+  }
+  .sales-ticket .ticket-header .ticket-amount .amount-label {
+    font-size: 0.75rem;
+    color: rgb(148, 163, 184);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .sales-ticket .ticket-header .ticket-amount .profit {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+}
+@media (min-width: 0px) and (max-width: 639px) {
+  .sales-ticket .ticket-header .ticket-amount .profit {
+    align-items: flex-start;
+  }
+}
+@media (min-width: 0px) {
+  .sales-ticket .ticket-header .ticket-amount .profit .profit-value {
+    font-size: 0.875rem;
+    color: rgb(148, 163, 184);
+  }
+  .sales-ticket .products-section .products-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 0;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgb(30, 41, 59);
+    cursor: pointer;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+  }
+  .sales-ticket .products-section .products-toggle:hover {
+    color: rgb(167, 139, 250);
+  }
+  .sales-ticket .products-section .products-toggle .toggle-icon {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    transition: transform 0.3s ease;
+    color: rgb(167, 139, 250);
+  }
+  .sales-ticket .products-section .products-toggle .toggle-icon.collapsed {
+    transform: rotate(-90deg);
+  }
+  .sales-ticket .products-section .products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 100%;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .sales-ticket .products-section .products-list.collapsed {
+    display: none;
+  }
+  .sales-ticket .product-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgb(30, 41, 59);
+    background: rgba(51, 65, 85, 0.3);
+  }
+}
+@media (min-width: 0px) and (min-width: 640px) {
+  .sales-ticket .product-item {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+@media (min-width: 0px) {
+  .sales-ticket .product-item .product-image {
+    width: 100%;
+    max-width: 80px;
+    height: 80px;
+    border-radius: 0.75rem;
+    background: rgb(30, 41, 59);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+}
+@media (min-width: 0px) and (min-width: 640px) {
+  .sales-ticket .product-item .product-image {
+    width: 80px;
+  }
+}
+@media (min-width: 0px) {
+  .sales-ticket .product-item .product-image img {
+    width: 100%;
+    height: 100%;
+    -o-object-fit: cover;
+       object-fit: cover;
+  }
+  .sales-ticket .product-item .product-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .sales-ticket .product-item .product-info .product-name {
+    font-weight: 600;
+    color: white;
+    margin: 0;
+  }
+  .sales-ticket .product-item .product-info .product-id {
+    font-size: 0.75rem;
+    color: rgb(100, 116, 139);
+  }
+  .sales-ticket .product-item .product-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+  }
+}
+@media (min-width: 0px) and (min-width: 640px) {
+  .sales-ticket .product-item .product-metrics {
+    width: auto;
+    flex-direction: row;
+    gap: 2rem;
+  }
+}
+@media (min-width: 0px) {
+  .sales-ticket .product-item .product-metrics .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .sales-ticket .product-item .product-metrics .metric .metric-label {
+    font-size: 0.75rem;
+    color: rgb(148, 163, 184);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .sales-ticket .product-item .product-metrics .metric .metric-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+  }
+  .sales-ticket .warning {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: rgba(120, 53, 15, 0.3);
+    border: 1px solid rgba(180, 83, 9, 0.5);
+  }
+  .sales-ticket .warning .warning-icon {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    color: rgb(217, 119, 6);
+  }
+  .sales-ticket .warning .warning-text {
+    font-size: 0.875rem;
+    color: rgb(217, 119, 6);
+    line-height: 1.5;
+  }
+  .sales-ticket .actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+/* Animación de acordeón */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.products-list:not(.collapsed) .product-item {
+  animation: slideDown 0.3s ease forwards;
+}
+.products-list:not(.collapsed) .product-item:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.products-list:not(.collapsed) .product-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.products-list:not(.collapsed) .product-item:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.products-list:not(.collapsed) .product-item:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.products-list:not(.collapsed) .product-item:nth-child(5) {
+  animation-delay: 0.25s;
+}/*# sourceMappingURL=SalesTicketCard.module.css.map */

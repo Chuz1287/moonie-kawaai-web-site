@@ -12,6 +12,7 @@ export default function SalesHistory() {
   const model = useSalesHistory();
 
   return (
+    
     <main className={`${styles.scope} bg-slate-950 px-4 py-8 text-slate-100`}>
       <div className="mx-auto max-w-7xl">
         <SalesHeader
