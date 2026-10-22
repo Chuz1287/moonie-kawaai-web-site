@@ -174,14 +174,20 @@ export function useSalesHistory() {
     );
   }, [filteredSales, searchText]);
 
-  const totalRevenue = matchingSales.reduce(
-    (sum, sale) => sum + Number(sale.total ?? 0),
-    0
+  const totalRevenue = useMemo(
+    () => matchingSales.reduce((sum, sale) => sum + Number(sale.total ?? 0), 0),
+    [matchingSales]
   );
-  const totalProfit = matchingSales.reduce((sum, sale) => sum + getSaleProfit(sale), 0);
+  const totalProfit = useMemo(
+    () => matchingSales.reduce((sum, sale) => sum + getSaleProfit(sale), 0),
+    [matchingSales]
+  );
   const displayedCount = viewMode === "tickets" ? matchingSales.length : pieces.length;
-  const getEventName = (eventId?: string | null) =>
-    !eventId || eventId === "default" ? "Default" : eventNames.get(eventId) ?? eventId;
+  const getEventName = useMemo(
+    () => (eventId?: string | null) =>
+      !eventId || eventId === "default" ? "Default" : eventNames.get(eventId) ?? eventId,
+    [eventNames]
+  );
 
   function startEditing(sale: SaleRecord) {
     const lines = getSaleLines(sale);

@@ -2,8 +2,8 @@
 // MOONIE KAWAAI - INPUT COMPONENT
 // ═══════════════════════════════════════════════════════════════
 
-@import "@/design-system/_variables.scss";
-@import "@/design-system/_mixins.scss";
+@import "../_variables";
+@import "../_mixins";
 
 .input-group {
   @include flex-column;

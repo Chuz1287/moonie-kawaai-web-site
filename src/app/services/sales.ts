@@ -234,17 +234,25 @@ export async function fetchSalesFromSupabase(): Promise<SaleRecord[]> {
       },
     });
 
-    const { data, error } = await client.from("sales").select("*").order("created_at", {
-      ascending: false,
-    });
+    console.time("[sales service] Fetching sales from Supabase");
+    // Fetch only recent 500 sales for better performance
+    // Older sales can be loaded on demand with pagination
+    const { data, error } = await client
+      .from("sales")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    console.timeEnd("[sales service] Fetching sales from Supabase");
 
     if (error || !data) {
       console.error("[sales service] Supabase query error:", error);
       return [];
     }
 
+    console.time("[sales service] Normalizing sales data");
     const rows = data as Array<Record<string, unknown>>;
     const sorted = rows.map((row) => normalizeSaleRow(row)).sort(compareSalesNewestFirst);
+    console.timeEnd("[sales service] Normalizing sales data");
 
     console.log("[sales service] rows returned from Supabase:", sorted.length);
     console.log("[sales service] first row sample:", sorted[0] ?? null);

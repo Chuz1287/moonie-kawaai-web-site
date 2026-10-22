@@ -5,7 +5,7 @@ import SalesFilters from "@/components/SalesFilters";
 import SalesHeader from "@/components/SalesHeader";
 import SalesList from "@/components/SalesList";
 import SalesSummaryCards from "@/components/SalesSummaryCards";
-import styles from "./sales.scss";
+import styles from "./sales.module.scss";
 import { useSalesHistory } from "./sales.logic";
 
 export default function SalesHistoryPage() {

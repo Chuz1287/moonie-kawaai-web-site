@@ -2,7 +2,7 @@
 
 import type { CartPanelProps } from "./CartPanel.logic";
 import { formatCartCurrency, formatCartPriceInput, useCartPriceDrafts } from "./CartPanel.logic";
-import styles from "@/pages/pos/pos.module.scss";
+import styles from "./CartPanel.module.scss";
 
 export default function CartPanel({
   cart,

@@ -4,13 +4,13 @@
 // 
 // Exporta todas las variables y mixins del design system
 // 
-// Uso: @import "@/design-system";
+// Uso: @import "./design-system";
 // ═══════════════════════════════════════════════════════════════
 
-@import "@/design-system/_variables.scss";
-@import "@/design-system/_mixins.scss";
+@import "./_variables";
+@import "./_mixins";
 
-// Components (comentados hasta que se usen)
-// @import "@/design-system/components/button.module.scss";
-// @import "@/design-system/components/card.module.scss";
-// @import "@/design-system/components/input.module.scss";
+// Componentes (comentados por defecto):
+// @import "./components/button.module.scss";
+// @import "./components/card.module.scss";
+// @import "./components/input.module.scss";

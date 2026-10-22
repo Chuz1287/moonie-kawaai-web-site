@@ -2,7 +2,7 @@
 
 import type { ProductGridProps } from "./ProductGrid.logic";
 import { formatCurrency, useCatalogStockDrafts } from "./ProductGrid.logic";
-import styles from "@/pages/pos/pos.module.scss";
+import styles from "./ProductGrid.module.scss";
 
 export default function ProductGrid({ products, onAdd, onAddStock }: ProductGridProps) {
   const { getDraftQuantity, updateDraftQuantity, resetDraftQuantity } = useCatalogStockDrafts();

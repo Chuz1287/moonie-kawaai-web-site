@@ -1,0 +1,31 @@
+/* CartPanel Styles */
+.scope {
+  /* Scope for CartPanel component */
+}
+
+.cartPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cartHeader {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.cartItems {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.cartEmpty {
+  text-align: center;
+  color: #666;
+  padding: 2rem;
+}
+
+.cartFooter {
+  border-top: 1px solid #ddd;
+  padding-top: 1rem;
+}/*# sourceMappingURL=CartPanel.module.css.map */

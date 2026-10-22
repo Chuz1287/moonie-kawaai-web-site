@@ -2,7 +2,7 @@
 // MOONIE KAWAAI - DESIGN SYSTEM MIXINS
 // ═══════════════════════════════════════════════════════════════
 
-@use "@/design-system/_variables.scss" as vars;
+@use "./_variables" as vars;
 
 // ─── MEDIA QUERIES ───────────────────────────────────────────────
 @mixin mobile {

@@ -1,0 +1,97 @@
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1em;
+  transition: all 300ms ease-in-out;
+  padding: 0.5em 1.5em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+  font-weight: 600;
+  font-size: 1em;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  gap: 0.5em;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px #ff1493;
+}
+.btn--primary {
+  background-color: #ff1493;
+  color: #ffffff;
+}
+.btn--primary:hover {
+  background-color: #ff006e;
+}
+.btn--primary:disabled {
+  background-color: #374151;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+.btn--secondary {
+  background-color: #6366f1;
+  color: #ffffff;
+}
+.btn--secondary:hover {
+  background-color: #4f46e5;
+}
+.btn--secondary:disabled {
+  background-color: #374151;
+  cursor: not-allowed;
+}
+.btn--success {
+  background-color: #10b981;
+  color: white;
+}
+.btn--success:hover {
+  background-color: #059669;
+}
+.btn--error {
+  background-color: #ef4444;
+  color: white;
+}
+.btn--error:hover {
+  background-color: #dc2626;
+}
+.btn--outline {
+  background-color: transparent;
+  border: 1px solid #374151;
+  color: #ffffff;
+}
+.btn--outline:hover {
+  background-color: #1a1f2e;
+  border-color: #ff1493;
+}
+.btn--ghost {
+  background-color: transparent;
+  color: #ffffff;
+}
+.btn--ghost:hover {
+  background-color: #2d3748;
+}
+.btn--sm {
+  padding: 0.25em 1em;
+  font-size: 0.875em;
+}
+.btn--lg {
+  padding: 1em 2em;
+  font-size: 1.25em;
+}
+.btn--block {
+  width: 100%;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn--loading {
+  pointer-events: none;
+  opacity: 0.6;
+}/*# sourceMappingURL=button.module.css.map */

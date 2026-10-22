@@ -1,0 +1,320 @@
+@use '../../../design-system/_variables' as *;
+@use '../../../design-system/_mixins' as *;
+
+.scope {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  margin-top: 1rem;
+}
+
+.dateGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dateHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+
+  h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: $color-text-primary;
+    letter-spacing: 0.05em;
+  }
+
+  .groupTotal {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #4ade80;
+    white-space: nowrap;
+  }
+}
+
+.ticketList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ticketRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: $radius-lg;
+  transition: all $transition-base;
+
+  &:hover {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(148, 163, 184, 0.4);
+  }
+}
+
+.ticketHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.ticketInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+
+  .ticketNumber {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text-primary;
+    letter-spacing: 0.02em;
+  }
+
+  .ticketMeta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: $color-text-secondary;
+    flex-wrap: wrap;
+
+    span {
+      display: flex;
+      align-items: center;
+
+      &:not(:last-child)::after {
+        content: "•";
+        margin-left: 1rem;
+        color: $color-text-tertiary;
+      }
+    }
+  }
+}
+
+.ticketAmount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+
+  .amountValue {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #4ade80;
+  }
+
+  .amountLabel {
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+  }
+
+  .profitInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+
+    .profitLabel {
+      font-size: 0.75rem;
+      color: $color-text-secondary;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .profitValue {
+      font-size: 1rem;
+      font-weight: 700;
+      color: $color-text-secondary;
+    }
+  }
+}
+
+.productsSection {
+  padding: 1rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+
+  .productsTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    thead {
+      tr {
+        background: rgba(148, 163, 184, 0.1);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      }
+
+      th {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        color: $color-text-secondary;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &:hover {
+          background: rgba(148, 163, 184, 0.05);
+        }
+      }
+
+      td {
+        padding: 0.75rem 1rem;
+        color: $color-text-primary;
+
+        &:nth-child(3),
+        &:nth-child(4),
+        &:nth-child(5) {
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+
+.ticketActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.warningMessage {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: #fbbf24;
+  background: rgba(217, 119, 6, 0.1);
+  border-left: 2px solid #fbbf24;
+  border-radius: 0.25rem;
+}
+
+.piecesView {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pieceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba($color-bg-secondary, 0.5);
+  border: 1px solid $color-border-default;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:hover {
+    background: rgba($color-bg-secondary, 0.8);
+    border-color: $color-primary;
+  }
+}
+
+.pieceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .productName {
+    font-weight: 600;
+    color: $color-text-primary;
+  }
+
+  .saleDetails {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+
+    span {
+      display: inline-flex;
+      gap: 0.25rem;
+    }
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: $color-text-secondary;
+  font-style: italic;
+}
+
+.loadMore {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.loadMoreBtn {
+  padding: 0.75rem 2rem;
+  background: $color-primary;
+  color: $color-primary-contrast;
+  border: none;
+  border-radius: $radius-md;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: $color-primary-dark;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+
+/* Animación de acordeón */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.products-list:not(.collapsed) .product-item {
+  animation: slideDown 0.3s ease forwards;
+
+  &:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+  &:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(5) {
+    animation-delay: 0.25s;
+  }
+}

@@ -1,0 +1,42 @@
+.scope {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.editBtn,
+.deleteBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75em;
+  cursor: pointer;
+  transition: all 300ms ease-in-out;
+}
+.editBtn:disabled,
+.deleteBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.editBtn:active:not(:disabled),
+.deleteBtn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.editBtn {
+  background: #ff1493;
+  color: #ffffff;
+}
+.editBtn:hover:not(:disabled) {
+  background: #ff006e;
+}
+
+.deleteBtn {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  border: 1px solid #dc2626;
+}
+.deleteBtn:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.2);
+}/*# sourceMappingURL=SaleActions.module.css.map */

@@ -1,0 +1,47 @@
+@use '../../../design-system/_variables' as *;
+@use '../../../design-system/_mixins' as *;
+
+.scope {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.editBtn,
+.deleteBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+}
+
+.editBtn {
+  background: $color-primary;
+  color: $color-primary-contrast;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+  }
+}
+
+.deleteBtn {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  border: 1px solid #dc2626;
+
+  &:hover:not(:disabled) {
+    background: rgba(220, 38, 38, 0.2);
+  }
+}
