@@ -97,10 +97,11 @@ $transition-theme: all $transition-fast;
     gap: $gap-mobile;
 
     .metricBox {
-      flex: 1 1 150px;
-      display: flex;
-      flex-direction: column;
-      gap: $spacing-xs;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25em;
+    justify-content: space-between;
+    width: 45%;
 
       .metricLabel {
         font-size: $text-xs;

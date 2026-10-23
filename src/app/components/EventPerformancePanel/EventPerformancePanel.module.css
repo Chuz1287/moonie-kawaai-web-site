@@ -63,10 +63,11 @@
   gap: 0.5em;
 }
 .scope .metricsContainer .metricBox {
-  flex: 1 1 150px;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 0.25em;
+  justify-content: space-between;
+  width: 45%;
 }
 .scope .metricsContainer .metricBox .metricLabel {
   font-size: 0.75em;
