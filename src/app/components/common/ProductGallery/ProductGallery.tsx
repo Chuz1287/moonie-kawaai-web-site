@@ -10,14 +10,14 @@ export type ProductGalleryProps = {
 
 export default function ProductGallery({ product }: ProductGalleryProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-[1fr_120px]">
+    <div className="flex flex-wrap gap-4">
       <img
         src={product.image}
         alt={product.name}
-        className="h-[520px] w-full rounded-2xl object-cover shadow-sm"
+        className="flex-1 h-[520px] min-w-[300px] rounded-2xl object-cover shadow-sm"
       />
 
-      <div className="grid gap-3">
+      <div className="flex flex-wrap gap-3">
         {product.gallery.map((image, index) => (
           <img
             key={`${product.id}-${index}`}

@@ -387,7 +387,7 @@ export default function EventsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
+    <main className="min-h-screen px-4 py-8 text-[var(--foreground)]">
       <div className="mx-auto max-w-6xl">
         <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -400,10 +400,10 @@ export default function EventsPage() {
           </div>
         </header>
 
-        {status && <p role="status" className="mb-5 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-200">{status}</p>}
+        {status && <p role="status" className="mb-5 rounded-xl border border-slate-700 px-4 py-3 text-sm">{status}</p>}
 
-        <section className="mb-6 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-          <form onSubmit={handleCreateEvent} className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-5">
+        <section className="mb-6 flex flex-wrap gap-6">
+          <form onSubmit={handleCreateEvent} className="space-y-4 rounded-2xl border border-slate-700 p-5">
             <h2 className="text-lg font-bold text-white">Crear evento</h2>
             <label className="block text-sm text-slate-300">
               Nombre del evento
@@ -413,7 +413,7 @@ export default function EventsPage() {
               Lugar
               <input value={eventLocation} onChange={(event) => setEventLocation(event.target.value)} placeholder="Recinto o ciudad" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500" />
             </label>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex flex-wrap gap-3">
               <label className="block text-sm text-slate-300">
                 Fecha de inicio
                 <input
@@ -494,7 +494,7 @@ export default function EventsPage() {
                     {selectedEvent.is_active ? "Activo" : "Cerrado"}
                   </span>
                 </div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="mt-4 flex flex-wrap gap-3">
                   <label className="block text-sm text-slate-300">
                     Desde
                     <input
@@ -554,7 +554,7 @@ export default function EventsPage() {
           </section>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+        <section className="flex flex-wrap gap-6">
           <form onSubmit={handleCreateExpense} className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-5">
             <h2 className="text-lg font-bold text-white">Agregar gasto</h2>
             <label className="block text-sm text-slate-300">

@@ -1,1 +1,145 @@
-/*# sourceMappingURL=EventPerformancePanel.module.css.map */
+.scope {
+  margin-top: 1rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  background: var(--surface);
+  transition: all 200ms ease;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.headerLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.125em;
+  color: var(--accent-primary);
+}
+
+.headerTitle {
+  margin-top: 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.balance, .balanceNegative, .balancePositive {
+  font-size: 1.125rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.balancePositive {
+  color: var(--accent-success);
+}
+
+.balanceNegative {
+  color: var(--accent-warning);
+}
+
+.error {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  font-size: 0.875rem;
+  color: var(--accent-error);
+}
+
+.loading {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+.metricsContainer {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.metricBox {
+  flex: 1 1 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metricLabel {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.metricValue, .metricValueWarning, .metricValueSuccess {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.metricValueSuccess {
+  color: var(--accent-success);
+}
+
+.metricValueWarning {
+  color: var(--accent-warning);
+}
+
+.progressSection {
+  margin-top: 1rem;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.5rem;
+}
+
+.progressBar {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--border-color);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--accent-success);
+  transition: width 300ms ease;
+}
+
+@media (min-width: 768px) {
+  .scope {
+    padding: 1.25rem;
+  }
+  .headerTitle {
+    font-size: 1.25rem;
+  }
+  .metricsContainer {
+    gap: 1rem;
+  }
+}
+@media (min-width: 1024px) {
+  .metricsContainer {
+    gap: 1.5rem;
+  }
+}/*# sourceMappingURL=EventPerformancePanel.module.css.map */

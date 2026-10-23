@@ -1,7 +1,6 @@
 \"use client\";
 
-import type { AddToCartButtonProps } from \"./AddToCartButton.logic\";
-
+import type { AddToCartButtonProps } from \"./AddToCartButton.logic\";import styles from "./AddToCartButton.module.scss";
 export default function AddToCartButton({
   quantity = 1,
   onClick,
@@ -12,7 +11,7 @@ export default function AddToCartButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="inline-flex items-center justify-center rounded-full bg-violet-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-zinc-300"
+      className={styles.button}
     >
       Agregar al carrito ({quantity})
     </button>

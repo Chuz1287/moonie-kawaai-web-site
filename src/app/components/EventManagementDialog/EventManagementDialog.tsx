@@ -1,6 +1,7 @@
 "use client";
 
 import { formatPosCurrency, type PosDashboardModel } from "@/pages/pos/pos.logic";
+import styles from "./EventManagementDialog.module.scss";
 
 const expenseCategories = ["Stand / piso", "Comida", "Sueldos", "Caseta", "Gasolina"];
 
@@ -11,7 +12,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+      className={styles.overlay}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !model.isSavingEvent) {
           model.setIsEventModalOpen(false);
@@ -22,10 +23,10 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
         role="dialog"
         aria-modal="true"
         aria-labelledby="create-event-title"
-        className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl"
+        className={styles.dialog}
       >
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <h2 id="create-event-title" className="text-xl font-black text-white">
+        <div className={styles.header}>
+          <h2 id="create-event-title" className={styles.title}>
             Crear evento
           </h2>
           <button
@@ -33,17 +34,14 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
             onClick={() => model.setIsEventModalOpen(false)}
             disabled={model.isSavingEvent || model.isSavingExpense}
             aria-label="Cerrar modal"
-            className="rounded-lg border border-slate-700 px-3 py-1 text-lg text-slate-300 hover:text-white"
+            className={styles.closeButton}
           >
             ×
           </button>
         </div>
 
         {model.eventModalStatus && (
-          <p
-            role="status"
-            className="mb-4 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300"
-          >
+          <p role="status" className={styles.status}>
             {model.eventModalStatus}
           </p>
         )}
@@ -53,9 +51,9 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
             event.preventDefault();
             void model.handleSaveChannel();
           }}
-          className="space-y-4"
+          className={styles.form}
         >
-          <label className="block text-sm font-semibold text-slate-300">
+          <label className={styles.label}>
             Nombre del evento
             <input
               required
@@ -63,20 +61,20 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
               value={model.eventName}
               onChange={(event) => model.setEventName(event.target.value)}
               placeholder="Convención, bazar..."
-              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+              className={styles.input}
             />
           </label>
-          <label className="block text-sm font-semibold text-slate-300">
+          <label className={styles.label}>
             Lugar
             <input
               value={model.eventLocation}
               onChange={(event) => model.setEventLocation(event.target.value)}
               placeholder="Recinto o ciudad"
-              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+              className={styles.input}
             />
           </label>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="block text-sm font-semibold text-slate-300">
+          <div className={styles.dateRow}>
+            <label className={`${styles.label} ${styles.dateCol}`}>
               Fecha de inicio
               <input
                 required
@@ -84,10 +82,10 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                 value={model.eventStartDate}
                 max={model.eventEndDate || undefined}
                 onChange={(event) => model.setEventStartDate(event.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                className={styles.input}
               />
             </label>
-            <label className="block text-sm font-semibold text-slate-300">
+            <label className={`${styles.label} ${styles.dateCol}`}>
               Fecha de fin
               <input
                 required
@@ -95,7 +93,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                 value={model.eventEndDate}
                 min={model.eventStartDate || undefined}
                 onChange={(event) => model.setEventEndDate(event.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                className={styles.input}
               />
             </label>
           </div>
@@ -107,23 +105,33 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
               !model.eventStartDate ||
               !model.eventEndDate
             }
-            className="w-full rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            className={styles.submitButton}
           >
             {model.isSavingEvent ? "Guardando..." : "Crear y activar evento"}
           </button>
         </form>
 
-        <div className="mt-6 border-t border-slate-800 pt-5">
-          <h3 className="mb-3 text-sm font-bold text-slate-200">Eventos existentes</h3>
+        <div className={styles.expensesSection}>
+          <h3 className={styles.expensesTitle}>Eventos existentes</h3>
           {model.salesChannels.length === 0 ? (
-            <p className="text-sm text-slate-400">Aún no hay eventos.</p>
+            <p style={{ color: "var(--text-tertiary)", fontSize: "0.875rem" }}>Aún no hay eventos.</p>
           ) : (
-            <ul className="divide-y divide-slate-800">
+            <ul style={{ borderTop: "1px solid var(--border-color)" }}>
               {model.salesChannels.map((event) => (
-                <li key={event.id} className="flex items-center justify-between gap-3 py-3">
-                  <div className="min-w-0">
+                <li
+                  key={event.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "0.75rem",
+                    padding: "0.75rem 0",
+                    borderBottom: "1px solid var(--border-color)",
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
                     {model.editingEventId === event.id ? (
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" }}>
                         <label className="sr-only" htmlFor={`event-name-${event.id}`}>
                           Nombre de {event.name}
                         </label>
@@ -133,32 +141,56 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                           onChange={(inputEvent) =>
                             model.setEditingEventName(inputEvent.target.value)
                           }
-                          className="min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm font-semibold text-white"
+                          className={styles.input}
+                          style={{ minWidth: 0, flex: 1 }}
                         />
                         <button
                           type="button"
                           onClick={() => void model.handleRenameEvent(event)}
                           disabled={!model.editingEventName.trim() || model.editingEventName.trim() === event.name}
-                          className="rounded-lg border border-emerald-500/40 px-2 py-1 text-xs font-bold text-emerald-200 disabled:opacity-50"
+                          style={{
+                            padding: "0.25rem 0.5rem",
+                            borderRadius: "0.5rem",
+                            border: "1px solid var(--accent-success)",
+                            background: "rgba(16, 185, 129, 0.1)",
+                            color: "var(--accent-success)",
+                            fontSize: "0.75rem",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                            transition: "all 200ms ease",
+                          }}
                         >
                           Guardar
                         </button>
                         <button
                           type="button"
                           onClick={() => model.setEditingEventId("")}
-                          className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-300"
+                          style={{
+                            padding: "0.25rem 0.5rem",
+                            borderRadius: "0.5rem",
+                            border: "1px solid var(--border-color)",
+                            background: "transparent",
+                            color: "var(--text-secondary)",
+                            fontSize: "0.75rem",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                          }}
                         >
                           Cancelar
                         </button>
                       </div>
                     ) : (
-                      <p className="truncate text-sm font-semibold text-white">{event.name}</p>
+                      <>
+                        <p style={{ fontSize: "0.875rem", fontWeight: "600", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {event.name}
+                        </p>
+                        <p style={{ fontSize: "0.75rem", color: "var(--text-tertiary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {event.location || "Lugar sin especificar"}
+                        </p>
+                      </>
                     )}
-                    <p className="truncate text-xs text-slate-400">
-                      {event.location || "Lugar sin especificar"}
-                    </p>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
                     {model.editingEventId !== event.id && (
                       <button
                         type="button"
@@ -166,7 +198,17 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                           model.setEditingEventId(event.id);
                           model.setEditingEventName(event.name);
                         }}
-                        className="rounded-lg border border-sky-500/40 px-3 py-1.5 text-xs font-bold text-sky-200 hover:border-sky-400"
+                        style={{
+                          padding: "0.375rem 0.75rem",
+                          borderRadius: "0.5rem",
+                          border: "1px solid rgba(59, 130, 246, 0.4)",
+                          background: "transparent",
+                          color: "rgba(191, 219, 254, 1)",
+                          fontSize: "0.75rem",
+                          fontWeight: "700",
+                          cursor: "pointer",
+                          transition: "all 200ms ease",
+                        }}
                       >
                         Renombrar
                       </button>
@@ -174,11 +216,17 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                     <button
                       type="button"
                       onClick={() => model.setManagedEventId(event.id)}
-                      className={`rounded-lg border px-3 py-1.5 text-xs font-bold ${
-                        model.managedEventId === event.id
-                          ? "border-violet-400 bg-violet-500/15 text-violet-100"
-                          : "border-slate-700 text-slate-300 hover:border-violet-400"
-                      }`}
+                      style={{
+                        padding: "0.375rem 0.75rem",
+                        borderRadius: "0.5rem",
+                        border: model.managedEventId === event.id ? "1px solid var(--accent-primary)" : "1px solid var(--border-color)",
+                        background: model.managedEventId === event.id ? "rgba(139, 92, 246, 0.15)" : "transparent",
+                        color: model.managedEventId === event.id ? "var(--accent-primary)" : "var(--text-secondary)",
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                        transition: "all 200ms ease",
+                      }}
                     >
                       Gastos
                     </button>
@@ -186,7 +234,18 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                       type="button"
                       onClick={() => void model.handleDeleteEvent(event)}
                       disabled={Boolean(model.deletingEventId)}
-                      className="rounded-lg border border-rose-500/40 px-3 py-1.5 text-xs font-bold text-rose-200 hover:bg-rose-500/10 disabled:opacity-50"
+                      style={{
+                        padding: "0.375rem 0.75rem",
+                        borderRadius: "0.5rem",
+                        border: "1px solid rgba(239, 68, 68, 0.4)",
+                        background: "transparent",
+                        color: "var(--accent-error)",
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                        opacity: model.deletingEventId ? 0.5 : 1,
+                        transition: "all 200ms ease",
+                      }}
                     >
                       {model.deletingEventId === event.id ? "Borrando..." : "Borrar"}
                     </button>
@@ -197,9 +256,9 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
           )}
         </div>
 
-        <section className="mt-6 border-t border-slate-800 pt-5">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <label className="min-w-[220px] flex-1 text-sm font-semibold text-slate-300">
+        <section className={styles.expensesSection}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: "0.75rem", marginBottom: "1rem" }}>
+            <label className={styles.label} style={{ flex: 1, minWidth: "220px" }}>
               Administrar gastos de
               <select
                 value={model.managedEventId}
@@ -209,7 +268,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                   model.setEditingExpenseAmount("");
                 }}
                 disabled={model.salesChannels.length === 0}
-                className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                className={styles.expenseSelect}
               >
                 <option value="">Selecciona un evento</option>
                 {model.salesChannels.map((event) => (
@@ -219,7 +278,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                 ))}
               </select>
             </label>
-            <p className="text-lg font-black text-rose-300">
+            <p style={{ fontSize: "1.125rem", fontWeight: "900", color: "var(--accent-error)" }}>
               {formatPosCurrency(model.totalEventExpenses)}
             </p>
           </div>
@@ -228,14 +287,14 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
             <>
               <form
                 onSubmit={model.handleSaveEventExpense}
-                className="grid gap-3 md:grid-cols-2"
+                style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}
               >
-                <label className="text-sm text-slate-300">
+                <label className={styles.label} style={{ flex: 1 }}>
                   Categoría
                   <select
                     value={model.expenseCategory}
                     onChange={(event) => model.setExpenseCategory(event.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                    className={styles.expenseSelect}
                   >
                     {expenseCategories.map((category) => (
                       <option key={category} value={category}>
@@ -246,7 +305,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                   </select>
                 </label>
                 {model.expenseCategory === "__custom__" && (
-                  <label className="text-sm text-slate-300">
+                  <label className={styles.label} style={{ flex: 1 }}>
                     Nueva categoría
                     <input
                       required
@@ -255,11 +314,11 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                         model.setCustomExpenseCategory(event.target.value)
                       }
                       placeholder="Ej. hospedaje"
-                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                      className={styles.input}
                     />
                   </label>
                 )}
-                <label className="text-sm text-slate-300">
+                <label className={styles.label} style={{ flex: 1 }}>
                   Importe
                   <input
                     required
@@ -269,100 +328,188 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                     value={model.expenseAmount}
                     onChange={(event) => model.setExpenseAmount(event.target.value)}
                     placeholder="0.00"
-                    className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                    className={styles.input}
                   />
                 </label>
                 <button
                   type="submit"
                   disabled={model.isSavingExpense}
-                  className="self-end rounded-xl bg-rose-500 px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+                  style={{
+                    alignSelf: "flex-end",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "0.75rem",
+                    border: "none",
+                    background: "var(--accent-error)",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    opacity: model.isSavingExpense ? 0.5 : 1,
+                    transition: "all 200ms ease",
+                  }}
                 >
                   {model.isSavingExpense ? "Guardando..." : "Agregar gasto"}
                 </button>
               </form>
 
-              <div className="mt-4 max-h-48 divide-y divide-slate-800 overflow-y-auto rounded-xl border border-slate-800">
+              <div
+                style={{
+                  marginTop: "1rem",
+                  maxHeight: "12rem",
+                  overflowY: "auto",
+                  borderRadius: "0.75rem",
+                  border: "1px solid var(--border-color)",
+                  borderTop: "none",
+                }}
+              >
                 {model.eventExpenses.length === 0 ? (
-                  <p className="p-4 text-center text-sm text-slate-400">
+                  <p style={{ padding: "1rem", textAlign: "center", fontSize: "0.875rem", color: "var(--text-tertiary)" }}>
                     Este evento todavía no tiene gastos.
                   </p>
                 ) : (
-                  model.eventExpenses.map((expense) => (
+                  model.eventExpenses.map((expense, index) => (
                     <article
                       key={expense.id}
-                      className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "0.75rem",
+                        padding: "1rem",
+                        borderBottom: index < model.eventExpenses.length - 1 ? "1px solid var(--border-color)" : "none",
+                      }}
                     >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-white">
-                          {expense.category}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {new Date(expense.created_at).toLocaleDateString("es-MX")}
-                        </p>
+                      <div style={{ minWidth: 0 }}>
+                        {model.editingExpenseId === expense.id ? (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "flex-end" }}>
+                            <label className={styles.label} style={{ flex: 1, minWidth: "150px" }}>
+                              Categoría
+                              <select
+                                value={model.editingExpenseCategory}
+                                onChange={(e) => model.setEditingExpenseCategory(e.target.value)}
+                                className={styles.expenseSelect}
+                              >
+                                {[...expenseCategories, expense.category].filter((v, i, a) => a.indexOf(v) === i).map((category) => (
+                                  <option key={category} value={category}>
+                                    {category}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className={styles.label} style={{ flex: 0.5, minWidth: "100px" }}>
+                              Importe
+                              <input
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                value={model.editingExpenseAmount}
+                                onChange={(e) => model.setEditingExpenseAmount(e.target.value)}
+                                className={styles.input}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => void model.handleSaveExpense(expense)}
+                              disabled={!model.editingExpenseAmount || Number(model.editingExpenseAmount) <= 0}
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "0.375rem",
+                                border: "1px solid var(--accent-success)",
+                                background: "rgba(16, 185, 129, 0.1)",
+                                color: "var(--accent-success)",
+                                fontSize: "0.75rem",
+                                fontWeight: "700",
+                                cursor: "pointer",
+                                opacity: !model.editingExpenseAmount || Number(model.editingExpenseAmount) <= 0 ? 0.5 : 1,
+                              }}
+                            >
+                              Guardar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                model.setEditingExpenseId("");
+                                model.setEditingExpenseAmount("");
+                                model.setEditingExpenseCategory("");
+                              }}
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "0.375rem",
+                                border: "1px solid var(--border-color)",
+                                background: "transparent",
+                                color: "var(--text-secondary)",
+                                fontSize: "0.75rem",
+                                fontWeight: "700",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <p style={{ fontSize: "0.875rem", fontWeight: "600", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {expense.category}
+                            </p>
+                            <p style={{ fontSize: "0.75rem", color: "var(--text-tertiary)" }}>{expense.notes}</p>
+                          </>
+                        )}
                       </div>
-                      {model.editingExpenseId === expense.id ? (
-                        <div className="flex items-center gap-2">
-                          <label className="sr-only" htmlFor={`expense-amount-${expense.id}`}>
-                            Importe de gasto
-                          </label>
-                          <input
-                            id={`expense-amount-${expense.id}`}
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            value={model.editingExpenseAmount}
-                            onChange={(event) =>
-                              model.setEditingExpenseAmount(event.target.value)
-                            }
-                            className="w-20 rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-white"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => void model.handleUpdateExpense(expense)}
-                            disabled={model.isUpdatingExpense}
-                            className="rounded-lg border border-emerald-500/40 px-2 py-1 text-xs font-bold text-emerald-200 disabled:opacity-50"
-                          >
-                            OK
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => model.setEditingExpenseId("")}
-                            className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-300"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-3">
-                          <p className="text-sm font-bold text-rose-300">
-                            {formatPosCurrency(expense.amount)}
-                          </p>
+                      <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
+                        {model.editingExpenseId !== expense.id && (
                           <button
                             type="button"
                             onClick={() => {
                               model.setEditingExpenseId(expense.id);
                               model.setEditingExpenseAmount(String(expense.amount));
+                              model.setEditingExpenseCategory(expense.category);
                             }}
-                            className="rounded-lg border border-sky-500/40 px-2 py-1 text-xs font-bold text-sky-200"
+                            style={{
+                              padding: "0.25rem 0.5rem",
+                              borderRadius: "0.375rem",
+                              border: "1px solid rgba(59, 130, 246, 0.4)",
+                              background: "transparent",
+                              color: "rgba(191, 219, 254, 1)",
+                              fontSize: "0.75rem",
+                              fontWeight: "700",
+                              cursor: "pointer",
+                            }}
                           >
                             Editar
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => void model.handleDeleteExpense(expense)}
-                            className="rounded-lg border border-rose-500/40 px-2 py-1 text-xs font-bold text-rose-200 hover:bg-rose-500/10"
-                          >
-                            Borrar
-                          </button>
-                        </div>
-                      )}
+                        )}
+                        <p style={{ fontSize: "0.875rem", fontWeight: "900", color: "var(--accent-error)" }}>
+                          {formatPosCurrency(expense.amount)}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => void model.handleDeleteEventExpense(expense)}
+                          disabled={Boolean(model.deletingExpenseId)}
+                          style={{
+                            padding: "0.25rem 0.5rem",
+                            borderRadius: "0.375rem",
+                            border: "1px solid rgba(239, 68, 68, 0.4)",
+                            background: "transparent",
+                            color: "var(--accent-error)",
+                            fontSize: "0.75rem",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                            opacity: model.deletingExpenseId === expense.id ? 0.5 : 1,
+                          }}
+                        >
+                          {model.deletingExpenseId === expense.id ? "Borrando..." : "Borrar"}
+                        </button>
+                      </div>
                     </article>
                   ))
                 )}
               </div>
             </>
           ) : (
-            <p className="text-sm text-slate-400">Selecciona un evento para administrar gastos.</p>
+            <p style={{ fontSize: "0.875rem", color: "var(--text-tertiary)", textAlign: "center", padding: "1.5rem" }}>
+              Selecciona un evento para administrar sus gastos.
+            </p>
           )}
         </section>
       </section>

@@ -8,61 +8,54 @@ export default function ProductGrid({ products, onAdd, onAddStock }: ProductGrid
   const { getDraftQuantity, updateDraftQuantity, resetDraftQuantity } = useCatalogStockDrafts();
 
   return (
-    <div className={`${styles.scope} grid gap-3 sm:grid-cols-2`}>
+    <div className={styles.scope}>
       {products.map((product) => {
         const cost = product.cost ?? product.price * 0.7;
         const quantityDraft = getDraftQuantity(product.id);
 
         return (
-          <div
-            key={product.id}
-            className="rounded-2xl border border-zinc-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-violet-400 hover:shadow-md"
-          >
+          <div key={product.id} className={styles.productCard}>
             <button
               type="button"
               onClick={() => onAdd(product)}
-              className="w-full text-left"
+              className={styles.cardButton}
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className={styles.cardHeader}>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-500">
-                    {product.category}
-                  </p>
-                  <h3 className="mt-2 text-base font-bold text-zinc-900">{product.name}</h3>
+                  <p className={styles.cardCategory}>{product.category}</p>
+                  <h3 className={styles.cardTitle}>{product.name}</h3>
                 </div>
-                <span className="rounded-full bg-violet-100 px-2 py-1 text-xs font-bold text-violet-700">
-                  {product.stock}
-                </span>
+                <span className={styles.cardStock}>{product.stock}</span>
               </div>
 
-              <p className="mt-3 text-sm text-zinc-500">{product.shortDescription}</p>
+              <p className={styles.cardDescription}>{product.shortDescription}</p>
 
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-500">Venta</span>
-                  <span className="font-black text-zinc-900">{formatCurrency(product.price)}</span>
+              <div className={styles.cardPricing}>
+                <div className={styles.priceRow}>
+                  <span className={styles.priceLabel}>Venta</span>
+                  <span className={styles.priceValue}>{formatCurrency(product.price)}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-500">Costo</span>
-                  <span className="font-semibold text-amber-700">{formatCurrency(cost)}</span>
+                <div className={styles.priceRow}>
+                  <span className={styles.priceLabel}>Costo</span>
+                  <span className={`${styles.priceValue} ${styles.costValue}`}>{formatCurrency(cost)}</span>
                 </div>
               </div>
             </button>
 
-            <div className="mt-4 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
+            <div className={styles.cardActions}>
+              <div className={styles.actionButtons}>
                 <button
                   type="button"
                   onClick={(event) => {
                     event.stopPropagation();
                     onAddStock(product, 1);
                   }}
-                  className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700 transition hover:bg-emerald-100"
+                  className={styles.addStockButton}
                 >
                   +1
                 </button>
 
-                <div className="flex items-center rounded-lg border border-sky-200 bg-sky-50 px-2 py-1">
+                <div className={styles.quantityInput}>
                   <input
                     type="number"
                     min="1"
@@ -72,7 +65,6 @@ export default function ProductGrid({ products, onAdd, onAddStock }: ProductGrid
                     onChange={(event) => {
                       updateDraftQuantity(product.id, event.target.value);
                     }}
-                    className="w-12 bg-transparent text-center text-[10px] font-bold text-sky-800 outline-none"
                     aria-label={`Cantidad para agregar stock de ${product.name}`}
                   />
                   <button
@@ -85,16 +77,13 @@ export default function ProductGrid({ products, onAdd, onAddStock }: ProductGrid
                         resetDraftQuantity(product.id);
                       }
                     }}
-                    className="ml-1 text-[10px] font-bold uppercase tracking-[0.15em] text-sky-700"
                   >
                     OK
                   </button>
                 </div>
               </div>
 
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">
-                Agregar stock
-              </span>
+              <span className={styles.actionLabel}>Agregar stock</span>
             </div>
           </div>
         );

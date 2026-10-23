@@ -13,7 +13,7 @@ export default async function PLPPage() {
         <h1 className="mt-3 text-4xl font-black text-zinc-900">Productos</h1>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="flex flex-wrap gap-6">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

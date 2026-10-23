@@ -1,4 +1,92 @@
-/* SalesFilters Styles */
+.scope {
+  margin-bottom: 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  background: var(--surface);
+  transition: all 200ms ease;
+}
+
+.viewGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.viewButton {
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: 1px solid var(--border-color);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.viewButton:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+.viewButton[aria-pressed=true] {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+.filtersContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filterLabel {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.125em;
+  color: var(--text-tertiary);
+}
+
+.filterInput {
+  margin-top: 0.25rem;
+  width: 100%;
+  min-width: 200px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  transition: all 200ms ease;
+}
+.filterInput:hover {
+  border-color: var(--accent-primary);
+}
+.filterInput:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background: var(--surface);
+}
+.filterInput::-moz-placeholder {
+  color: var(--text-tertiary);
+}
+.filterInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+@media (min-width: 768px) {
+  .scope {
+    padding: 1.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .filtersContainer {
+    gap: 1.5rem;
+  }
+}
 .filters {
   display: flex;
   flex-wrap: wrap;

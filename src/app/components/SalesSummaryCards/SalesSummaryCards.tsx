@@ -10,7 +10,7 @@ export default function SalesSummaryCards({
   viewMode,
 }: SalesSummaryCardsProps) {
   return (
-    <section className="mb-6 grid gap-4 md:grid-cols-3" aria-label="Resumen de ventas">
+    <section className="mb-6 flex flex-wrap gap-4" aria-label="Resumen de ventas">
       <InfoCardSummary
         label="Total vendido"
         value={`$${totalRevenue.toFixed(2)}`}

@@ -1,1 +1,1 @@
-.infoCard{display:flex;flex-direction:column;gap:0.5rem;padding:1rem;background:#f5f5f5;border-radius:0.5rem}.label{font-size:0.875rem;color:#666;font-weight:500}.value{font-size:1.25rem;font-weight:700}.unit{font-size:0.875rem;color:#999}
+@use '../../../design-system/_variables' as *;@media (max-width: 600px){.infoCard{padding:0.5rem}}.infoCard{display:flex;flex-direction:column;gap:0.5rem;padding:1rem;background:#f5f5f5;border-radius:0.5rem}.label{font-size:0.875rem;color:#666;font-weight:500}.value{font-size:1.25rem;font-weight:700}.unit{font-size:0.875rem;color:#999}

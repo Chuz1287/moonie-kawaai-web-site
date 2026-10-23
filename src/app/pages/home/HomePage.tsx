@@ -9,7 +9,7 @@ export default async function HomePage() {
   return (
     <main className="bg-zinc-50 text-zinc-900">
       <section className="mx-auto max-w-7xl px-6 py-20">
-        <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="flex flex-wrap items-center gap-10">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.26em] text-violet-500">
               Monie Kawaai

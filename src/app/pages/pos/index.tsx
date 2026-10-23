@@ -13,9 +13,9 @@ export default function PosDashboard() {
   const model = usePosDashboard();
 
   return (
-    <main className={`${styles.scope} min-h-screen bg-slate-950 px-4 pb-32 pt-6 text-slate-100 xl:pb-8`}>
+    <main className={`${styles.scope} min-h-screen px-4 pb-32 pt-6 text-[var(--foreground)]`}>
       <div className="mx-auto max-w-7xl">
-        <header className="mb-6 rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+        <header className="mb-6 rounded-3xl border border-slate-700 p-5 shadow-xl">
           <DashboardHeader model={model} />
           <EventPerformancePanel model={model} />
         </header>
@@ -24,21 +24,21 @@ export default function PosDashboard() {
 
         <InventorySummary model={model} />
 
-        <div className="mb-6 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-lg">
+        <div className={styles.searchSection}>
           <input
             type="text"
             value={model.search}
             onChange={(event) => model.setSearch(event.target.value)}
             placeholder="Buscar producto, categoría o detalle..."
-            className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-violet-500 focus:outline-none"
+            className={styles.searchInput}
           />
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr] xl:items-start">
-          <section className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-lg">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-black text-white">Catálogo</h2>
-              <span className="text-sm text-slate-400">
+        <div className="flex flex-wrap gap-6">
+          <section className={styles.catalogSection}>
+            <div className={styles.catalogHeader}>
+              <h2 className={styles.catalogTitle}>Catálogo</h2>
+              <span className={styles.catalogStatus}>
                 {model.search.trim()
                   ? `${model.filteredProducts.length} resultados`
                   : "Vista rápida"}

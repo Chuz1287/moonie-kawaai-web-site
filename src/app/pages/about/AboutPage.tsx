@@ -6,7 +6,7 @@ export default function AboutPage() {
       </p>
       <h1 className="mt-4 text-4xl font-black text-zinc-900">Un proyecto pensado para crecer.</h1>
 
-      <div className="mt-8 grid gap-6 md:grid-cols-3">
+      <div className="mt-8 flex flex-wrap gap-6">
         <div className="rounded-2xl border border-zinc-200 bg-white p-6">
           <h2 className="text-xl font-bold text-zinc-900">POS</h2>
           <p className="mt-3 text-zinc-600">

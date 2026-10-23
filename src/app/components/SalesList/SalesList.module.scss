@@ -24,14 +24,14 @@
     margin: 0;
     font-size: 2rem;
     font-weight: 700;
-    color: $color-text-primary;
+    color: var(--text-primary);
     letter-spacing: 0.05em;
   }
 
   .groupTotal {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #4ade80;
+    color: var(--accent-success);
     white-space: nowrap;
   }
 }
@@ -47,14 +47,14 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: $radius-lg;
-  transition: all $transition-base;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
+  transition: all 200ms ease;
 
   &:hover {
-    background: rgba(15, 23, 42, 0.8);
-    border-color: rgba(148, 163, 184, 0.4);
+    border-color: var(--accent-primary);
+    background: rgba(var(--surface-rgb), 0.8);
   }
 }
 
@@ -74,7 +74,7 @@
   .ticketNumber {
     font-size: 1.1rem;
     font-weight: 700;
-    color: $color-text-primary;
+    color: var(--text-primary);
     letter-spacing: 0.02em;
   }
 
@@ -82,7 +82,7 @@
     display: flex;
     gap: 1.5rem;
     font-size: 0.875rem;
-    color: $color-text-secondary;
+    color: var(--text-secondary);
     flex-wrap: wrap;
 
     span {
@@ -92,7 +92,7 @@
       &:not(:last-child)::after {
         content: "•";
         margin-left: 1rem;
-        color: $color-text-tertiary;
+        color: var(--text-secondary);
       }
     }
   }
@@ -107,12 +107,12 @@
   .amountValue {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #4ade80;
+    color: var(--accent-success);
   }
 
   .amountLabel {
     font-size: 0.75rem;
-    color: $color-text-secondary;
+    color: var(--text-secondary);
     text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -126,7 +126,7 @@
 
     .profitLabel {
       font-size: 0.75rem;
-      color: $color-text-secondary;
+      color: var(--text-secondary);
       text-transform: uppercase;
       font-weight: 600;
     }
@@ -134,61 +134,73 @@
     .profitValue {
       font-size: 1rem;
       font-weight: 700;
-      color: $color-text-secondary;
+      color: var(--text-secondary);
     }
   }
 }
 
 .productsSection {
   padding: 1rem 0;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 
   .productsTable {
     width: 100%;
-    border-collapse: collapse;
     font-size: 0.875rem;
+    display: flex;
+    flex-direction: column;
+  }
 
-    thead {
-      tr {
-        background: rgba(148, 163, 184, 0.1);
-        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-      }
+  .tableHeader {
+    display: flex;
+    flex-wrap: wrap;
+    background: rgba(var(--surface-rgb), 0.5);
+    border-bottom: 1px solid var(--border-color);
+  }
 
-      th {
-        padding: 0.75rem 1rem;
-        text-align: left;
-        font-weight: 700;
-        color: $color-text-secondary;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.1em;
-      }
+  .headerCell {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+
+  .tableBody {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tableRow {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 200ms ease;
+
+    &:last-child {
+      border-bottom: none;
     }
 
-    tbody {
-      tr {
-        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    &:hover {
+      background: rgba(var(--accent-primary-rgb), 0.05);
+    }
+  }
 
-        &:last-child {
-          border-bottom: none;
-        }
+  .cell {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
 
-        &:hover {
-          background: rgba(148, 163, 184, 0.05);
-        }
-      }
-
-      td {
-        padding: 0.75rem 1rem;
-        color: $color-text-primary;
-
-        &:nth-child(3),
-        &:nth-child(4),
-        &:nth-child(5) {
-          text-align: right;
-        }
-      }
+    &:nth-child(3),
+    &:nth-child(4),
+    &:nth-child(5) {
+      text-align: right;
     }
   }
 }
@@ -203,9 +215,9 @@
 .warningMessage {
   padding: 0.5rem 0.75rem;
   font-size: 0.8rem;
-  color: #fbbf24;
-  background: rgba(217, 119, 6, 0.1);
-  border-left: 2px solid #fbbf24;
+  color: var(--accent-warning);
+  background: rgba(var(--accent-warning-rgb), 0.1);
+  border-left: 2px solid var(--accent-warning);
   border-radius: 0.25rem;
 }
 
@@ -220,14 +232,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: rgba($color-bg-secondary, 0.5);
-  border: 1px solid $color-border-default;
-  border-radius: $radius-md;
-  transition: all $transition-base;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  transition: all 200ms ease;
 
   &:hover {
-    background: rgba($color-bg-secondary, 0.8);
-    border-color: $color-primary;
+    background: rgba(var(--accent-primary-rgb), 0.05);
+    border-color: var(--accent-primary);
   }
 }
 
@@ -238,14 +250,14 @@
 
   .productName {
     font-weight: 600;
-    color: $color-text-primary;
+    color: var(--text-primary);
   }
 
   .saleDetails {
     display: flex;
     gap: 1rem;
     font-size: 0.9rem;
-    color: $color-text-secondary;
+    color: var(--text-secondary);
 
     span {
       display: inline-flex;
@@ -257,7 +269,7 @@
 .empty {
   text-align: center;
   padding: 3rem 1rem;
-  color: $color-text-secondary;
+  color: var(--text-secondary);
   font-style: italic;
 }
 
@@ -269,16 +281,16 @@
 
 .loadMoreBtn {
   padding: 0.75rem 2rem;
-  background: $color-primary;
-  color: $color-primary-contrast;
+  background: var(--accent-primary);
+  color: white;
   border: none;
-  border-radius: $radius-md;
+  border-radius: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all $transition-base;
+  transition: all 200ms ease;
 
-  &:hover {
-    background: $color-primary-dark;
+  &:hover:not(:disabled) {
+    opacity: 0.9;
   }
 
   &:active {

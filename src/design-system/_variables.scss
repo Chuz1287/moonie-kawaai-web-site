@@ -1,7 +1,17 @@
 // ═══════════════════════════════════════════════════════════════
 // MOONIE KAWAAI - DESIGN SYSTEM VARIABLES
 // ═══════════════════════════════════════════════════════════════
-// Basado en diseño Dark Mode y Light Mode
+// TEMA DINÁMICO CON VARIABLES CSS
+// 
+// ⚠️  IMPORTANTE: Para colores que cambien con el tema, usa:
+//     var(--text-primary), var(--text-secondary), var(--border-color), etc.
+//
+// Ejemplo SCSS con variables CSS dinámicas:
+//   .component {
+//     color: var(--text-primary);           // Cambia con tema ✓
+//     border-color: var(--border-color);    // Cambia con tema ✓
+//     background: var(--surface);            // Cambia con tema ✓
+//   }
 // ═══════════════════════════════════════════════════════════════
 
 // ─── BREAKPOINTS ─────────────────────────────────────────────────
@@ -23,7 +33,7 @@ $text-4xl: 2.625em; // 42px
 $text-5xl: 3em; // 48px
 $text-6xl: 3.375em; // 60px
 
-$font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+$font-family-base: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 $font-family-mono: "Courier New", monospace;
 
 $font-weight-light: 300;
@@ -50,53 +60,18 @@ $radius-2xl: 2em; // 32px
 $radius-full: 9999px;
 
 // ═══════════════════════════════════════════════════════════════
-// TEMA NOCTURNO (Dark Mode) - Por defecto
+// VARIABLES CSS DINÁMICAS (Definen el tema)
+// Todas estas variables cambian automáticamente cuando:
+//   - html.light / html.dark
+//   - prefers-color-scheme: light/dark
 // ═══════════════════════════════════════════════════════════════
 
-// ─── COLORES PRIMARIOS (MOONIE PINK) ──────────────────────────────
-$color-primary: #ff1493; // Deep Pink / Hot Pink (Accent principal)
-$color-primary-light: #ff69b4; // Hot Pink Light
-$color-primary-dark: #ff006e; // Deep Pink Dark
-$color-primary-contrast: #ffffff;
-
-// ─── COLORES SECUNDARIOS ─────────────────────────────────────────
-$color-secondary: #6366f1; // Indigo 500 (Categorías)
-$color-secondary-light: #818cf8; // Indigo 400
-$color-secondary-dark: #4f46e5; // Indigo 600
-$color-secondary-contrast: #ffffff;
-
-// ─── COLORES DE ESTADO ───────────────────────────────────────────
-// Success - Verde (Stock)
-$color-success: #10b981; // Emerald 500
-$color-success-light: #34d399; // Emerald 400
-$color-success-dark: #059669; // Emerald 600
-$color-success-bg: rgba(16, 185, 129, 0.1);
-
-// Warning - Ámbar
-$color-warning: #f59e0b; // Amber 500
-$color-warning-light: #fbbf24; // Amber 400
-$color-warning-dark: #d97706; // Amber 600
-$color-warning-bg: rgba(245, 158, 11, 0.1);
-
-// Error - Rojo
-$color-error: #ef4444; // Red 500
-$color-error-light: #f87171; // Red 400
-$color-error-dark: #dc2626; // Red 600
-$color-error-bg: rgba(239, 68, 68, 0.1);
-
-// Info - Cyan
-$color-info: #06b6d4; // Cyan 500
-$color-info-light: #22d3ee; // Cyan 400
-$color-info-dark: #0891b2; // Cyan 700
-$color-info-bg: rgba(6, 182, 212, 0.1);
-
-// ─── COLORES CATEGÓRICOS (Badges) ───────────────────────────────
-$color-category-kawaii: #a78bfa; // Violet
-$color-category-anime: #8b5cf6; // Violet
-$color-category-hogar: #f97316; // Orange
-$color-category-figuras: #06b6d4; // Cyan
-$color-category-accesorios: #ec4899; // Pink
-$color-category-otros: #6b7280; // Gray
+// ✓ USAR ESTAS EN SCSS PARA COLORES DINÁMICOS:
+// --text-primary, --text-secondary, --text-tertiary, --text-muted
+// --background, --foreground
+// --surface, --surface-hover
+// --border-color, --border-light
+// --accent-primary, --accent-success, --accent-error, --accent-warning
 
 // ─── COLORES NEUTROS (DARK MODE) ─────────────────────────────────
 $color-bg-primary: #0f1419; // Dark Navy (Fondo principal)

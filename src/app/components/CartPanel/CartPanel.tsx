@@ -34,13 +34,19 @@ export default function CartPanel({
       <button
         type="button"
         onClick={onOpen}
-        className={`${styles.scope} fixed bottom-4 left-1/2 z-40 flex w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border border-violet-400/60 bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-3 text-left text-white shadow-2xl shadow-violet-950/50`}
+        style={{
+          borderColor: "rgba(167, 139, 250, 0.6)",
+          background: "linear-gradient(to right, rgba(124, 58, 247, 0.9), rgba(168, 85, 247, 0.9))",
+          color: "var(--text-primary)",
+          boxShadow: "0 25px 50px -12px rgba(109, 40, 217, 0.3)",
+        }}
+        className="fixed bottom-4 left-1/2 z-40 flex w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left backdrop-blur transition hover:shadow-lg"
       >
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 text-lg">🛒</div>
           <div>
             <p className="text-sm font-black leading-none">Ver Carrito de Compra</p>
-            <p className="mt-1 text-[11px] text-violet-100">{itemCount} artículos seleccionados</p>
+            <p className="mt-1 text-[11px]" style={{ color: "rgba(255, 255, 255, 0.7)" }}>{itemCount} artículos seleccionados</p>
           </div>
         </div>
 
@@ -50,14 +56,14 @@ export default function CartPanel({
   }
 
   return (
-    <div className={`${styles.scope} w-full max-w-xl rounded-[24px] border border-slate-700/80 bg-[#1f2d3d]/95 p-4 shadow-2xl shadow-slate-950/60 backdrop-blur-md flex flex-col max-h-[80vh]`}>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[1.35rem] font-black text-white">Carrito de Ventas</h2>
+    <div className={styles.panelMain}>
+      <div className={styles.panelHeader}>
+        <h2 className={styles.panelTitle}>Carrito de Ventas</h2>
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="text-2xl font-light text-slate-300 transition hover:text-white"
+            className={styles.closeButton}
             aria-label="Cerrar carrito"
           >
             ×
@@ -65,9 +71,9 @@ export default function CartPanel({
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3">
+      <div className={styles.itemsList}>
         {cart.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-slate-600 bg-slate-900/60 p-4 text-sm text-slate-300">
+          <p className={styles.emptyState}>
             No hay productos en el carrito.
           </p>
         ) : (
@@ -81,41 +87,39 @@ export default function CartPanel({
               }
 
               return (
-                <div key={item.productId} className="rounded-2xl border border-slate-600 bg-slate-900/40 p-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-black text-white truncate">{product.name}</h3>
-                      <p className="mt-1 text-[11px] text-slate-400">Stock: {product.stock} pzs</p>
+                <div key={item.productId} className={styles.cartItem}>
+                  <div className={styles.itemContent}>
+                    <div className={styles.itemInfo}>
+                      <h3 className={styles.itemName}>{product.name}</h3>
+                      <p className={styles.itemStock}>Stock: {product.stock} pzs</p>
 
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          value={
-                            priceDrafts[item.productId] !== undefined
-                              ? priceDrafts[item.productId]
-                              : formatCartPriceInput(item.unitPrice ?? product.price)
-                          }
-                          onChange={(event) => updateDraft(item.productId, event.target.value)}
-                          onBlur={() => commitDraft(item.productId, product.price)}
-                          className="mt-1 w-28 rounded-xl border border-violet-400 bg-transparent px-2 py-1 text-lg font-black text-emerald-300 outline-none focus:border-violet-300"
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={
+                          priceDrafts[item.productId] !== undefined
+                            ? priceDrafts[item.productId]
+                            : formatCartPriceInput(item.unitPrice ?? product.price)
+                        }
+                        onChange={(event) => updateDraft(item.productId, event.target.value)}
+                        onBlur={() => commitDraft(item.productId, product.price)}
+                        className={styles.priceInput}
+                      />
                     </div>
 
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="inline-flex items-center rounded-xl border border-slate-600 bg-slate-800">
+                    <div className={styles.itemActions}>
+                      <div style={{ display: "inline-flex", alignItems: "center", borderRadius: "0.375rem", border: `1px solid var(--border-color)` }}>
                         <button
                           type="button"
-                          className="h-8 w-8 text-lg font-bold text-slate-200"
+                          className={styles.quantityBtn}
                           onClick={() => changeQuantity(item.productId, item.quantity - 1)}
                         >
                           −
                         </button>
-                        <span className="px-3 text-base font-black text-white">{item.quantity}</span>
+                        <span style={{ padding: "0 0.75rem", fontWeight: "900", color: "var(--text-primary)" }}>{item.quantity}</span>
                         <button
                           type="button"
-                          className="h-8 w-8 text-lg font-bold text-slate-200"
+                          className={styles.quantityBtn}
                           onClick={() => changeQuantity(item.productId, item.quantity + 1)}
                         >
                           +
@@ -125,7 +129,7 @@ export default function CartPanel({
                       <button
                         type="button"
                         onClick={() => removeItem(item.productId)}
-                        className="h-8 w-8 rounded-xl border border-slate-600 bg-slate-800 text-slate-300 transition hover:border-violet-400 hover:text-violet-200"
+                        className={styles.removeBtn}
                         aria-label={`Quitar ${product.name}`}
                       >
                         🗑️
@@ -138,28 +142,28 @@ export default function CartPanel({
         )}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-slate-700 flex-shrink-0">
-        <div className="flex items-center justify-between text-[1.05rem] font-black text-white">
-        <span>Total a Cobrar:</span>
-        <span className="text-emerald-300">{formatCartCurrency(total)}</span>
+      <div className={styles.panelFooter}>
+        <div className={styles.totalRow}>
+          <span>Total a Cobrar:</span>
+          <span style={{ color: "var(--accent-success)" }}>{formatCartCurrency(total)}</span>
         </div>
 
-        <div className="mt-3 flex gap-3">
-        <button
-          type="button"
-          onClick={() => cart.forEach((item) => removeItem(item.productId))}
-          className="flex-1 rounded-2xl border border-slate-600 bg-slate-800 px-4 py-3 text-sm font-bold text-slate-200 transition hover:border-slate-500 hover:text-white"
-        >
-          Vaciar
-        </button>
-        <button
-          type="button"
-          onClick={onCheckout}
-          disabled={cart.length === 0}
-          className="flex-[1.8] rounded-2xl bg-gradient-to-r from-emerald-400 to-emerald-500 px-4 py-3 text-sm font-black text-slate-950 shadow-lg shadow-emerald-500/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Confirmar Venta
-        </button>
+        <div className={styles.actionButtons}>
+          <button
+            type="button"
+            onClick={() => cart.forEach((item) => removeItem(item.productId))}
+            className={styles.clearBtn}
+          >
+            Vaciar
+          </button>
+          <button
+            type="button"
+            onClick={onCheckout}
+            disabled={cart.length === 0}
+            className={styles.checkoutBtn}
+          >
+            Confirmar Venta
+          </button>
         </div>
       </div>
     </div>

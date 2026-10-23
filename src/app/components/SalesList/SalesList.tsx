@@ -82,33 +82,31 @@ export default function SalesList({ model }: SalesListProps) {
 
                   {/* Tabla de productos */}
                   <div className={styles.productsSection}>
-                    <table className={styles.productsTable}>
-                      <thead>
-                        <tr>
-                          <th>PIEZA</th>
-                          <th>ID</th>
-                          <th>CANT.</th>
-                          <th>PRECIO</th>
-                          <th>IMPORTE</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                    <div className={styles.productsTable}>
+                      <div className={styles.tableHeader}>
+                        <div className={styles.headerCell}>PIEZA</div>
+                        <div className={styles.headerCell}>ID</div>
+                        <div className={styles.headerCell}>CANT.</div>
+                        <div className={styles.headerCell}>PRECIO</div>
+                        <div className={styles.headerCell}>IMPORTE</div>
+                      </div>
+                      <div className={styles.tableBody}>
                         {lines.map((line, idx) => {
                           const qty = Number(line.quantity ?? line.cantidad ?? 0);
                           const price = Number(line.unitPrice ?? line.precio_venta_unitario ?? 0);
                           const total = qty * price;
                           return (
-                            <tr key={idx}>
-                              <td>{line.productName || line.name || "Producto"}</td>
-                              <td>{line.productId || line.product_id || "—"}</td>
-                              <td>{qty}</td>
-                              <td>${price.toFixed(2)}</td>
-                              <td>${total.toFixed(2)}</td>
-                            </tr>
+                            <div key={idx} className={styles.tableRow}>
+                              <div className={styles.cell}>{line.productName || line.name || "Producto"}</div>
+                              <div className={styles.cell}>{line.productId || line.product_id || "—"}</div>
+                              <div className={styles.cell}>{qty}</div>
+                              <div className={styles.cell}>${price.toFixed(2)}</div>
+                              <div className={styles.cell}>${total.toFixed(2)}</div>
+                            </div>
                           );
                         })}
-                      </tbody>
-                    </table>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Acciones y validación */}

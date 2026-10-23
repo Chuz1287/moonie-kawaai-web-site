@@ -12,7 +12,7 @@ export default function SalesHistoryPage() {
   const model = useSalesHistory();
 
   return (
-    <main className={`${styles.scope} bg-slate-950 px-4 py-8 text-slate-100`}>
+    <main className={`${styles.scope} min-h-screen px-4 py-8 text-[var(--foreground)]`}>
       <div className="mx-auto max-w-7xl">
         <SalesHeader
           loading={model.loading}
