@@ -1,0 +1,189 @@
+@use '../../../design-system/_variables' as *;
+@use '../../../design-system/_mixins' as *;
+
+// ═══════════════════════════════════════════════════════════════
+// VARIABLES LOCALES SCSS
+// ═══════════════════════════════════════════════════════════════
+
+$gap-mobile: $spacing-sm; // 0.75rem
+$gap-tablet: $spacing-md; // 1rem
+$gap-desktop: $spacing-lg; // 1.5rem
+
+$padding-mobile: $spacing-md; // 1rem
+$padding-tablet: $spacing-lg; // 1.25rem
+
+$title-mobile: $text-md; // 1.125rem
+$title-tablet: $text-lg; // 1.25rem
+
+$transition-theme: all $transition-fast;
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE FIRST STYLES (Base)
+// ═══════════════════════════════════════════════════════════════
+
+.scope {
+  margin-top: $spacing-md;
+  border-radius: $radius-2xl;
+  border: 1px solid var(--border-color);
+  padding: $padding-mobile;
+  background: var(--surface);
+  transition: $transition-theme;
+
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $gap-mobile;
+
+    .headerInfo {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+
+      .headerLabel {
+        font-size: $text-xs;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 0.125em;
+        color: var(--accent-primary);
+      }
+
+      .headerTitle {
+        margin-top: $spacing-xs;
+        font-size: $title-mobile;
+        font-weight: $font-weight-black;
+        line-height: 1.2;
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .balance {
+    font-size: $title-mobile;
+    font-weight: $font-weight-black;
+    white-space: nowrap;
+  }
+
+  .balancePositive {
+    @extend .balance;
+    color: var(--accent-success);
+  }
+
+  .balanceNegative {
+    @extend .balance;
+    color: var(--accent-warning);
+  }
+
+  .error {
+    margin-top: $spacing-lg;
+    padding: $spacing-sm;
+    border-radius: $radius-sm;
+    background: rgba(239, 68, 68, 0.1);
+    font-size: $text-sm;
+    color: var(--accent-error);
+  }
+
+  .loading {
+    margin-top: $spacing-lg;
+    font-size: $text-sm;
+    color: var(--text-tertiary);
+  }
+
+  .metricsContainer {
+    margin-top: $spacing-md;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $gap-mobile;
+
+    .metricBox {
+      flex: 1 1 150px;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+
+      .metricLabel {
+        font-size: $text-xs;
+        color: var(--text-tertiary);
+        font-weight: $font-weight-semibold;
+      }
+
+      .metricValue {
+        font-size: $text-base;
+        font-weight: $font-weight-bold;
+        color: var(--text-primary);
+      }
+
+      .metricValueSuccess {
+        @extend .metricValue;
+        color: var(--accent-success);
+      }
+
+      .metricValueWarning {
+        @extend .metricValue;
+        color: var(--accent-warning);
+      }
+    }
+  }
+
+  .progressSection {
+    margin-top: $spacing-md;
+
+    .progressLabel {
+      display: flex;
+      justify-content: space-between;
+      gap: $spacing-sm;
+      font-size: $text-xs;
+      color: var(--text-tertiary);
+      margin-bottom: $spacing-sm;
+    }
+
+    .progressBar {
+      height: 0.5rem;
+      overflow: hidden;
+      border-radius: $radius-full;
+      background: var(--border-color);
+
+      .progressFill {
+        height: 100%;
+        border-radius: $radius-full;
+        background: var(--accent-success);
+        transition: width $transition-base;
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TABLET STYLES (min-width: 768px)
+// ═══════════════════════════════════════════════════════════════
+
+@media (min-width: $tablet) {
+  .scope {
+    padding: $padding-tablet;
+
+    .header {
+      .headerInfo {
+        .headerTitle {
+          font-size: $title-tablet;
+        }
+      }
+    }
+
+    .metricsContainer {
+      gap: $gap-tablet;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DESKTOP STYLES (min-width: 1024px)
+// ═══════════════════════════════════════════════════════════════
+
+@media (min-width: $desktop) {
+  .scope {
+    .metricsContainer {
+      gap: $gap-desktop;
+    }
+  }
+}

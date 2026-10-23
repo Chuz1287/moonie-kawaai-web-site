@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import styles from "./events.module.scss";
 
 type EventRecord = {
   id: string;
@@ -387,64 +388,64 @@ export default function EventsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <main className={styles.container}>
+      <div className={styles.wrapper}>
+        <header className={styles.header}>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-violet-400">Operación</p>
-            <h1 className="mt-2 text-3xl font-black text-white">Eventos y gastos</h1>
+            <p style={{ fontSize: "0.75rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--accent-primary)" }}>Operación</p>
+            <h1 className={styles.title}>Eventos y gastos</h1>
           </div>
-          <div className="flex gap-3">
-            <Link href="/sales" className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:border-violet-400">Ventas</Link>
-            <Link href="/" className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:border-violet-400">POS</Link>
+          <div className={styles.navLinks}>
+            <Link href="/sales" className={styles.navLink}>Ventas</Link>
+            <Link href="/" className={styles.navLink}>POS</Link>
           </div>
         </header>
 
-        {status && <p role="status" className="mb-5 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-200">{status}</p>}
+        {status && <p role="status" className={styles.statusMessage}>{status}</p>}
 
-        <section className="mb-6 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-          <form onSubmit={handleCreateEvent} className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-            <h2 className="text-lg font-bold text-white">Crear evento</h2>
-            <label className="block text-sm text-slate-300">
-              Nombre del evento
-              <input required value={eventName} onChange={(event) => setEventName(event.target.value)} placeholder="Convención, bazar..." className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500" />
+        <section className={styles.mainContent}>
+          <form onSubmit={handleCreateEvent} className={styles.createEventSection}>
+            <h2 className={styles.sectionTitle}>Crear evento</h2>
+            <label className={styles.formGroup}>
+              <span className={styles.label}>Nombre del evento</span>
+              <input required value={eventName} onChange={(event) => setEventName(event.target.value)} placeholder="Convención, bazar..." className={styles.input} />
             </label>
-            <label className="block text-sm text-slate-300">
-              Lugar
-              <input value={eventLocation} onChange={(event) => setEventLocation(event.target.value)} placeholder="Recinto o ciudad" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500" />
+            <label className={styles.formGroup}>
+              <span className={styles.label}>Lugar</span>
+              <input value={eventLocation} onChange={(event) => setEventLocation(event.target.value)} placeholder="Recinto o ciudad" className={styles.input} />
             </label>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block text-sm text-slate-300">
-                Fecha de inicio
+            <div className={styles.dateRow}>
+              <label className={styles.formGroup}>
+                <span className={styles.label}>Fecha de inicio</span>
                 <input
                   required
                   type="date"
                   value={eventStartDate}
                   max={eventEndDate || undefined}
                   onChange={(event) => setEventStartDate(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                  className={styles.input}
                 />
               </label>
-              <label className="block text-sm text-slate-300">
-                Fecha de fin
+              <label className={styles.formGroup}>
+                <span className={styles.label}>Fecha de fin</span>
                 <input
                   required
                   type="date"
                   value={eventEndDate}
                   min={eventStartDate || undefined}
                   onChange={(event) => setEventEndDate(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                  className={styles.input}
                 />
               </label>
             </div>
-            <button disabled={isSavingEvent || !eventName.trim() || !eventStartDate || !eventEndDate} className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">
+            <button disabled={isSavingEvent || !eventName.trim() || !eventStartDate || !eventEndDate} className={styles.submitButton}>
               {isSavingEvent ? "Guardando..." : "Crear y activar evento"}
             </button>
           </form>
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-            <label className="block text-sm font-semibold text-slate-300">
-              Evento para administrar
+          <section className={styles.managedEventSection}>
+            <label className={styles.formGroup}>
+              <span className={styles.label}>Evento para administrar</span>
               <select value={selectedEventId} onChange={(event) => {
                 setSelectedEventId(event.target.value);
                 const chosenEvent = events.find((item) => item.id === event.target.value);
@@ -456,7 +457,7 @@ export default function EventsPage() {
                 if (chosenEvent?.is_active) {
                   localStorage.setItem("moonie_kawaai_selected_event", chosenEvent.id);
                 }
-              }} className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white">
+              }} className={styles.select}>
                 <option value="">Selecciona un evento</option>
                 {events.map((event) => <option key={event.id} value={event.id}>
                   {event.name}{event.is_active ? "" : " (Cerrado)"}
@@ -465,37 +466,33 @@ export default function EventsPage() {
             </label>
             {selectedEvent && (
               <>
-                <div className="mt-4 flex flex-wrap items-end gap-3">
-                  <label className="min-w-[220px] flex-1 text-sm text-slate-300">
+                <div className={styles.flexWrapEnd}>
+                  <label className={styles.fieldLabel}>
                     Nombre del evento
                     <input
                       required
                       value={managedEventName}
                       onChange={(event) => setManagedEventName(event.target.value)}
-                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-violet-500"
+                      className={styles.input}
                     />
                   </label>
                   <button
                     type="button"
                     onClick={() => void handleSaveEventName()}
                     disabled={updatingEvent || !managedEventName.trim() || managedEventName.trim() === selectedEvent.name}
-                    className="rounded-xl border border-violet-400/50 px-3 py-2 text-sm font-bold text-violet-200 disabled:opacity-50"
+                    className={styles.secondaryButton}
                   >
                     Guardar nombre
                   </button>
                 </div>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm text-slate-400">Lugar: {selectedEvent.location || "Sin especificar"}</p>
-                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                    selectedEvent.is_active
-                      ? "bg-emerald-500/10 text-emerald-300"
-                      : "bg-slate-700 text-slate-300"
-                  }`}>
+                <div className={styles.flexRow}>
+                  <p className={styles.expensesLabel}>Lugar: {selectedEvent.location || "Sin especificar"}</p>
+                  <span className={selectedEvent.is_active ? styles.statusActive : styles.statusInactive}>
                     {selectedEvent.is_active ? "Activo" : "Cerrado"}
                   </span>
                 </div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <label className="block text-sm text-slate-300">
+                <div className={styles.flexWrap}>
+                  <label className={styles.label}>
                     Desde
                     <input
                       type="date"
@@ -503,10 +500,10 @@ export default function EventsPage() {
                       value={managedStartDate}
                       max={managedEndDate || undefined}
                       onChange={(event) => setManagedStartDate(event.target.value)}
-                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                      className={styles.input}
                     />
                   </label>
-                  <label className="block text-sm text-slate-300">
+                  <label className={styles.label}>
                     Hasta
                     <input
                       type="date"
@@ -514,17 +511,17 @@ export default function EventsPage() {
                       value={managedEndDate}
                       min={managedStartDate || undefined}
                       onChange={(event) => setManagedEndDate(event.target.value)}
-                      className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+                      className={styles.input}
                     />
                   </label>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className={styles.flexWrap}>
                   <button
                     type="button"
                     onClick={() => void handleSaveEventDates()}
                     disabled={updatingEvent || !managedStartDate || !managedEndDate ||
                       (managedStartDate === selectedEvent.start_date && managedEndDate === selectedEvent.end_date)}
-                    className="rounded-xl border border-sky-400/50 px-3 py-2 text-sm font-bold text-sky-200 disabled:opacity-50"
+                    className={styles.secondaryButton}
                   >
                     Guardar fechas
                   </button>
@@ -532,7 +529,7 @@ export default function EventsPage() {
                     type="button"
                     onClick={() => void handleToggleEventStatus()}
                     disabled={updatingEvent}
-                    className="rounded-xl border border-violet-400/50 px-3 py-2 text-sm font-bold text-violet-200 disabled:opacity-50"
+                    className={styles.secondaryButton}
                   >
                     {updatingEvent ? "Actualizando..." : selectedEvent.is_active ? "Cerrar evento" : "Reactivar evento"}
                   </button>
@@ -540,56 +537,56 @@ export default function EventsPage() {
                     type="button"
                     onClick={() => void handleDeleteEvent()}
                     disabled={updatingEvent}
-                    className="rounded-xl border border-rose-500/50 px-3 py-2 text-sm font-bold text-rose-200 disabled:opacity-50"
+                    className={styles.dangerButton}
                   >
                     Eliminar evento
                   </button>
                 </div>
               </>
             )}
-            <div className="mt-5 flex items-end justify-between border-t border-slate-800 pt-4">
-              <span className="text-sm text-slate-400">Gastos registrados</span>
-              <strong className="text-2xl text-rose-300">{formatCurrency(totalExpenses)}</strong>
+            <div className={styles.expensesSummary}>
+              <span className={styles.expensesLabel}>Gastos registrados</span>
+              <strong className={styles.expensesTotal}>{formatCurrency(totalExpenses)}</strong>
             </div>
           </section>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-          <form onSubmit={handleCreateExpense} className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-            <h2 className="text-lg font-bold text-white">Agregar gasto</h2>
-            <label className="block text-sm text-slate-300">
+        <section className={styles.sectionRow}>
+          <form onSubmit={handleCreateExpense} className={styles.expenseFormSection}>
+            <h2 className={styles.sectionTitle}>Agregar gasto</h2>
+            <label className={styles.label}>
               Categoría
-              <select value={category} onChange={(event) => setCategory(event.target.value)} disabled={!selectedEventId} className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white">
+              <select value={category} onChange={(event) => setCategory(event.target.value)} disabled={!selectedEventId} className={styles.input}>
                 {expenseCategories.map((option) => <option key={option} value={option}>{option}</option>)}
                 <option value="__custom__">Nueva categoría...</option>
               </select>
             </label>
-            {category === "__custom__" && <label className="block text-sm text-slate-300">Nombre de categoría<input required value={customCategory} onChange={(event) => setCustomCategory(event.target.value)} placeholder="Ej. hospedaje" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>}
-            <label className="block text-sm text-slate-300">Importe<input required min="0.01" step="0.01" type="number" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>
-            <button disabled={!selectedEventId || isSavingExpense} className="rounded-xl bg-rose-500 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">
+            {category === "__custom__" && <label className={styles.label}>Nombre de categoría<input required value={customCategory} onChange={(event) => setCustomCategory(event.target.value)} placeholder="Ej. hospedaje" className={styles.input} /></label>}
+            <label className={styles.label}>Importe<input required min="0.01" step="0.01" type="number" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" className={styles.input} /></label>
+            <button disabled={!selectedEventId || isSavingExpense} className={styles.addExpenseButton}>
               {isSavingExpense ? "Guardando..." : "Guardar gasto"}
             </button>
           </form>
 
-          <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
-              <h2 className="font-bold text-white">Gastos del evento</h2>
-              <span className="text-sm text-slate-400">{expenses.length} registros</span>
+          <section className={styles.expensesListSection}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Gastos del evento</h2>
+              <span className={styles.expensesLabel}>{expenses.length} registros</span>
             </div>
             {expenses.length === 0 ? (
-              <p className="p-8 text-center text-sm text-slate-400">Selecciona un evento y registra sus gastos.</p>
+              <p className={styles.noExpenses}>Selecciona un evento y registra sus gastos.</p>
             ) : (
-              <div className="divide-y divide-slate-800">
+              <div className={styles.expenseList}>
                 {expenses.map((expense) => (
-                  <article key={expense.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+                  <article key={expense.id} className={styles.expenseRow}>
                     <div>
-                      <p className="font-semibold text-white">{expense.category}</p>
-                      <p className="mt-1 text-xs text-slate-400">{new Date(expense.created_at).toLocaleDateString("es-MX")}</p>
+                      <p className={styles.expenseCategory}>{expense.category}</p>
+                      <p className={styles.expenseDate}>{new Date(expense.created_at).toLocaleDateString("es-MX")}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className={styles.expenseRowRight}>
                       {editingExpenseId === expense.id ? (
                         <>
-                          <label className="sr-only" htmlFor={`expense-amount-${expense.id}`}>
+                          <label className={styles.srOnly} htmlFor={`expense-amount-${expense.id}`}>
                             Importe de {expense.category}
                           </label>
                           <input
@@ -599,13 +596,13 @@ export default function EventsPage() {
                             step="0.01"
                             value={editingExpenseAmount}
                             onChange={(event) => setEditingExpenseAmount(event.target.value)}
-                            className="w-32 rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-right text-white"
+                            className={styles.editAmountInput}
                           />
                           <button
                             type="button"
                             onClick={() => void handleSaveExpenseAmount(expense)}
                             disabled={updatingExpense || !editingExpenseAmount}
-                            className="rounded-lg border border-emerald-500/50 px-2 py-1 text-xs font-bold text-emerald-200 disabled:opacity-50"
+                            className={styles.smallButtonSuccess}
                           >
                             Guardar
                           </button>
@@ -616,21 +613,21 @@ export default function EventsPage() {
                               setEditingExpenseAmount("");
                             }}
                             disabled={updatingExpense}
-                            className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-300 disabled:opacity-50"
+                            className={styles.smallButton}
                           >
                             Cancelar
                           </button>
                         </>
                       ) : (
                         <>
-                          <strong className="text-rose-300">{formatCurrency(Number(expense.amount))}</strong>
+                          <strong className={styles.expenseAmountDisplay}>{formatCurrency(Number(expense.amount))}</strong>
                           <button
                             type="button"
                             onClick={() => {
                               setEditingExpenseId(expense.id);
                               setEditingExpenseAmount(String(expense.amount));
                             }}
-                            className="rounded-lg border border-sky-500/50 px-2 py-1 text-xs font-bold text-sky-200"
+                            className={styles.smallButtonPrimary}
                           >
                             Editar importe
                           </button>

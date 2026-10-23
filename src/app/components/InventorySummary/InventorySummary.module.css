@@ -1,0 +1,74 @@
+.scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  background: var(--surface);
+  flex: 1 1 260px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 200ms ease;
+}
+.card:hover {
+  border-color: var(--accent-primary);
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+}
+
+.value, .valuePrimary, .valueWarning, .valueSuccess {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.valueSuccess {
+  color: var(--accent-success);
+}
+
+.valueWarning {
+  color: var(--accent-warning);
+}
+
+.valuePrimary {
+  color: var(--accent-primary);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 1.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .scope {
+    gap: 1.25rem;
+  }
+}/*# sourceMappingURL=InventorySummary.module.css.map */

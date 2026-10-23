@@ -1,0 +1,126 @@
+.scope {
+  margin-top: 1em;
+  border-radius: 2em;
+  border: 1px solid var(--border-color);
+  padding: 1em;
+  background: var(--surface);
+  transition: all 150ms ease-in-out;
+}
+.scope .header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+.scope .header .headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+.scope .header .headerInfo .headerLabel {
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.125em;
+  color: var(--accent-primary);
+}
+.scope .header .headerInfo .headerTitle {
+  margin-top: 0.25em;
+  font-size: 1.125em;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.scope .balance, .scope .balanceNegative, .scope .balancePositive {
+  font-size: 1.125em;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.scope .balancePositive {
+  color: var(--accent-success);
+}
+.scope .balanceNegative {
+  color: var(--accent-warning);
+}
+.scope .error {
+  margin-top: 1.5em;
+  padding: 0.5em;
+  border-radius: 0.375em;
+  background: rgba(239, 68, 68, 0.1);
+  font-size: 0.875em;
+  color: var(--accent-error);
+}
+.scope .loading {
+  margin-top: 1.5em;
+  font-size: 0.875em;
+  color: var(--text-tertiary);
+}
+.scope .metricsContainer {
+  margin-top: 1em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+.scope .metricsContainer .metricBox {
+  flex: 1 1 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+.scope .metricsContainer .metricBox .metricLabel {
+  font-size: 0.75em;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+.scope .metricsContainer .metricBox .metricValue, .scope .metricsContainer .metricBox .metricValueWarning, .scope .metricsContainer .metricBox .metricValueSuccess {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.scope .metricsContainer .metricBox .metricValueSuccess {
+  color: var(--accent-success);
+}
+.scope .metricsContainer .metricBox .metricValueWarning {
+  color: var(--accent-warning);
+}
+.scope .progressSection {
+  margin-top: 1em;
+}
+.scope .progressSection .progressLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5em;
+  font-size: 0.75em;
+  color: var(--text-tertiary);
+  margin-bottom: 0.5em;
+}
+.scope .progressSection .progressBar {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--border-color);
+}
+.scope .progressSection .progressBar .progressFill {
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--accent-success);
+  transition: width 300ms ease-in-out;
+}
+
+@media (min-width: 768px) {
+  .scope {
+    padding: 1.5em;
+  }
+  .scope .header .headerInfo .headerTitle {
+    font-size: 1.25em;
+  }
+  .scope .metricsContainer {
+    gap: 1em;
+  }
+}
+@media (min-width: 1024px) {
+  .scope .metricsContainer {
+    gap: 1.5em;
+  }
+}/*# sourceMappingURL=EventPerformancePanel.module.css.map */

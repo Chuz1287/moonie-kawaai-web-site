@@ -1,0 +1,84 @@
+// ═══════════════════════════════════════════════════════════════
+// MOONIE KAWAAI - CARD COMPONENT
+// ═══════════════════════════════════════════════════════════════
+
+@import "../_variables";
+@import "../_mixins";
+
+.card {
+  @include border-radius($radius-xl);
+  @include shadow-md;
+
+  background-color: $color-bg-secondary;
+  border: 1px solid $color-border-light;
+  padding: $spacing-lg;
+  @include transition-all;
+
+  &:hover {
+    @include shadow-lg;
+    border-color: $color-primary;
+  }
+
+  // ─── PARTES ─────────────────────────────────────────────────────
+
+  &__header {
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-lg;
+    border-bottom: 1px solid $color-border-light;
+
+    h2,
+    h3 {
+      @include text-heading;
+      margin: 0;
+      color: $color-text-primary;
+    }
+
+    p {
+      margin: $spacing-sm 0 0 0;
+      color: $color-text-secondary;
+    }
+  }
+
+  &__body {
+    @include flex-column;
+    gap: $spacing-md;
+    color: $color-text-primary;
+
+    p {
+      margin: 0;
+      line-height: 1.6;
+    }
+  }
+
+  &__footer {
+    margin-top: $spacing-lg;
+    padding-top: $spacing-lg;
+    border-top: 1px solid $color-border-light;
+    @include flex-between;
+    gap: $spacing-md;
+  }
+
+  // ─── VARIANTES ──────────────────────────────────────────────────
+
+  &--elevated {
+    @include shadow-xl;
+  }
+
+  &--flat {
+    border: none;
+    @include shadow-sm;
+  }
+
+  &--outlined {
+    background-color: transparent;
+    border: 2px solid $color-border-light;
+  }
+
+  &--interactive {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}

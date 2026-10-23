@@ -1,0 +1,160 @@
+// ═══════════════════════════════════════════════════════════════
+// MOONIE KAWAAI - DESIGN SYSTEM VARIABLES
+// ═══════════════════════════════════════════════════════════════
+// Basado en diseño Dark Mode y Light Mode
+// ═══════════════════════════════════════════════════════════════
+
+// ─── BREAKPOINTS ─────────────────────────────────────────────────
+$mobile: 0px;
+$tablet: 768px;
+$desktop: 1024px;
+$largeDesktop: 1280px;
+
+// ─── TIPOGRAFÍA ──────────────────────────────────────────────────
+$text-xs: 0.75em; // 12px
+$text-sm: 0.875em; // 14px
+$text-base: 1em; // 16px
+$text-md: 1.125em; // 18px
+$text-lg: 1.25em; // 20px
+$text-xl: 1.5em; // 24px
+$text-2xl: 1.875em; // 30px
+$text-3xl: 2.25em; // 36px
+$text-4xl: 2.625em; // 42px
+$text-5xl: 3em; // 48px
+$text-6xl: 3.375em; // 60px
+
+$font-family-base: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+$font-family-mono: "Courier New", monospace;
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-black: 900;
+
+// ─── ESPACIADO ───────────────────────────────────────────────────
+$spacing-xs: 0.25em; // 4px
+$spacing-sm: 0.5em; // 8px
+$spacing-md: 1em; // 16px
+$spacing-lg: 1.5em; // 24px
+$spacing-xl: 2em; // 32px
+$spacing-2xl: 3em; // 48px
+$spacing-3xl: 4em; // 64px
+
+// ─── RADIUS ──────────────────────────────────────────────────────
+$radius-sm: 0.375em; // 6px
+$radius-md: 0.75em; // 12px
+$radius-lg: 1em; // 16px
+$radius-xl: 1.5em; // 24px
+$radius-2xl: 2em; // 32px
+$radius-full: 9999px;
+
+// ═══════════════════════════════════════════════════════════════
+// TEMA NOCTURNO (Dark Mode) - Por defecto
+// ═══════════════════════════════════════════════════════════════
+
+// ─── COLORES PRIMARIOS (MOONIE PINK) ──────────────────────────────
+$color-primary: #ff1493; // Deep Pink / Hot Pink (Accent principal)
+$color-primary-light: #ff69b4; // Hot Pink Light
+$color-primary-dark: #ff006e; // Deep Pink Dark
+$color-primary-contrast: #ffffff;
+
+// ─── COLORES SECUNDARIOS ─────────────────────────────────────────
+$color-secondary: #6366f1; // Indigo 500 (Categorías)
+$color-secondary-light: #818cf8; // Indigo 400
+$color-secondary-dark: #4f46e5; // Indigo 600
+$color-secondary-contrast: #ffffff;
+
+// ─── COLORES DE ESTADO ───────────────────────────────────────────
+// Success - Verde (Stock)
+$color-success: #10b981; // Emerald 500
+$color-success-light: #34d399; // Emerald 400
+$color-success-dark: #059669; // Emerald 600
+$color-success-bg: rgba(16, 185, 129, 0.1);
+
+// Warning - Ámbar
+$color-warning: #f59e0b; // Amber 500
+$color-warning-light: #fbbf24; // Amber 400
+$color-warning-dark: #d97706; // Amber 600
+$color-warning-bg: rgba(245, 158, 11, 0.1);
+
+// Error - Rojo
+$color-error: #ef4444; // Red 500
+$color-error-light: #f87171; // Red 400
+$color-error-dark: #dc2626; // Red 600
+$color-error-bg: rgba(239, 68, 68, 0.1);
+
+// Info - Cyan
+$color-info: #06b6d4; // Cyan 500
+$color-info-light: #22d3ee; // Cyan 400
+$color-info-dark: #0891b2; // Cyan 700
+$color-info-bg: rgba(6, 182, 212, 0.1);
+
+// ─── COLORES CATEGÓRICOS (Badges) ───────────────────────────────
+$color-category-kawaii: #a78bfa; // Violet
+$color-category-anime: #8b5cf6; // Violet
+$color-category-hogar: #f97316; // Orange
+$color-category-figuras: #06b6d4; // Cyan
+$color-category-accesorios: #ec4899; // Pink
+$color-category-otros: #6b7280; // Gray
+
+// ─── COLORES NEUTROS (DARK MODE) ─────────────────────────────────
+$color-bg-primary: #0f1419; // Dark Navy (Fondo principal)
+$color-bg-secondary: #1a1f2e; // Dark Slate (Fondo secundario)
+$color-bg-tertiary: #2d3748; // Dark Gray (Fondo terciario)
+$color-bg-overlay: rgba(15, 20, 25, 0.7);
+
+$color-text-primary: #ffffff; // White
+$color-text-secondary: #e5e7eb; // Gray 100
+$color-text-tertiary: #9ca3af; // Gray 400
+$color-text-muted: #6b7280; // Gray 500
+
+$color-border-light: #374151; // Gray 700
+$color-border-default: #1f2937; // Gray 800
+$color-border-dark: #0f1419; // Navy 950
+
+// ─── SOMBRAS (DARK MODE) ──────────────────────────────────────────
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+$shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+
+// ═══════════════════════════════════════════════════════════════
+// TEMA CLARO (Light Mode)
+// ═══════════════════════════════════════════════════════════════
+
+// Se activa con: [data-theme="light"]
+
+$light-color-bg-primary: #fafafa; // Almost White
+$light-color-bg-secondary: #f3f4f6; // Gray 100
+$light-color-bg-tertiary: #e5e7eb; // Gray 200
+$light-color-bg-overlay: rgba(255, 255, 255, 0.8);
+
+$light-color-text-primary: #111827; // Gray 900
+$light-color-text-secondary: #374151; // Gray 700
+$light-color-text-tertiary: #6b7280; // Gray 500
+$light-color-text-muted: #9ca3af; // Gray 400
+
+$light-color-border-light: #d1d5db; // Gray 300
+$light-color-border-default: #e5e7eb; // Gray 200
+$light-color-border-dark: #f3f4f6; // Gray 100
+
+// Categorías en Light Mode
+$light-color-category-kawaii: #c4b5fd; // Violet Light
+$light-color-category-anime: #d8b4fe; // Violet Light
+$light-color-category-hogar: #fed7aa; // Orange Light
+$light-color-category-figuras: #a5f3fc; // Cyan Light
+$light-color-category-accesorios: #fbcfe8; // Pink Light
+$light-color-category-otros: #d1d5db; // Gray Light
+
+$light-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+$light-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.12);
+$light-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.16);
+$light-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+$light-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// ─── TRANSICIONES ────────────────────────────────────────────────
+$transition-fast: 150ms ease-in-out;
+$transition-base: 300ms ease-in-out;
+$transition-slow: 500ms ease-in-out;

@@ -1,4 +1,4 @@
-import PosDashboard from "@/components/pos/PosDashboard";
+import PosDashboard from "@/pages/pos";
 
 export default function Home() {
   return <PosDashboard />;

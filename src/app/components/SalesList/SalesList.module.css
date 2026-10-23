@@ -1,0 +1,298 @@
+@charset "UTF-8";
+.scope {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  margin-top: 1rem;
+}
+
+.dateGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dateHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+.dateHeader h3 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+}
+.dateHeader .groupTotal {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent-success);
+  white-space: nowrap;
+}
+
+.ticketList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ticketRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
+  transition: all 200ms ease;
+}
+.ticketRow:hover {
+  border-color: var(--accent-primary);
+  background: rgba(var(--surface-rgb), 0.8);
+}
+
+.ticketHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.ticketInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+.ticketInfo .ticketNumber {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+.ticketInfo .ticketMeta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+.ticketInfo .ticketMeta span {
+  display: flex;
+  align-items: center;
+}
+.ticketInfo .ticketMeta span:not(:last-child)::after {
+  content: "•";
+  margin-left: 1rem;
+  color: var(--text-secondary);
+}
+
+.ticketAmount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+.ticketAmount .amountValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent-success);
+}
+.ticketAmount .amountLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+.ticketAmount .profitInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+.ticketAmount .profitInfo .profitLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.ticketAmount .profitInfo .profitValue {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.productsSection {
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+.productsSection .productsTable {
+  width: 100%;
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+}
+.productsSection .tableHeader {
+  display: flex;
+  flex-wrap: wrap;
+  background: rgba(var(--surface-rgb), 0.5);
+  border-bottom: 1px solid var(--border-color);
+}
+.productsSection .headerCell {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+.productsSection .tableBody {
+  display: flex;
+  flex-direction: column;
+}
+.productsSection .tableRow {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 200ms ease;
+}
+.productsSection .tableRow:last-child {
+  border-bottom: none;
+}
+.productsSection .tableRow:hover {
+  background: rgba(var(--accent-primary-rgb), 0.05);
+}
+.productsSection .cell {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+.productsSection .cell:nth-child(3), .productsSection .cell:nth-child(4), .productsSection .cell:nth-child(5) {
+  text-align: right;
+}
+
+.ticketActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.warningMessage {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--accent-warning);
+  background: rgba(var(--accent-warning-rgb), 0.1);
+  border-left: 2px solid var(--accent-warning);
+  border-radius: 0.25rem;
+}
+
+.piecesView {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pieceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  transition: all 200ms ease;
+}
+.pieceRow:hover {
+  background: rgba(var(--accent-primary-rgb), 0.05);
+  border-color: var(--accent-primary);
+}
+
+.pieceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.pieceInfo .productName {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.pieceInfo .saleDetails {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.pieceInfo .saleDetails span {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.loadMore {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.loadMoreBtn {
+  padding: 0.75rem 2rem;
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.loadMoreBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.loadMoreBtn:active {
+  transform: scale(0.98);
+}
+
+/* Animación de acordeón */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.products-list:not(.collapsed) .product-item {
+  animation: slideDown 0.3s ease forwards;
+}
+.products-list:not(.collapsed) .product-item:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.products-list:not(.collapsed) .product-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.products-list:not(.collapsed) .product-item:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.products-list:not(.collapsed) .product-item:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.products-list:not(.collapsed) .product-item:nth-child(5) {
+  animation-delay: 0.25s;
+}/*# sourceMappingURL=SalesList.module.css.map */

@@ -1,0 +1,583 @@
+@use '../../design-system/_variables' as *;
+
+.container {
+  background: var(--background);
+  color: var(--text-primary);
+  transition: background 200ms ease, color 200ms ease;
+  padding: 2rem 1rem;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+.navLinks {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.navLink {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all 200ms ease;
+  font-weight: 600;
+  font-size: 0.875rem;
+
+  &:hover {
+    background: var(--surface-secondary);
+  }
+}
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Event creation form
+.createEventSection {
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  padding: 1.5rem;
+  transition: all 200ms ease;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  margin-top: 0.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-secondary);
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 200ms ease;
+
+  &:focus {
+    border-color: var(--accent-primary);
+  }
+}
+
+.dateRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.dateCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.submitButton {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--accent-primary);
+  background: rgba(168, 85, 247, 0.1);
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  cursor: pointer;
+  transition: all 200ms ease;
+  margin-top: 1rem;
+
+  &:hover {
+    background: rgba(168, 85, 247, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+}
+
+// Event management section
+.managedEventSection {
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  padding: 1.5rem;
+  transition: all 200ms ease;
+}
+
+.select {
+  width: 100%;
+  margin-top: 0.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-secondary);
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 200ms ease;
+
+  &:focus {
+    border-color: var(--accent-primary);
+  }
+
+  option {
+    background: var(--background);
+    color: var(--text-primary);
+  }
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.statusActive {
+  @extend .statusBadge;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--accent-success);
+  border: 1px solid var(--accent-success);
+}
+
+.statusInactive {
+  @extend .statusBadge;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--accent-error);
+  border: 1px solid var(--accent-error);
+}
+
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.secondaryButton {
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 200ms ease;
+
+  &:hover {
+    background: var(--surface-secondary);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+}
+
+.dangerButton {
+  @extend .secondaryButton;
+  color: var(--accent-error);
+  border-color: var(--accent-error);
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
+
+// Expense form
+.expenseFormSection {
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  padding: 1.5rem;
+  transition: all 200ms ease;
+}
+
+.customCategoryLabel {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.75rem;
+}
+
+// Expenses list
+.expensesListSection {
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  overflow: hidden;
+  transition: all 200ms ease;
+}
+
+.expensesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--surface-secondary);
+}
+
+.expensesTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableRow {
+  border-bottom: 1px solid var(--border-color);
+
+  &:hover {
+    background: var(--surface-secondary);
+  }
+}
+
+.tableCell {
+  padding: 1rem;
+  text-align: left;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.tableCellAmount {
+  @extend .tableCell;
+  text-align: right;
+  font-weight: 700;
+  color: var(--accent-error);
+}
+
+.amountInput {
+  width: 8rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-secondary);
+  padding: 0.5rem;
+  text-align: right;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  transition: all 200ms ease;
+
+  &:focus {
+    border-color: var(--accent-primary);
+    outline: none;
+  }
+}
+
+.statusMessage {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+  transition: all 200ms ease;
+}
+
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+// Additional utility classes for remaining Tailwind styles
+.addExpenseButton {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: none;
+  background: var(--accent-error);
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: all 200ms ease;
+  margin-top: 1rem;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+}
+
+.expensesSummary {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  margin-top: 1.25rem;
+}
+
+.expensesLabel {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+.expensesTotal {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-error);
+}
+
+.noExpenses {
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+.expenseRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.expenseRowLeft {
+  flex: 1;
+  min-width: 150px;
+}
+
+.expenseCategory {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.expenseDate {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.expenseRowRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.expenseAmountDisplay {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-error);
+}
+
+.expenseButtonGroup {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.iconButton {
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 200ms ease;
+
+  &:hover {
+    background: var(--surface-secondary);
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.editingRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.editAmountInput {
+  width: 8rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-secondary);
+  padding: 0.375rem;
+  text-align: right;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  transition: all 200ms ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+  }
+}
+
+// Layout helper classes
+.wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.flexWrapEnd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.flexWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.flexRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.sectionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.fieldLabel {
+  display: block;
+  flex: 1;
+  min-width: 220px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sectionMeta {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+.expenseList {
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.smallButton {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 200ms ease;
+
+  &:hover {
+    background: var(--surface-secondary);
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+}
+
+.smallButtonSuccess {
+  @extend .smallButton;
+  border-color: var(--accent-success);
+  color: var(--accent-success);
+
+  &:hover {
+    background: rgba(34, 197, 94, 0.1);
+  }
+}
+
+.smallButtonPrimary {
+  @extend .smallButton;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+
+  &:hover {
+    background: rgba(168, 85, 247, 0.1);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

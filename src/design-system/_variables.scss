@@ -1,0 +1,135 @@
+// ═══════════════════════════════════════════════════════════════
+// MOONIE KAWAAI - DESIGN SYSTEM VARIABLES
+// ═══════════════════════════════════════════════════════════════
+// TEMA DINÁMICO CON VARIABLES CSS
+// 
+// ⚠️  IMPORTANTE: Para colores que cambien con el tema, usa:
+//     var(--text-primary), var(--text-secondary), var(--border-color), etc.
+//
+// Ejemplo SCSS con variables CSS dinámicas:
+//   .component {
+//     color: var(--text-primary);           // Cambia con tema ✓
+//     border-color: var(--border-color);    // Cambia con tema ✓
+//     background: var(--surface);            // Cambia con tema ✓
+//   }
+// ═══════════════════════════════════════════════════════════════
+
+// ─── BREAKPOINTS ─────────────────────────────────────────────────
+$mobile: 0px;
+$tablet: 768px;
+$desktop: 1024px;
+$largeDesktop: 1280px;
+
+// ─── TIPOGRAFÍA ──────────────────────────────────────────────────
+$text-xs: 0.75em; // 12px
+$text-sm: 0.875em; // 14px
+$text-base: 1em; // 16px
+$text-md: 1.125em; // 18px
+$text-lg: 1.25em; // 20px
+$text-xl: 1.5em; // 24px
+$text-2xl: 1.875em; // 30px
+$text-3xl: 2.25em; // 36px
+$text-4xl: 2.625em; // 42px
+$text-5xl: 3em; // 48px
+$text-6xl: 3.375em; // 60px
+
+$font-family-base: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+$font-family-mono: "Courier New", monospace;
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-black: 900;
+
+// ─── ESPACIADO ───────────────────────────────────────────────────
+$spacing-xs: 0.25em; // 4px
+$spacing-sm: 0.5em; // 8px
+$spacing-md: 1em; // 16px
+$spacing-lg: 1.5em; // 24px
+$spacing-xl: 2em; // 32px
+$spacing-2xl: 3em; // 48px
+$spacing-3xl: 4em; // 64px
+
+// ─── RADIUS ──────────────────────────────────────────────────────
+$radius-sm: 0.375em; // 6px
+$radius-md: 0.75em; // 12px
+$radius-lg: 1em; // 16px
+$radius-xl: 1.5em; // 24px
+$radius-2xl: 2em; // 32px
+$radius-full: 9999px;
+
+// ═══════════════════════════════════════════════════════════════
+// VARIABLES CSS DINÁMICAS (Definen el tema)
+// Todas estas variables cambian automáticamente cuando:
+//   - html.light / html.dark
+//   - prefers-color-scheme: light/dark
+// ═══════════════════════════════════════════════════════════════
+
+// ✓ USAR ESTAS EN SCSS PARA COLORES DINÁMICOS:
+// --text-primary, --text-secondary, --text-tertiary, --text-muted
+// --background, --foreground
+// --surface, --surface-hover
+// --border-color, --border-light
+// --accent-primary, --accent-success, --accent-error, --accent-warning
+
+// ─── COLORES NEUTROS (DARK MODE) ─────────────────────────────────
+$color-bg-primary: #0f1419; // Dark Navy (Fondo principal)
+$color-bg-secondary: #1a1f2e; // Dark Slate (Fondo secundario)
+$color-bg-tertiary: #2d3748; // Dark Gray (Fondo terciario)
+$color-bg-overlay: rgba(15, 20, 25, 0.7);
+
+$color-text-primary: #ffffff; // White
+$color-text-secondary: #e5e7eb; // Gray 100
+$color-text-tertiary: #9ca3af; // Gray 400
+$color-text-muted: #6b7280; // Gray 500
+
+$color-border-light: #374151; // Gray 700
+$color-border-default: #1f2937; // Gray 800
+$color-border-dark: #0f1419; // Navy 950
+
+// ─── SOMBRAS (DARK MODE) ──────────────────────────────────────────
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+$shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+
+// ═══════════════════════════════════════════════════════════════
+// TEMA CLARO (Light Mode)
+// ═══════════════════════════════════════════════════════════════
+
+// Se activa con: [data-theme="light"]
+
+$light-color-bg-primary: #fafafa; // Almost White
+$light-color-bg-secondary: #f3f4f6; // Gray 100
+$light-color-bg-tertiary: #e5e7eb; // Gray 200
+$light-color-bg-overlay: rgba(255, 255, 255, 0.8);
+
+$light-color-text-primary: #111827; // Gray 900
+$light-color-text-secondary: #374151; // Gray 700
+$light-color-text-tertiary: #6b7280; // Gray 500
+$light-color-text-muted: #9ca3af; // Gray 400
+
+$light-color-border-light: #d1d5db; // Gray 300
+$light-color-border-default: #e5e7eb; // Gray 200
+$light-color-border-dark: #f3f4f6; // Gray 100
+
+// Categorías en Light Mode
+$light-color-category-kawaii: #c4b5fd; // Violet Light
+$light-color-category-anime: #d8b4fe; // Violet Light
+$light-color-category-hogar: #fed7aa; // Orange Light
+$light-color-category-figuras: #a5f3fc; // Cyan Light
+$light-color-category-accesorios: #fbcfe8; // Pink Light
+$light-color-category-otros: #d1d5db; // Gray Light
+
+$light-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+$light-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.12);
+$light-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.16);
+$light-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+$light-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// ─── TRANSICIONES ────────────────────────────────────────────────
+$transition-fast: 150ms ease-in-out;
+$transition-base: 300ms ease-in-out;
+$transition-slow: 500ms ease-in-out;
