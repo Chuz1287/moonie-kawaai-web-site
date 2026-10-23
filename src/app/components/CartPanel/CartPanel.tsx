@@ -101,8 +101,8 @@ export default function CartPanel({
                             ? priceDrafts[item.productId]
                             : formatCartPriceInput(item.unitPrice ?? product.price)
                         }
-                        onChange={(event) => updateDraft(item.productId, event.target.value)}
-                        onBlur={() => commitDraft(item.productId, product.price)}
+                        onChange={(event) => updateDraft(item.productId, parseFloat(event.target.value) || 0)}
+                        onBlur={() => commitDraft(item.productId)}
                         className={styles.priceInput}
                       />
                     </div>

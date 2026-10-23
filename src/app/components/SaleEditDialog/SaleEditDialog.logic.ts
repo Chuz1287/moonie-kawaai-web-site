@@ -1,3 +1,5 @@
+import type { SalesHistoryModel } from "@/pages/sales/sales.logic";
+
 export type SaleEditDialogProps = {
-  // Propiedades del diálogo de edición de ventas
+  model: SalesHistoryModel;
 };

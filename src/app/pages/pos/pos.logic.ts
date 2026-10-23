@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
@@ -77,6 +77,7 @@ export type EventExpense = {
   category: string;
   description: string;
   amount: number;
+  notes?: string;
   created_at: string;
 };
 
@@ -131,6 +132,7 @@ export function usePosDashboard() {
   const [isUpdatingExpense, setIsUpdatingExpense] = useState(false);
   const [isExportingProducts, setIsExportingProducts] = useState(false);
   const [deletingEventId, setDeletingEventId] = useState("");
+  const [editingExpenseCategory, setEditingExpenseCategory] = useState(expenseCategories[0]);
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -144,11 +146,11 @@ export function usePosDashboard() {
 
         if (!cancelled) {
           setProductCatalog(payload.products ?? []);
-          setStatus("Catálogo cargado desde Supabase");
+          setStatus("CatÃ¡logo cargado desde Supabase");
         }
       } catch {
         if (!cancelled) {
-          setStatus("No se pudo cargar el catálogo desde Supabase");
+          setStatus("No se pudo cargar el catÃ¡logo desde Supabase");
         }
       }
     }
@@ -366,7 +368,7 @@ export function usePosDashboard() {
 
   const handleCheckout = async () => {
     if (cart.length === 0) {
-      setStatus("El carrito está vacío");
+      setStatus("El carrito estÃ¡ vacÃ­o");
       return;
     }
 
@@ -500,6 +502,175 @@ export function usePosDashboard() {
     }
   };
 
+  const handleDeleteEvent = async (event: EventOption) => {
+    setDeletingEventId(event.id);
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(event.id)}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json()) as { message?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "No se pudo eliminar el evento.");
+      }
+
+      setSalesChannels((current) => current.filter((item) => item.id !== event.id));
+      setEventModalStatus(`Evento "${event.name}" eliminado.`);
+      setStatus(`Evento "${event.name}" eliminado.`);
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : "No se pudo eliminar el evento.";
+      setEventModalStatus(message);
+    } finally {
+      setDeletingEventId("");
+    }
+  };
+
+  const handleSaveEventExpense = async (e: FormEvent) => {
+    e.preventDefault();
+    const category = editingExpenseCategory === "Otro" ? customExpenseCategory : editingExpenseCategory;
+    const amount = parseFloat(expenseAmount);
+
+    if (!category.trim() || !amount || amount <= 0) {
+      setEventModalStatus("Ingresa categorÃ­a y cantidad vÃ¡lidas.");
+      return;
+    }
+
+    setIsSavingExpense(true);
+    try {
+      const response = await fetch(
+        `/api/events/${encodeURIComponent(managedEventId)}/expenses`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            category,
+            description: category,
+            amount,
+          }),
+        }
+      );
+      const payload = (await response.json()) as { expense?: EventExpense; message?: string };
+
+      if (!response.ok || !payload.expense) {
+        throw new Error(payload.message ?? "No se pudo guardar el gasto.");
+      }
+
+      setEventExpenses((current) => [...current, payload.expense!]);
+      setEditingExpenseCategory(expenseCategories[0]);
+      setCustomExpenseCategory("");
+      setExpenseAmount("");
+      setEventModalStatus(`Gasto de ${category} registrado.`);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo guardar el gasto.";
+      setEventModalStatus(message);
+    } finally {
+      setIsSavingExpense(false);
+    }
+  };
+
+  const handleSaveExpense = async (expense: EventExpense) => {
+    const amount = parseFloat(editingExpenseAmount);
+    if (!amount || amount <= 0) {
+      setEventModalStatus("Ingresa una cantidad vÃ¡lida.");
+      return;
+    }
+
+    setIsUpdatingExpense(true);
+    try {
+      const response = await fetch(
+        `/api/events/${encodeURIComponent(expense.event_id)}/expenses/${encodeURIComponent(expense.id)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount }),
+        }
+      );
+      const payload = (await response.json()) as { expense?: EventExpense; message?: string };
+
+      if (!response.ok || !payload.expense) {
+        throw new Error(payload.message ?? "No se pudo actualizar el gasto.");
+      }
+
+      setEventExpenses((current) =>
+        current.map((item) => (item.id === payload.expense!.id ? payload.expense! : item))
+      );
+      setEditingExpenseId("");
+      setEditingExpenseAmount("");
+      setEventModalStatus("Gasto actualizado.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo actualizar el gasto.";
+      setEventModalStatus(message);
+    } finally {
+      setIsUpdatingExpense(false);
+    }
+  };
+
+  const handleDeleteEventExpense = async (expense: EventExpense) => {
+    setEditingExpenseId(expense.id);
+    try {
+      const response = await fetch(
+        `/api/events/${encodeURIComponent(expense.event_id)}/expenses/${encodeURIComponent(expense.id)}`,
+        { method: "DELETE" }
+      );
+      const payload = (await response.json()) as { message?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "No se pudo eliminar el gasto.");
+      }
+
+      setEventExpenses((current) => current.filter((item) => item.id !== expense.id));
+      setEventModalStatus("Gasto eliminado.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo eliminar el gasto.";
+      setEventModalStatus(message);
+    } finally {
+      setEditingExpenseId("");
+    }
+  };
+
+  const handleExportProducts = async () => {
+    setIsExportingProducts(true);
+    try {
+      const csv = [
+        ["ID", "Nombre", "CategorÃ­a", "Precio", "Stock", "Costo"],
+        ...productCatalog.map((p) => [
+          p.id,
+          p.name,
+          p.category,
+          p.price.toString(),
+          p.stock.toString(),
+          (p.cost ?? p.price * 0.7).toString(),
+        ]),
+      ]
+        .map((row) => row.map((cell) => `"${cell}"`).join(","))
+        .join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `catalogo-${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setStatus("CatÃ¡logo exportado a CSV.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo exportar el catÃ¡logo.";
+      setStatus(message);
+    } finally {
+      setIsExportingProducts(false);
+    }
+  };
+
+
   return {
     cart,
     setCart,
@@ -553,6 +724,8 @@ export function usePosDashboard() {
     isUpdatingExpense,
     isExportingProducts,
     deletingEventId,
+    editingExpenseCategory,
+    setEditingExpenseCategory,
     productCatalog,
     isCartOpen,
     setIsCartOpen,
@@ -569,6 +742,11 @@ export function usePosDashboard() {
     handleCheckout,
     handleSaveChannel,
     handleRenameEvent,
+    handleDeleteEvent,
+    handleSaveEventExpense,
+    handleSaveExpense,
+    handleDeleteEventExpense,
+    handleExportProducts,
   };
 }
 

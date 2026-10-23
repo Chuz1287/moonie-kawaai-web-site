@@ -1,3 +1,5 @@
+import type { Product } from "@/types/store";
+
 export type ProductCardProps = {
-  // Propiedades de la tarjeta de producto
+  product: Product;
 };
