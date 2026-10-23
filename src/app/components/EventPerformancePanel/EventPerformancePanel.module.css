@@ -1,145 +1,126 @@
 .scope {
-  margin-top: 1rem;
-  border-radius: 1.5rem;
+  margin-top: 1em;
+  border-radius: 2em;
   border: 1px solid var(--border-color);
-  padding: 1rem;
+  padding: 1em;
   background: var(--surface);
-  transition: all 200ms ease;
+  transition: all 150ms ease-in-out;
 }
-
-.header {
+.scope .header {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.5em;
 }
-
-.headerInfo {
+.scope .header .headerInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.25em;
 }
-
-.headerLabel {
-  font-size: 0.75rem;
+.scope .header .headerInfo .headerLabel {
+  font-size: 0.75em;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.125em;
   color: var(--accent-primary);
 }
-
-.headerTitle {
-  margin-top: 0.25rem;
-  font-size: 1.125rem;
+.scope .header .headerInfo .headerTitle {
+  margin-top: 0.25em;
+  font-size: 1.125em;
   font-weight: 900;
   line-height: 1.2;
   color: var(--text-primary);
 }
-
-.balance, .balanceNegative, .balancePositive {
-  font-size: 1.125rem;
+.scope .balance, .scope .balanceNegative, .scope .balancePositive {
+  font-size: 1.125em;
   font-weight: 900;
   white-space: nowrap;
 }
-
-.balancePositive {
+.scope .balancePositive {
   color: var(--accent-success);
 }
-
-.balanceNegative {
+.scope .balanceNegative {
   color: var(--accent-warning);
 }
-
-.error {
-  margin-top: 0.75rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
+.scope .error {
+  margin-top: 1.5em;
+  padding: 0.5em;
+  border-radius: 0.375em;
   background: rgba(239, 68, 68, 0.1);
-  font-size: 0.875rem;
+  font-size: 0.875em;
   color: var(--accent-error);
 }
-
-.loading {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
+.scope .loading {
+  margin-top: 1.5em;
+  font-size: 0.875em;
   color: var(--text-tertiary);
 }
-
-.metricsContainer {
-  margin-top: 1rem;
+.scope .metricsContainer {
+  margin-top: 1em;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5em;
 }
-
-.metricBox {
+.scope .metricsContainer .metricBox {
   flex: 1 1 150px;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.25em;
 }
-
-.metricLabel {
-  font-size: 0.75rem;
+.scope .metricsContainer .metricBox .metricLabel {
+  font-size: 0.75em;
   color: var(--text-tertiary);
   font-weight: 600;
 }
-
-.metricValue, .metricValueWarning, .metricValueSuccess {
-  font-size: 1rem;
+.scope .metricsContainer .metricBox .metricValue, .scope .metricsContainer .metricBox .metricValueWarning, .scope .metricsContainer .metricBox .metricValueSuccess {
+  font-size: 1em;
   font-weight: 700;
   color: var(--text-primary);
 }
-
-.metricValueSuccess {
+.scope .metricsContainer .metricBox .metricValueSuccess {
   color: var(--accent-success);
 }
-
-.metricValueWarning {
+.scope .metricsContainer .metricBox .metricValueWarning {
   color: var(--accent-warning);
 }
-
-.progressSection {
-  margin-top: 1rem;
+.scope .progressSection {
+  margin-top: 1em;
 }
-
-.progressLabel {
+.scope .progressSection .progressLabel {
   display: flex;
   justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.75rem;
+  gap: 0.5em;
+  font-size: 0.75em;
   color: var(--text-tertiary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.5em;
 }
-
-.progressBar {
+.scope .progressSection .progressBar {
   height: 0.5rem;
   overflow: hidden;
   border-radius: 9999px;
   background: var(--border-color);
 }
-
-.progressFill {
+.scope .progressSection .progressBar .progressFill {
   height: 100%;
   border-radius: 9999px;
   background: var(--accent-success);
-  transition: width 300ms ease;
+  transition: width 300ms ease-in-out;
 }
 
 @media (min-width: 768px) {
   .scope {
-    padding: 1.25rem;
+    padding: 1.5em;
   }
-  .headerTitle {
-    font-size: 1.25rem;
+  .scope .header .headerInfo .headerTitle {
+    font-size: 1.25em;
   }
-  .metricsContainer {
-    gap: 1rem;
+  .scope .metricsContainer {
+    gap: 1em;
   }
 }
 @media (min-width: 1024px) {
-  .metricsContainer {
-    gap: 1.5rem;
+  .scope .metricsContainer {
+    gap: 1.5em;
   }
 }/*# sourceMappingURL=EventPerformancePanel.module.css.map */

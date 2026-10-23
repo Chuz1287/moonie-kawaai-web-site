@@ -1,155 +1,189 @@
 @use '../../../design-system/_variables' as *;
 @use '../../../design-system/_mixins' as *;
 
+// ═══════════════════════════════════════════════════════════════
+// VARIABLES LOCALES SCSS
+// ═══════════════════════════════════════════════════════════════
+
+$gap-mobile: $spacing-sm; // 0.75rem
+$gap-tablet: $spacing-md; // 1rem
+$gap-desktop: $spacing-lg; // 1.5rem
+
+$padding-mobile: $spacing-md; // 1rem
+$padding-tablet: $spacing-lg; // 1.25rem
+
+$title-mobile: $text-md; // 1.125rem
+$title-tablet: $text-lg; // 1.25rem
+
+$transition-theme: all $transition-fast;
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE FIRST STYLES (Base)
+// ═══════════════════════════════════════════════════════════════
+
 .scope {
-  margin-top: 1rem;
-  border-radius: 1.5rem;
+  margin-top: $spacing-md;
+  border-radius: $radius-2xl;
   border: 1px solid var(--border-color);
-  padding: 1rem;
+  padding: $padding-mobile;
   background: var(--surface);
-  transition: all 200ms ease;
+  transition: $transition-theme;
+
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $gap-mobile;
+
+    .headerInfo {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+
+      .headerLabel {
+        font-size: $text-xs;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 0.125em;
+        color: var(--accent-primary);
+      }
+
+      .headerTitle {
+        margin-top: $spacing-xs;
+        font-size: $title-mobile;
+        font-weight: $font-weight-black;
+        line-height: 1.2;
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .balance {
+    font-size: $title-mobile;
+    font-weight: $font-weight-black;
+    white-space: nowrap;
+  }
+
+  .balancePositive {
+    @extend .balance;
+    color: var(--accent-success);
+  }
+
+  .balanceNegative {
+    @extend .balance;
+    color: var(--accent-warning);
+  }
+
+  .error {
+    margin-top: $spacing-lg;
+    padding: $spacing-sm;
+    border-radius: $radius-sm;
+    background: rgba(239, 68, 68, 0.1);
+    font-size: $text-sm;
+    color: var(--accent-error);
+  }
+
+  .loading {
+    margin-top: $spacing-lg;
+    font-size: $text-sm;
+    color: var(--text-tertiary);
+  }
+
+  .metricsContainer {
+    margin-top: $spacing-md;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $gap-mobile;
+
+    .metricBox {
+      flex: 1 1 150px;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+
+      .metricLabel {
+        font-size: $text-xs;
+        color: var(--text-tertiary);
+        font-weight: $font-weight-semibold;
+      }
+
+      .metricValue {
+        font-size: $text-base;
+        font-weight: $font-weight-bold;
+        color: var(--text-primary);
+      }
+
+      .metricValueSuccess {
+        @extend .metricValue;
+        color: var(--accent-success);
+      }
+
+      .metricValueWarning {
+        @extend .metricValue;
+        color: var(--accent-warning);
+      }
+    }
+  }
+
+  .progressSection {
+    margin-top: $spacing-md;
+
+    .progressLabel {
+      display: flex;
+      justify-content: space-between;
+      gap: $spacing-sm;
+      font-size: $text-xs;
+      color: var(--text-tertiary);
+      margin-bottom: $spacing-sm;
+    }
+
+    .progressBar {
+      height: 0.5rem;
+      overflow: hidden;
+      border-radius: $radius-full;
+      background: var(--border-color);
+
+      .progressFill {
+        height: 100%;
+        border-radius: $radius-full;
+        background: var(--accent-success);
+        transition: width $transition-base;
+      }
+    }
+  }
 }
 
-.header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.headerInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.headerLabel {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.125em;
-  color: var(--accent-primary);
-}
-
-.headerTitle {
-  margin-top: 0.25rem;
-  font-size: 1.125rem;
-  font-weight: 900;
-  line-height: 1.2;
-  color: var(--text-primary);
-}
-
-.balance {
-  font-size: 1.125rem;
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.balancePositive {
-  @extend .balance;
-  color: var(--accent-success);
-}
-
-.balanceNegative {
-  @extend .balance;
-  color: var(--accent-warning);
-}
-
-.error {
-  margin-top: 0.75rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background: rgba(239, 68, 68, 0.1);
-  font-size: 0.875rem;
-  color: var(--accent-error);
-}
-
-.loading {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
-  color: var(--text-tertiary);
-}
-
-.metricsContainer {
-  margin-top: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.metricBox {
-  flex: 1 1 150px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.metricLabel {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-weight: 600;
-}
-
-.metricValue {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.metricValueSuccess {
-  @extend .metricValue;
-  color: var(--accent-success);
-}
-
-.metricValueWarning {
-  @extend .metricValue;
-  color: var(--accent-warning);
-}
-
-.progressSection {
-  margin-top: 1rem;
-}
-
-.progressLabel {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  margin-bottom: 0.5rem;
-}
-
-.progressBar {
-  height: 0.5rem;
-  overflow: hidden;
-  border-radius: 9999px;
-  background: var(--border-color);
-}
-
-.progressFill {
-  height: 100%;
-  border-radius: 9999px;
-  background: var(--accent-success);
-  transition: width 300ms ease;
-}
+// ═══════════════════════════════════════════════════════════════
+// TABLET STYLES (min-width: 768px)
+// ═══════════════════════════════════════════════════════════════
 
 @media (min-width: $tablet) {
   .scope {
-    padding: 1.25rem;
-  }
-  
-  .headerTitle {
-    font-size: 1.25rem;
-  }
-  
-  .metricsContainer {
-    gap: 1rem;
+    padding: $padding-tablet;
+
+    .header {
+      .headerInfo {
+        .headerTitle {
+          font-size: $title-tablet;
+        }
+      }
+    }
+
+    .metricsContainer {
+      gap: $gap-tablet;
+    }
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// DESKTOP STYLES (min-width: 1024px)
+// ═══════════════════════════════════════════════════════════════
+
 @media (min-width: $desktop) {
-  .metricsContainer {
-    gap: 1.5rem;
+  .scope {
+    .metricsContainer {
+      gap: $gap-desktop;
+    }
   }
 }

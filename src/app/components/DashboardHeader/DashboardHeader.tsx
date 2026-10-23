@@ -27,12 +27,7 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
             Ventas
           </Link>
         </div>
-      </div>
-
-      <div className={styles.contentGrid}>
-        <div className={styles.statusBox}>{model.status}</div>
-
-        <div className={styles.eventSection}>
+                <div className={styles.eventSection}>
           <label className={styles.eventLabel}>Evento de venta</label>
           <button
             type="button"
@@ -64,6 +59,12 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
             Administrar eventos y gastos
           </button>
         </div>
+      </div>
+
+      <div className={styles.contentGrid}>
+        {/* <div className={styles.statusBox}>{model.status}</div> */}
+
+
       </div>
     </>
   );
