@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${outfit.variable} ${geistMono.variable} h-full w-full antialiased`}
     >
       <body className="h-full w-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
         <VersionLogger version={packageJson.version} />
         {children}
       </body>

@@ -2,37 +2,35 @@
 
 import { useEffect, useState } from "react";
 
+const applyTheme = (newTheme: "light" | "dark") => {
+  const html = document.documentElement;
+  if (newTheme === "light") {
+    html.classList.add("light");
+    html.classList.remove("dark");
+  } else {
+    html.classList.add("dark");
+    html.classList.remove("light");
+  }
+  localStorage.setItem("theme", newTheme);
+};
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("theme") as "light" | "dark" | "system" | null;
-    if (saved) {
+    const saved = localStorage.getItem("theme") as "light" | "dark" | null;
+    if (saved && (saved === "light" || saved === "dark")) {
       setTheme(saved);
       applyTheme(saved);
+    } else {
+      applyTheme("dark");
     }
+    setMounted(true);
   }, []);
 
-  const applyTheme = (newTheme: "light" | "dark" | "system") => {
-    const html = document.documentElement;
-    if (newTheme === "system") {
-      html.classList.remove("light", "dark");
-    } else if (newTheme === "light") {
-      html.classList.add("light");
-      html.classList.remove("dark");
-    } else {
-      html.classList.add("dark");
-      html.classList.remove("light");
-    }
-    localStorage.setItem("theme", newTheme);
-  };
-
   const toggleTheme = () => {
-    const themes: ("light" | "dark" | "system")[] = ["dark", "light", "system"];
-    const currentIndex = themes.indexOf(theme);
-    const nextTheme = themes[(currentIndex + 1) % themes.length];
+    const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     applyTheme(nextTheme);
   };
@@ -42,7 +40,6 @@ export default function ThemeToggle() {
   const themeLabels: Record<string, string> = {
     dark: "🌙 Dark",
     light: "☀️ Light",
-    system: "⚙️ System",
   };
 
   return (
