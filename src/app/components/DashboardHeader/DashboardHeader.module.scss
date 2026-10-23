@@ -1,90 +1,86 @@
 @use '../../../design-system/_variables' as *;
 
+// ─── BASE STYLES (MOBILE) ────────────────────────────────────────
 .topSection {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  @media (min-width: 768px) {
-    flex-direction: row;
+  gap: $gap-mobile;
+
+  .titleBlock {
+    display: flex;
+    flex-direction: column;
+
+    .badge {
+      font-size: $badge-mobile;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--accent-primary);
+      transition: $transition-theme;
+    }
+
+    .title {
+      margin-top: 0.5rem;
+      font-size: $title-mobile;
+      font-weight: 900;
+      color: var(--text-primary);
+      transition: $transition-theme;
+    }
+  }
+
+  .actionBar {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-  }
-}
+    gap: $gap-mobile;
 
-.titleBlock {
-  display: flex;
-  flex-direction: column;
-}
+    .syncBadge {
+      border-radius: $radius-full;
+      border: 1px solid var(--accent-success);
+      background: rgba(34, 197, 94, 0.1);
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-success);
+      transition: $transition-theme;
+    }
 
-.badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.25em;
-  color: var(--accent-primary);
-  transition: color 200ms ease;
-}
+    .exportButton {
+      border-radius: $radius-full;
+      border: 1px solid var(--accent-success);
+      background: rgba(34, 197, 94, 0.1);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--accent-success);
+      transition: $transition-theme;
+      cursor: pointer;
 
-.title {
-  margin-top: 0.5rem;
-  font-size: 1.875rem;
-  font-weight: 900;
-  color: var(--text-primary);
-  transition: color 200ms ease;
-}
+      &:hover {
+        background: rgba(34, 197, 94, 0.2);
+      }
 
-.actionBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-}
+      &:disabled {
+        cursor: wait;
+        opacity: 0.6;
+      }
+    }
 
-.syncBadge {
-  border-radius: 9999px;
-  border: 1px solid var(--accent-success);
-  background: rgba(34, 197, 94, 0.1);
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-success);
-  transition: all 200ms ease;
-}
+    .salesLink {
+      border-radius: $radius-full;
+      border: 1px solid var(--accent-primary);
+      background: rgba(168, 85, 247, 0.1);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      transition: $transition-theme;
+      text-decoration: none;
 
-.exportButton {
-  border-radius: 9999px;
-  border: 1px solid var(--accent-success);
-  background: rgba(34, 197, 94, 0.1);
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--accent-success);
-  transition: all 200ms ease;
-  cursor: pointer;
-
-  &:hover {
-    background: rgba(34, 197, 94, 0.2);
-  }
-
-  &:disabled {
-    cursor: wait;
-    opacity: 0.6;
-  }
-}
-
-.salesLink {
-  border-radius: 9999px;
-  border: 1px solid var(--accent-primary);
-  background: rgba(168, 85, 247, 0.1);
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--accent-primary);
-  transition: all 200ms ease;
-  text-decoration: none;
-
-  &:hover {
-    background: rgba(168, 85, 247, 0.2);
+      &:hover {
+        background: rgba(168, 85, 247, 0.2);
+      }
+    }
   }
 }
 
@@ -92,90 +88,173 @@
   margin-top: 1.25rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-}
+  gap: $gap-mobile;
 
-.statusBox {
-  border-radius: 1.5rem;
-  border: 1px solid var(--border-color);
-  padding: 1rem;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  background: var(--surface);
-  transition: all 200ms ease;
+  .statusBox {
+    border-radius: 1.5rem;
+    border: 1px solid var(--border-color);
+    padding: $padding-mobile;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: $transition-theme;
+  }
 }
 
 .eventSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border-radius: 1.5rem;
-  border: 1px solid var(--border-color);
-  background: var(--surface);
-  padding: 0.75rem;
-  transition: all 200ms ease;
-}
+    display: flex;
+    gap: 0.5rem;
+    border-radius: 1.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--surface);
+    padding: $padding-mobile;
+    transition: $transition-theme;
 
-.eventLabel {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--text-secondary);
-  transition: color 200ms ease;
-}
+    .eventLabel {
+      font-size: $badge-mobile;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-secondary);
+      transition: $transition-theme;
+    }
 
-.createEventButton {
-  width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid var(--accent-primary);
-  background: rgba(168, 85, 247, 0.1);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--accent-primary);
-  cursor: pointer;
-  transition: all 200ms ease;
+    .createEventButton {
+      width: 3em;
+      border-radius: $radius-md;
+      border: 1px solid var(--accent-primary);
+      background: rgba(168, 85, 247, 0.1);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      cursor: pointer;
+      transition: $transition-theme;
 
-  &:hover {
-    background: rgba(168, 85, 247, 0.2);
+      &:hover {
+        background: rgba(168, 85, 247, 0.2);
+      }
+    }
+
+    .eventSelect {
+      border-radius: $radius-md;
+      border: 1px solid var(--border-color);
+      background: var(--surface);
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      transition: $transition-theme;
+      width: 80%;
+
+      &:focus {
+        border-color: var(--accent-primary);
+        outline: none;
+      }
+
+      option {
+        background: var(--background);
+        color: var(--text-primary);
+      }
+    }
+
+    .manageEventsLink {
+      width: 3em;
+      border-radius: $radius-md;
+      border: 1px solid var(--accent-primary);
+      background: transparent;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      cursor: pointer;
+      transition: $transition-theme;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: rgba(168, 85, 247, 0.1);
+      }
+    }
+  }
+
+// ─── TABLET (768px+) ─────────────────────────────────────────────
+@media (min-width: $tablet) {
+  .topSection {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: $gap-tablet;
+
+    .titleBlock {
+      .badge {
+        font-size: $badge-tablet;
+      }
+
+      .title {
+        font-size: $title-tablet;
+      }
+    }
+
+    .actionBar {
+      gap: $gap-tablet;
+    }
+  }
+
+  .contentGrid {
+    margin-top: 1.5rem;
+    gap: $gap-tablet;
+
+    .statusBox {
+      padding: $padding-tablet;
+    }
+
+  }
+
+  .eventSection {
+    padding: $padding-tablet;
+
+    .eventLabel {
+      font-size: $badge-tablet;
+    }
   }
 }
 
-.eventSelect {
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-color);
-  background: var(--surface-secondary);
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  transition: all 200ms ease;
+// ─── DESKTOP (1024px+) ───────────────────────────────────────────
+@media (min-width: $desktop) {
+  .topSection {
+    gap: $gap-desktop;
 
-  &:focus {
-    border-color: var(--accent-primary);
-    outline: none;
+    .titleBlock {
+      .badge {
+        font-size: $badge-desktop;
+      }
+
+      .title {
+        font-size: $title-desktop;
+      }
+    }
+
+    .actionBar {
+      gap: $gap-desktop;
+    }
   }
 
-  option {
-    background: var(--background);
-    color: var(--text-primary);
+  .contentGrid {
+    gap: $gap-desktop;
+
+    .statusBox {
+      padding: $padding-desktop;
+    }
+
   }
-}
 
-.manageEventsLink {
-  width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid var(--accent-primary);
-  background: transparent;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--accent-primary);
-  cursor: pointer;
-  transition: all 200ms ease;
-  text-decoration: none;
+  .eventSection {
+    padding: $padding-desktop;
 
-  &:hover {
-    background: rgba(168, 85, 247, 0.1);
+    .eventLabel {
+      font-size: $badge-desktop;
+    }
   }
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { PosDashboardModel } from "@/pages/pos/pos.logic";
 import styles from "./DashboardHeader.module.scss";
+import { PenLine } from "lucide-react";
 
 export default function DashboardHeader({ model }: { model: PosDashboardModel }) {
   return (
@@ -27,15 +28,8 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
             Ventas
           </Link>
         </div>
-                <div className={styles.eventSection}>
-          <label className={styles.eventLabel}>Evento de venta</label>
-          <button
-            type="button"
-            onClick={() => model.setIsEventModalOpen(true)}
-            className={styles.createEventButton}
-          >
-            Crear evento
-          </button>
+        <div className={styles.eventSection}>
+          {/* <label className={styles.eventLabel}>Evento de venta</label> */}
           <select
             value={model.selectedEvent}
             onChange={(event) => {
@@ -53,10 +47,18 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
           </select>
           <button
             type="button"
+            onClick={() => model.setIsEventModalOpen(true)}
+            className={styles.createEventButton}
+          >
+            +
+          </button>
+
+          <button
+            type="button"
             onClick={() => model.setIsEventsAndExpensesModalOpen(true)}
             className={styles.manageEventsLink}
           >
-            Administrar eventos y gastos
+            <PenLine />
           </button>
         </div>
       </div>
