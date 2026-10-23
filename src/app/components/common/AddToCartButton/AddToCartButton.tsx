@@ -1,7 +1,10 @@
-\"use client\";
+"use client";
 
-import type { AddToCartButtonProps } from \"./AddToCartButton.logic\";import styles from "./AddToCartButton.module.scss";
+import type { AddToCartButtonProps } from "./AddToCartButton.logic";
+import styles from "./AddToCartButton.module.scss";
+
 export default function AddToCartButton({
+  product,
   quantity = 1,
   onClick,
   disabled = false,

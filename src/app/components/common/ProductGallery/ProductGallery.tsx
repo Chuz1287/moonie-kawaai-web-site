@@ -1,7 +1,6 @@
 "use client";
 
 import type { Product } from "@/types/store";
-import type { ProductGalleryProps } from "./ProductGallery.logic";
 import styles from "./ProductGallery.module.scss";
 
 export type ProductGalleryProps = {

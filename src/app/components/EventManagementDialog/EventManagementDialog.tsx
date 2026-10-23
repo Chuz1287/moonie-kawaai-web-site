@@ -485,7 +485,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                         <button
                           type="button"
                           onClick={() => void model.handleDeleteEventExpense(expense)}
-                          disabled={Boolean(model.deletingExpenseId)}
+                          disabled={Boolean(model.editingExpenseId)}
                           style={{
                             padding: "0.25rem 0.5rem",
                             borderRadius: "0.375rem",
@@ -495,10 +495,10 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                             fontSize: "0.75rem",
                             fontWeight: "700",
                             cursor: "pointer",
-                            opacity: model.deletingExpenseId === expense.id ? 0.5 : 1,
+                            opacity: model.editingExpenseId === expense.id ? 0.5 : 1,
                           }}
                         >
-                          {model.deletingExpenseId === expense.id ? "Borrando..." : "Borrar"}
+                          {model.editingExpenseId === expense.id ? "Borrando..." : "Borrar"}
                         </button>
                       </div>
                     </article>

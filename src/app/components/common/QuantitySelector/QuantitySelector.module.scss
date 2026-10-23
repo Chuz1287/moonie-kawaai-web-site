@@ -1,3 +1,77 @@
+@use '../../../../design-system/_variables' as *;
+
 .scope {
-  // Estilos del selector de cantidad
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.label {
+  font-size: $text-sm;
+  font-weight: $font-weight-semibold;
+  color: var(--text-primary);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  border-radius: $radius-md;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  padding: $spacing-sm;
+}
+
+.button {
+  flex: 0 0 40px;
+  height: 40px;
+  border: none;
+  border-radius: $radius-sm;
+  background: var(--accent-primary);
+  color: white;
+  font-weight: $font-weight-bold;
+  font-size: $text-md;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: var(--accent-primary);
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.input {
+  flex: 1;
+  height: 40px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: $text-base;
+  font-weight: $font-weight-bold;
+  color: var(--text-primary);
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.stock {
+  font-size: $text-xs;
+  color: var(--text-tertiary);
+  margin: 0;
 }

@@ -63,7 +63,7 @@ export default function ProductGrid({ products, onAdd, onAddStock }: ProductGrid
                     value={quantityDraft}
                     onClick={(event) => event.stopPropagation()}
                     onChange={(event) => {
-                      updateDraftQuantity(product.id, event.target.value);
+                      updateDraftQuantity(product.id, parseInt(event.target.value) || 1);
                     }}
                     aria-label={`Cantidad para agregar stock de ${product.name}`}
                   />

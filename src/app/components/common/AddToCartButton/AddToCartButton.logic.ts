@@ -1,5 +1,8 @@
+import type { Product } from "@/types/store";
+
 export type AddToCartButtonProps = {
-  quantity?: number;
+  product: Product;
+  quantity: number;
   onClick?: () => void;
   disabled?: boolean;
 };

@@ -48,3 +48,23 @@ export default function PDPPage({ slug }: PDPPageProps) {
       </main>
     );
   }
+
+  return (
+    <main className="mx-auto max-w-4xl px-6 py-10">
+      <div className="grid gap-8 md:grid-cols-2">
+        <ProductGallery product={product} />
+        <div>
+          <ProductInfo product={product} />
+          <div className="mt-6 space-y-4">
+            <QuantitySelector
+              quantity={quantity}
+              maxStock={product.stock || 0}
+              onQuantityChange={setQuantity}
+            />
+            <AddToCartButton product={product} quantity={quantity} />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

@@ -1,1 +1,69 @@
-/*# sourceMappingURL=QuantitySelector.module.css.map */
+.scope {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.label {
+  font-size: 0.875em;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  border-radius: 0.75em;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  padding: 0.5em;
+}
+
+.button {
+  flex: 0 0 40px;
+  height: 40px;
+  border: none;
+  border-radius: 0.375em;
+  background: var(--accent-primary);
+  color: white;
+  font-weight: 700;
+  font-size: 1.125em;
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+}
+.button:hover:not(:disabled) {
+  background: var(--accent-primary);
+  opacity: 0.9;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input {
+  flex: 1;
+  height: 40px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.input::-webkit-outer-spin-button, .input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.input[type=number] {
+  -moz-appearance: textfield;
+}
+.input:focus {
+  outline: none;
+}
+
+.stock {
+  font-size: 0.75em;
+  color: var(--text-tertiary);
+  margin: 0;
+}/*# sourceMappingURL=QuantitySelector.module.css.map */
