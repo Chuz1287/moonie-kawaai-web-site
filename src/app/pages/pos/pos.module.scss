@@ -6,6 +6,16 @@
   transition: background 200ms ease, color 200ms ease;
 }
 
+.header {
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-color);
+  padding: 1.25rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+  background: var(--surface);
+  transition: all 200ms ease;
+}
+
 .searchSection {
   border-radius: 1.5rem;
   border: 1px solid var(--border-color);
