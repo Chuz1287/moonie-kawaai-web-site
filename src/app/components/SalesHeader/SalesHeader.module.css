@@ -1,33 +1,79 @@
-/* SalesHeader Styles */
-.header {
+.scope {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  padding: 1rem;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  justify-content: space-between;
   gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent-primary);
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  margin-top: 0.5rem;
+  font-size: 1.875rem;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--text-primary);
 }
 
 .actions {
   display: flex;
   gap: 0.5rem;
-  align-items: center;
+  flex-wrap: wrap;
 }
 
-.actionButton {
+.button, .buttonPrimary {
   padding: 0.5rem 1rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
   cursor: pointer;
+  transition: all 200ms ease;
 }
-.actionButton:hover {
-  background: #0056b3;
+.button:hover, .buttonPrimary:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+.button:disabled, .buttonPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonPrimary {
+  background: var(--surface-hover);
+  border-color: var(--border-color);
+}
+.buttonPrimary:hover:not(:disabled) {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: var(--accent-primary);
+}
+
+@media (min-width: 768px) {
+  .scope {
+    gap: 1.5rem;
+  }
+  .title {
+    font-size: 2.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .scope {
+    gap: 2rem;
+  }
 }/*# sourceMappingURL=SalesHeader.module.css.map */

@@ -9,20 +9,6 @@ export default function InventorySummary({ model }: { model: PosDashboardModel }
   return (
     <div className={styles.scope}>
       <div className={styles.card}>
-        <p className={styles.label}>Costo total</p>
-        <p className={styles.value}>
-          {formatPosCurrency(inventorySummary.totalInventoryCost)}
-        </p>
-      </div>
-
-      <div className={styles.card}>
-        <p className={styles.label}>Venta total</p>
-        <p className={styles.valueSuccess}>
-          {formatPosCurrency(inventorySummary.totalSaleValue)}
-        </p>
-      </div>
-
-      <div className={styles.card}>
         <p className={styles.label}>Ganancia bruta</p>
         <p className={styles.valuePrimary}>
           {formatPosCurrency(inventorySummary.grossProfit)}
@@ -38,14 +24,29 @@ export default function InventorySummary({ model }: { model: PosDashboardModel }
           </div>
           {inventorySummary.markupExcessPercent > 0 && (
             <div className={styles.detailItem}>
-              <span>Exceso sobre 100%:</span>
+              <span>Exceso: </span>
               <span>
-                {inventorySummary.markupExcessPercent.toFixed(1)}% / {formatPosCurrency(inventorySummary.markupExcessValue)}
+                {inventorySummary.markupExcessPercent.toFixed(1)}%  {formatPosCurrency(inventorySummary.markupExcessValue)}
               </span>
             </div>
           )}
         </div>
       </div>
+      <div className={styles.cardcontainer}>
+        <div className={styles.card}>
+          <p className={styles.label}>Costo total</p>
+          <p className={styles.value}>
+            {formatPosCurrency(inventorySummary.totalInventoryCost)}
+          </p>
+        </div>
+        <div className={styles.card}>
+        <p className={styles.label}>Venta total</p>
+        <p className={styles.valueSuccess}>
+          {formatPosCurrency(inventorySummary.totalSaleValue)}
+        </p>
+      
+      </div>
+      </div>       
     </div>
   );
 }
