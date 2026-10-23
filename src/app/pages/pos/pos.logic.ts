@@ -115,6 +115,7 @@ export function usePosDashboard() {
   const [eventPerformanceError, setEventPerformanceError] = useState("");
   const [eventPerformanceRefresh, setEventPerformanceRefresh] = useState(0);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isEventsAndExpensesModalOpen, setIsEventsAndExpensesModalOpen] = useState(false);
   const [managedEventId, setManagedEventId] = useState("");
   const [eventExpenses, setEventExpenses] = useState<EventExpense[]>([]);
   const [expenseCategory, setExpenseCategory] = useState(expenseCategories[0]);
@@ -525,6 +526,8 @@ export function usePosDashboard() {
     setEventPerformanceRefresh,
     isEventModalOpen,
     setIsEventModalOpen,
+    isEventsAndExpensesModalOpen,
+    setIsEventsAndExpensesModalOpen,
     managedEventId,
     setManagedEventId,
     eventExpenses,

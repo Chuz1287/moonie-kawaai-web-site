@@ -6,6 +6,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import EventManagementDialog from "@/components/EventManagementDialog";
 import EventPerformancePanel from "@/components/EventPerformancePanel";
 import InventorySummary from "@/components/InventorySummary";
+import { EventsAndExpensesModal } from "@/components/EventsAndExpensesModal";
 import styles from "./pos.module.scss";
 import { usePosDashboard } from "./pos.logic";
 
@@ -85,6 +86,8 @@ export default function PosDashboard() {
             </div>
           </div>
         )}
+
+        <EventsAndExpensesModal isOpen={model.isEventsAndExpensesModalOpen} onClose={() => model.setIsEventsAndExpensesModalOpen(false)} />
       </div>
     </main>
   );

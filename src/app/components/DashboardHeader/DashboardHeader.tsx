@@ -56,9 +56,13 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
               </option>
             ))}
           </select>
-          <Link href="/events" className={styles.manageEventsLink}>
+          <button
+            type="button"
+            onClick={() => model.setIsEventsAndExpensesModalOpen(true)}
+            className={styles.manageEventsLink}
+          >
             Administrar eventos y gastos
-          </Link>
+          </button>
         </div>
       </div>
     </>
