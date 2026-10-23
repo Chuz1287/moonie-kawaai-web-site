@@ -8,14 +8,18 @@
   margin-bottom: 1.5rem;
 }
 
+.cardcontainer
+{
+    display: flex;
+    gap: 1rem;
+}
+
 .card {
   border-radius: 1.5rem;
   border: 1px solid var(--border-color);
   padding: 1rem;
   background: var(--surface);
-  flex: 1 1 260px;
-  min-width: 260px;
-  
+  min-width: 11em;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -59,7 +63,6 @@
 
 .details {
   display: flex;
-  flex-direction: column;
   gap: 0.25rem;
   
   font-size: 0.75rem;
@@ -67,10 +70,12 @@
 }
 
 .detailItem {
-  display: flex;
+  display: block;
   justify-content: space-between;
   gap: 0.5rem;
 }
+
+
 
 @media (min-width: $tablet) {
   .card {
