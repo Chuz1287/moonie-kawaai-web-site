@@ -2,6 +2,7 @@
 
 import InfoCardSummary from "../InfoCardSummary";
 import type { SalesSummaryCardsProps } from "./SalesSummaryCards.logic";
+import styles from "./SalesSummaryCards.module.scss";
 
 export default function SalesSummaryCards({
   totalRevenue,
@@ -10,7 +11,7 @@ export default function SalesSummaryCards({
   viewMode,
 }: SalesSummaryCardsProps) {
   return (
-    <section className="mb-6 flex flex-wrap gap-4" aria-label="Resumen de ventas">
+    <section className={`${styles.scope} mb-6 flex flex-wrap gap-1`} aria-label="Resumen de ventas">
       <InfoCardSummary
         label="Total vendido"
         value={`$${totalRevenue.toFixed(2)}`}

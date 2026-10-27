@@ -9,23 +9,23 @@
   /* DYNAMIC COLORS - CHANGE WITH THEME */
   border: 1px solid var(--border-color);
   background: var(--surface);
-  border-radius: 1.5rem;
-  padding: 1rem;
+  border-radius: .5em;
+  padding: .8em;
   
   /* Smooth transition when theme changes */
   transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
 }
 
 @media (min-width: $mobile) {
-  .scope {
-    min-width: 300px;
-    flex: 1 1 600px;
+  .scope 
+  {
+    width: 31%;
   }
 }
 
 @media (min-width: $tablet) {
   .scope {
-    padding: 1rem;
+    padding: .8em;
   }
 }
 
@@ -45,15 +45,15 @@
 }
 
 .label {
-  font-size: 0.75rem;
+  font-size: $text-xs;
   color: var(--text-tertiary);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.5;
 }
 
 .value {
-  font-size: 1.5rem;
+  font-size: $text-base;
   font-weight: 700;
   line-height: 1.2;
   color: var(--text-primary);

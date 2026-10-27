@@ -1,9 +1,18 @@
 /* SalesSummaryCards Styles */
+.scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5em;
+  width: 100%;
+}
 
+.InfoCardSummaryContainer {
+  gap: 0.2em;
+}
 .container {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: .5em;
   width: 100%;
 }
 
@@ -11,7 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 1.5rem;
+  padding: .5em;
   background: white;
   border: 1px solid #ddd;
   border-radius: 0.5rem;
