@@ -1,4 +1,4 @@
-import type { InventoryItem } from "../InventoryDashboard.logic";}
+import type { InventoryItem } from "../InventoryDashboard.logic";
 
 export interface AddInventoryModalProps {
   isOpen: boolean;
