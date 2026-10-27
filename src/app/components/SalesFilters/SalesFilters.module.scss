@@ -50,16 +50,8 @@
 .filtersRow {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.75rem;
-}
-
-.fieldLabel {
-  font-size: $text-xs;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-tertiary);
 }
 
 .fieldIcon {
@@ -67,11 +59,31 @@
   color: var(--text-tertiary);
 }
 
+.searchBar {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 320px;
+  min-width: 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-hover);
+  transition: all 200ms ease;
+
+  &:hover {
+    border-color: var(--accent-primary);
+  }
+
+  &:focus-within {
+    border-color: var(--accent-primary);
+    background: var(--surface);
+  }
+}
+
 .searchField {
   position: relative;
   display: flex;
   align-items: center;
-  flex: 1 1 260px;
+  flex: 1 1 auto;
   min-width: 0;
 
   .fieldIcon {
@@ -85,20 +97,12 @@
   width: 100%;
   padding: 0.6rem 0.75rem 0.6rem 2.25rem;
   font-size: 0.875rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-color);
-  background: var(--surface-hover);
+  border: none;
+  background: transparent;
   color: var(--text-primary);
-  transition: all 200ms ease;
-
-  &:hover {
-    border-color: var(--accent-primary);
-  }
 
   &:focus {
     outline: none;
-    border-color: var(--accent-primary);
-    background: var(--surface);
   }
 
   &::placeholder {
@@ -106,58 +110,18 @@
   }
 }
 
-.selectField,
-.dateField {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  flex: 0 1 200px;
-  min-width: 160px;
+.divider {
+  width: 1px;
+  margin: 0.5rem 0;
+  background: var(--border-color);
 }
 
-.selectWrap,
-.dateWrap {
+.dateField {
   position: relative;
   display: flex;
   align-items: center;
-}
+  flex: 0 0 auto;
 
-.select,
-.dateInput {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.875rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-color);
-  background: var(--surface-hover);
-  color: var(--text-primary);
-  transition: all 200ms ease;
-
-  &:hover {
-    border-color: var(--accent-primary);
-  }
-
-  &:focus {
-    outline: none;
-    border-color: var(--accent-primary);
-    background: var(--surface);
-  }
-}
-
-.select {
-  appearance: none;
-  padding-right: 2.25rem;
-  cursor: pointer;
-}
-
-.selectIcon {
-  position: absolute;
-  right: 0.75rem;
-  pointer-events: none;
-  color: var(--text-tertiary);
-}
-
-.dateWrap {
   .fieldIcon {
     position: absolute;
     left: 0.75rem;
@@ -166,6 +130,15 @@
 }
 
 .dateInput {
-  padding-left: 2.25rem;
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+  font-size: 0.875rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
   color-scheme: light dark;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
 }

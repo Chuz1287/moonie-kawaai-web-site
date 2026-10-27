@@ -17,6 +17,9 @@ export default function SalesHistoryPage() {
         <SalesHeader
           loading={model.loading}
           onRefresh={() => void model.handleRefresh()}
+          events={model.events}
+          selectedEvent={model.selectedEvent}
+          onSelectEvent={model.setSelectedEvent}
         />
 
         {model.loadError && (
@@ -31,19 +34,15 @@ export default function SalesHistoryPage() {
         )}
 
         <SalesFilters
-          events={model.events}
-          selectedEvent={model.selectedEvent}
           selectedDate={model.selectedDate}
           searchText={model.searchText}
           viewMode={model.viewMode}
           ticketCount={model.matchingSales.length}
           pieceCount={model.pieces.length}
-          onSelectEvent={model.setSelectedEvent}
           onSelectDate={model.setSelectedDate}
           onSearch={model.setSearchText}
           onSelectView={model.setViewMode}
         />
-
 
         <SalesSummaryCards
           totalRevenue={model.totalRevenue}

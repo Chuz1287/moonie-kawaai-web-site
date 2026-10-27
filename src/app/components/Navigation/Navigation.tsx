@@ -34,7 +34,7 @@ export default function Navigation() {
   if (!mounted) return null;
 
   return (
-    <nav className={styles.bottomNav}>
+    <footer className={styles.bottomNav}>
       <Link
         href="/"
         className={`${styles.navItem} ${pathname.includes("/pos") ? styles.active : ""}`}
@@ -71,6 +71,6 @@ export default function Navigation() {
         {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
         <span className={styles.label}>Tema</span>
       </button>
-    </nav>
+    </footer>
   );
 }

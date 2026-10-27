@@ -1,20 +1,22 @@
 "use client";
 
-import { Calendar, ChevronDown, Search } from "lucide-react";
+import { Calendar, Search } from "lucide-react";
 import type { SalesFiltersProps } from "./SalesFilters.logic";
 import styles from "./SalesFilters.module.scss";
 
+type SalesFiltersViewProps = Omit<
+  SalesFiltersProps,
+  "events" | "selectedEvent" | "onSelectEvent"
+>;
+
 export default function SalesFilters({
-  events,
-  selectedEvent,
   selectedDate,
   searchText,
   viewMode,
-  onSelectEvent,
   onSelectDate,
   onSearch,
   onSelectView,
-}: SalesFiltersProps) {
+}: SalesFiltersViewProps) {
   return (
     <section className={styles.scope} aria-label="Filtros de ventas">
       <div className={styles.viewGroup} role="group" aria-label="Tipo de vista">
@@ -37,40 +39,21 @@ export default function SalesFilters({
       </div>
 
       <div className={styles.filtersRow}>
-        <label className={styles.searchField}>
-          <Search size={16} className={styles.fieldIcon} aria-hidden="true" />
-          <input
-            type="search"
-            value={searchText}
-            onChange={(event) => onSearch(event.target.value)}
-            placeholder="Buscar por ticket o producto..."
-            className={styles.searchInput}
-          />
-        </label>
+        <div className={styles.searchBar}>
+          <label className={styles.searchField}>
+            <Search size={16} className={styles.fieldIcon} aria-hidden="true" />
+            <input
+              type="search"
+              value={searchText}
+              onChange={(event) => onSearch(event.target.value)}
+              placeholder="Buscar por ticket o producto..."
+              className={styles.searchInput}
+            />
+          </label>
 
-        <label className={styles.selectField}>
-          <span className={styles.fieldLabel}>Evento</span>
-          <div className={styles.selectWrap}>
-            <select
-              value={selectedEvent}
-              onChange={(event) => onSelectEvent(event.target.value)}
-              className={styles.select}
-              aria-label="Seleccionar evento"
-            >
-              <option value="all">Todos los eventos</option>
-              {events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} className={styles.selectIcon} aria-hidden="true" />
-          </div>
-        </label>
+          <span className={styles.divider} aria-hidden="true" />
 
-        <label className={styles.dateField}>
-          <span className={styles.fieldLabel}>Fecha</span>
-          <div className={styles.dateWrap}>
+          <label className={styles.dateField}>
             <Calendar size={14} className={styles.fieldIcon} aria-hidden="true" />
             <input
               type="date"
@@ -79,8 +62,8 @@ export default function SalesFilters({
               className={styles.dateInput}
               aria-label="Seleccionar fecha"
             />
-          </div>
-        </label>
+          </label>
+        </div>
       </div>
     </section>
   );
