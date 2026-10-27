@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, TrendingUp, Moon, Sun } from "lucide-react";
+import { ShoppingCart, TrendingUp, Package, Moon, Sun } from "lucide-react";
 import styles from "./Navigation.module.scss";
 
 export default function Navigation() {
@@ -51,6 +51,15 @@ export default function Navigation() {
       >
         <TrendingUp size={24} />
         <span className={styles.label}>Ventas</span>
+      </Link>
+
+      <Link
+        href="/pages/inventory"
+        className={`${styles.navItem} ${pathname.includes("/inventory") ? styles.active : ""}`}
+        aria-current={pathname.includes("/inventory") ? "page" : undefined}
+      >
+        <Package size={24} />
+        <span className={styles.label}>Inventario</span>
       </Link>
 
       <button

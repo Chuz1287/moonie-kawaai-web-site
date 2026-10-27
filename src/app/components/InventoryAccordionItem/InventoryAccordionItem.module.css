@@ -1,0 +1,149 @@
+.accordionItem {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  overflow: hidden;
+}
+
+.accordionHeader {
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: all 150ms ease;
+}
+.accordionHeader:active {
+  background: rgba(168, 85, 247, 0.05);
+}
+
+.accordionTitle {
+  flex: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.accordionTitle h3 {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.accordionCode {
+  font-size: 0.75em;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: transform 200ms ease;
+}
+.chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.accordionContent {
+  padding: 0 1rem 1rem 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: slideDown 200ms ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.contentRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.contentRow span {
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+.contentRow p {
+  font-size: 0.875em;
+  color: var(--text-primary);
+  margin: 0;
+  word-break: break-word;
+}
+
+.accordionFooter {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.stockControl {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(168, 85, 247, 0.08);
+  padding: 0.5rem;
+  border-radius: 0.75em;
+  flex: 1;
+}
+
+.stockButton {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: var(--accent-primary);
+  border: none;
+  border-radius: 0.75em;
+  color: var(--background);
+  font-size: 0.875em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stockButton:active {
+  transform: scale(0.95);
+}
+
+.stockValue {
+  font-size: 0.875em;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.deleteButtonSmall {
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 0.75em;
+  color: var(--accent-error);
+  cursor: pointer;
+  transition: all 150ms ease;
+  flex-shrink: 0;
+}
+.deleteButtonSmall:hover {
+  background: rgba(248, 113, 113, 0.1);
+}/*# sourceMappingURL=InventoryAccordionItem.module.css.map */

@@ -1,0 +1,28 @@
+@use '../../../design-system/_variables' as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.subtitle {
+  font-size: $text-xs;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.125em;
+  color: var(--text-tertiary);
+}
+
+.title {
+  font-size: $text-3xl;
+  font-weight: $font-weight-bold;
+  color: var(--text-primary);
+  margin: 0;
+}

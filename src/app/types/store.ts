@@ -10,6 +10,7 @@ export type Product = {
   stock: number;
   featured: boolean;
   category: string;
+  series?: string;
   image: string;
   gallery: string[];
   tags: string[];

@@ -1,0 +1,152 @@
+@use '../../../design-system/_variables' as *;
+
+.scope {
+  width: 100%;
+  padding: $padding-mobile;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @media (min-width: $tablet) {
+    padding: $padding-desktop;
+  }
+}
+
+/* ─── ERROR ──────────────────────────────────────────────────── */
+.error {
+  padding: 1rem;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid var(--accent-error);
+  border-radius: $radius-md;
+  color: var(--accent-error);
+  font-size: $text-sm;
+}
+
+/* ─── CONTROLS ───────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  @media (min-width: $tablet) {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: $text-sm;
+  transition: all 150ms ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+  }
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  @media (min-width: $tablet) {
+    flex-wrap: nowrap;
+  }
+}
+
+/* ─── BUTTONS ────────────────────────────────────────────────── */
+.button {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  font-size: $text-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 150ms ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background: rgba(168, 85, 247, 0.08);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+  }
+
+  &:active {
+    background: rgba(168, 85, 247, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.buttonPrimary {
+  padding: 0.75rem 1.5rem;
+  background: var(--accent-primary);
+  border: none;
+  border-radius: $radius-md;
+  color: var(--background);
+  font-size: $text-sm;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+
+  &:hover {
+    filter: brightness(1.15);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* ─── GRID CONTAINER (Desktop) ─────────────────────────────── */
+.gridContainer {
+  display: none;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+
+  @media (min-width: $tablet) {
+    display: grid;
+  }
+}
+
+/* ─── ACCORDION CONTAINER (Mobile) ──────────────────────────── */
+.accordionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  @media (min-width: $tablet) {
+    display: none;
+  }
+}
