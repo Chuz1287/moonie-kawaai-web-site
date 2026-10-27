@@ -5,7 +5,6 @@ import ProductGrid from "@/components/ProductGrid";
 import DashboardHeader from "@/components/DashboardHeader";
 import EventManagementDialog from "@/components/EventManagementDialog";
 import EventPerformancePanel from "@/components/EventPerformancePanel";
-import InventorySummary from "@/components/InventorySummary";
 import { EventsAndExpensesModal } from "@/components/EventsAndExpensesModal";
 import styles from "./pos.module.scss";
 import { usePosDashboard } from "./pos.logic";
@@ -22,8 +21,6 @@ export default function PosDashboard() {
         </header>
 
         <EventManagementDialog model={model} />
-
-        <InventorySummary model={model} />
 
         <div className={styles.searchSection}>
           <input

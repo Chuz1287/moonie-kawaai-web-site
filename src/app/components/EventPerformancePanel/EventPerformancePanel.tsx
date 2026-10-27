@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
+import { Eye, EyeClosed } from "lucide-react";
 import { formatPosCurrency, type PosDashboardModel } from "@/pages/pos/pos.logic";
 import styles from "./EventPerformancePanel.module.scss";
 
 export default function EventPerformancePanel({ model }: { model: PosDashboardModel }) {
+  const [isVisible, setIsVisible] = useState(true);
   const { eventPerformance } = model;
 
   const progressPercent = eventPerformance
@@ -27,7 +30,7 @@ export default function EventPerformancePanel({ model }: { model: PosDashboardMo
               "Default"}
           </h2>
         </div>
-        {eventPerformance && (
+        {eventPerformance && !isVisible && (
           <strong
             className={
               eventPerformance.balance >= 0
@@ -40,71 +43,98 @@ export default function EventPerformancePanel({ model }: { model: PosDashboardMo
               : `Faltan ${formatPosCurrency(eventPerformance.amountToBreakEven)}`}
           </strong>
         )}
+        <button
+          type="button"
+          onClick={() => setIsVisible(!isVisible)}
+          className={styles.toggleButton}
+          aria-label={isVisible ? "Ocultar detalles" : "Mostrar detalles"}
+          title={isVisible ? "Ocultar" : "Mostrar"}
+        >
+          {isVisible ? <Eye size={20} /> : <EyeClosed size={20} />}
+        </button>
       </div>
 
-      {model.eventPerformanceError ? (
-        <p role="alert" className={styles.error}>
-          {model.eventPerformanceError}
-        </p>
-      ) : !eventPerformance ? (
-        <p className={styles.loading}>Calculando retorno del evento...</p>
-      ) : (
+      {isVisible && (
         <>
-          <div className={styles.metricsContainer}>
-            <div className={styles.metricBox}>
-              <p className={styles.metricLabel}>Ventas del evento</p>
-              <p className={styles.metricValueSuccess}>
-                {formatPosCurrency(eventPerformance.salesTotal)}
-              </p>
-            </div>
-            <div className={styles.metricBox}>
-              <p className={styles.metricLabel}>Costo de mercancía vendida</p>
-              <p className={styles.metricValue}>
-                {formatPosCurrency(eventPerformance.merchandiseCost)}
-              </p>
-            </div>
-            <div className={styles.metricBox}>
-              <p className={styles.metricLabel}>Gastos del evento</p>
-              <p className={styles.metricValue}>
-                {formatPosCurrency(eventPerformance.expensesTotal)}
-              </p>
-            </div>
-            <div className={styles.metricBox}>
-              <p className={styles.metricLabel}>Inversión a recuperar</p>
-              <p className={styles.metricValue}>
-                {formatPosCurrency(eventPerformance.totalInvestment)}
-              </p>
-            </div>
-          </div>
-
-          <div className={styles.progressSection}>
-            <div
-              className={styles.progressBar}
-              role="progressbar"
-              aria-label="Porcentaje de inversión recuperada"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(progressPercent)}
+          {eventPerformance && (
+            <strong
+              className={
+                eventPerformance.balance >= 0
+                  ? styles.balancePositive
+                  : styles.balanceNegative
+              }
             >
-              <div
-                className={styles.progressFill}
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-            <p className={styles.progressLabel}>
               {eventPerformance.balance >= 0
-                ? "La inversión del evento ya se recuperó."
-                : `Faltan ${formatPosCurrency(
-                    eventPerformance.amountToBreakEven
-                  )} para recuperar la inversión.`}
-            </p>
-          </div>
+                ? `Ganancia ${formatPosCurrency(eventPerformance.balance)}`
+                : `Faltan ${formatPosCurrency(eventPerformance.amountToBreakEven)}`}
+            </strong>
+          )}
 
-          {eventPerformance.incompleteSaleCount > 0 && (
-            <p role="status" style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "var(--accent-warning)" }}>
-              Hay {eventPerformance.incompleteSaleCount} venta(s) sin desglose completo de
-              productos; el costo de mercancía puede estar incompleto.
+          {model.eventPerformanceError ? (
+            <p role="alert" className={styles.error}>
+              {model.eventPerformanceError}
             </p>
+          ) : !eventPerformance ? (
+            <p className={styles.loading}>Calculando retorno del evento...</p>
+          ) : (
+            <>
+              <div className={styles.metricsContainer}>
+                <div className={styles.metricBox}>
+                  <p className={styles.metricLabel}>Ventas del evento</p>
+                  <p className={styles.metricValueSuccess}>
+                    {formatPosCurrency(eventPerformance.salesTotal)}
+                  </p>
+                </div>
+                <div className={styles.metricBox}>
+                  <p className={styles.metricLabel}>Costo de mercancía vendida</p>
+                  <p className={styles.metricValue}>
+                    {formatPosCurrency(eventPerformance.merchandiseCost)}
+                  </p>
+                </div>
+                <div className={styles.metricBox}>
+                  <p className={styles.metricLabel}>Gastos del evento</p>
+                  <p className={styles.metricValue}>
+                    {formatPosCurrency(eventPerformance.expensesTotal)}
+                  </p>
+                </div>
+                <div className={styles.metricBox}>
+                  <p className={styles.metricLabel}>Inversión a recuperar</p>
+                  <p className={styles.metricValue}>
+                    {formatPosCurrency(eventPerformance.totalInvestment)}
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.progressSection}>
+                <div
+                  className={styles.progressBar}
+                  role="progressbar"
+                  aria-label="Porcentaje de inversión recuperada"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(progressPercent)}
+                >
+                  <div
+                    className={styles.progressFill}
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <p className={styles.progressLabel}>
+                  {eventPerformance.balance >= 0
+                    ? "La inversión del evento ya se recuperó."
+                    : `Faltan ${formatPosCurrency(
+                        eventPerformance.amountToBreakEven
+                      )} para recuperar la inversión.`}
+                </p>
+              </div>
+
+              {eventPerformance.incompleteSaleCount > 0 && (
+                <p role="status" style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "var(--accent-warning)" }}>
+                  Hay {eventPerformance.incompleteSaleCount} venta(s) sin desglose completo de
+                  productos; el costo de mercancía puede estar incompleto.
+                </p>
+              )}
+            </>
           )}
         </>
       )}

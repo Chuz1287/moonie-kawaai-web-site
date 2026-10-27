@@ -14,7 +14,7 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
           <h1 className={styles.title}>Monie Kawaai POS</h1>
         </div>
 
-        <div className={styles.actionBar}>
+        {/* <div className={styles.actionBar}>
           <span className={styles.syncBadge}>Sincronización activa</span>
           <button
             type="button"
@@ -27,7 +27,7 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
           <Link href="/sales" className={styles.salesLink}>
             Ventas
           </Link>
-        </div>
+        </div> */}
         <div className={styles.eventSection}>
           {/* <label className={styles.eventLabel}>Evento de venta</label> */}
           <select
@@ -38,7 +38,6 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
             }}
             className={styles.eventSelect}
           >
-            <option value="default">Default</option>
             {model.salesChannels.map((channel) => (
               <option key={channel.id} value={channel.id}>
                 {channel.name}
@@ -65,8 +64,6 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
 
       <div className={styles.contentGrid}>
         {/* <div className={styles.statusBox}>{model.status}</div> */}
-
-
       </div>
     </>
   );

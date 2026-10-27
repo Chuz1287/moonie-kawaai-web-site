@@ -32,7 +32,7 @@ $transition-theme: all $transition-fast;
   .header {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: $gap-mobile;
 
@@ -40,6 +40,7 @@ $transition-theme: all $transition-fast;
       display: flex;
       flex-direction: column;
       gap: $spacing-xs;
+      flex: 1;
 
       .headerLabel {
         font-size: $text-xs;
@@ -57,12 +58,40 @@ $transition-theme: all $transition-fast;
         color: var(--text-primary);
       }
     }
+
+    .toggleButton {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0;
+      background: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      border-radius: $radius-sm;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: $transition-theme;
+
+      &:hover {
+        border-color: var(--accent-primary);
+        background: var(--accent-primary);
+        color: white;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+      }
+    }
   }
 
   .balance {
     font-size: $title-mobile;
     font-weight: $font-weight-black;
     white-space: nowrap;
+    order: 2;
   }
 
   .balancePositive {

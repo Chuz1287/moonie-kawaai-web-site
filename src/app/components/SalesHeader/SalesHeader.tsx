@@ -13,7 +13,7 @@ export default function SalesHeader({ loading, onRefresh }: SalesHeaderProps) {
         </p>
         <h1 className={styles.title}>Ventas</h1>
       </div>
-      <div className={styles.actions}>
+      {/* <div className={styles.actions}>
         <button
           type="button"
           onClick={onRefresh}
@@ -28,7 +28,7 @@ export default function SalesHeader({ loading, onRefresh }: SalesHeaderProps) {
         >
           Volver al POS
         </Link>
-      </div>
+      </div> */}
     </header>
   );
 }

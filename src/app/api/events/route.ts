@@ -21,20 +21,8 @@ function getClient() {
 export async function GET(request: Request) {
   const client = getClient();
 
-  // Fallback data para desarrollo sin Supabase
   if (!client) {
-    const defaultEvents = [
-      {
-        id: "default",
-        name: "Evento por Defecto",
-        location: "Local",
-        created_at: new Date().toISOString(),
-        is_active: true,
-        start_date: null,
-        end_date: null,
-      },
-    ];
-    return NextResponse.json({ events: defaultEvents });
+    return NextResponse.json({ events: [] });
   }
 
   try {
@@ -57,19 +45,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ events: data ?? [] });
   } catch (error) {
-    // Fallback data para desarrollo
-    const defaultEvents = [
-      {
-        id: "default",
-        name: "Evento por Defecto",
-        location: "Local",
-        created_at: new Date().toISOString(),
-        is_active: true,
-        start_date: null,
-        end_date: null,
-      },
-    ];
-    return NextResponse.json({ events: defaultEvents });
+    return NextResponse.json({ events: [] });
   }
 }
 

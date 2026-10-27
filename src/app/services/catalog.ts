@@ -148,6 +148,7 @@ function mapSupabaseProduct(row: Record<string, unknown>): Product {
     stock: Number.isFinite(stock) ? stock : 0,
     featured,
     category,
+    series: anime ? String(anime) : undefined,
     image: String(row.image ?? defaultImage),
     gallery: [String(row.image ?? defaultImage), defaultImage],
     tags: [anime, row.personaje, row.character, row.characters, row.tipo, row.categoria, row.marca]
