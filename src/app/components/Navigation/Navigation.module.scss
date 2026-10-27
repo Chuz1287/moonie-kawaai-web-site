@@ -1,0 +1,103 @@
+@use '../../../design-system/_variables' as *;
+
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: auto;
+  background: var(--surface);
+  border-top: 2px solid var(--border-color);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 40;
+  padding: 0.75rem 0;
+  margin: 0;
+  gap: 0;
+  min-height: 80px;
+
+  .navItem {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0;
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: $text-xs;
+    font-weight: $font-weight-bold;
+    width: 100%;
+    min-height: 80px;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+      width: 30px;
+      height: 30px;
+      stroke-width: 1.5;
+    }
+
+    .label {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.6rem;
+      white-space: nowrap;
+      font-weight: $font-weight-bold;
+      color: var(--text-tertiary);
+      transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    &:hover {
+      background: rgba(168, 85, 247, 0.08);
+
+      svg,
+      .label {
+        color: var(--accent-primary);
+      }
+    }
+
+    &:active {
+      background: rgba(168, 85, 247, 0.15);
+    }
+
+    &.active {
+      color: var(--accent-primary);
+
+      .label {
+        color: var(--accent-primary);
+        font-weight: $font-weight-black;
+      }
+
+      svg {
+        color: var(--accent-primary);
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent-primary);
+        border-radius: 0 0 4px 4px;
+      }
+    }
+  }
+}
+
+// ─── TABLET+ (Ocultar bottom nav) ────────────────────────────────
+@media (min-width: $tablet) {
+  .bottomNav {
+    display: none;
+  }
+}

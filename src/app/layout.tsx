@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Outfit, Geist_Mono } from "next/font/google";
 import packageJson from "../../package.json";
 import VersionLogger from "@/components/VersionLogger";
-import ThemeToggle from "@/components/ThemeToggle";
+import Navigation from "@/components/Navigation";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -28,9 +28,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${outfit.variable} ${geistMono.variable} h-full w-full antialiased`}
     >
       <body className="h-full w-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
-        {/* <ThemeToggle /> */}
         <VersionLogger version={packageJson.version} />
-        {children}
+        <div className="flex-1 overflow-auto pb-20 md:pb-0">
+          {children}
+        </div>
+        <Navigation />
       </body>
     </html>
   );
