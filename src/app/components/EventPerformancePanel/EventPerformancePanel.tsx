@@ -1,13 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import { formatPosCurrency, type PosDashboardModel } from "@/pages/pos/pos.logic";
 import styles from "./EventPerformancePanel.module.scss";
 
+const ROI_VISIBILITY_KEY = "moonie_kawaai_roi_visible";
+
 export default function EventPerformancePanel({ model }: { model: PosDashboardModel }) {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisibleState] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const { eventPerformance } = model;
+
+  // Cargar estado de localStorage al montar
+  useEffect(() => {
+    const stored = localStorage.getItem(ROI_VISIBILITY_KEY);
+    if (stored !== null) {
+      setIsVisibleState(stored === "true");
+    }
+    setMounted(true);
+  }, []);
+
+  // Guardar estado en localStorage cuando cambia
+  const setIsVisible = (value: boolean | ((prev: boolean) => boolean)) => {
+    setIsVisibleState((prev) => {
+      const newValue = typeof value === "function" ? value(prev) : value;
+      localStorage.setItem(ROI_VISIBILITY_KEY, String(newValue));
+      return newValue;
+    });
+  };
 
   const progressPercent = eventPerformance
     ? eventPerformance.totalInvestment > 0
