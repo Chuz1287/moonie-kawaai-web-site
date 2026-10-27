@@ -22,18 +22,19 @@ export default function PosDashboard() {
 
         <EventManagementDialog model={model} />
 
-        <div className={styles.searchSection}>
-          <input
-            type="text"
-            value={model.search}
-            onChange={(event) => model.setSearch(event.target.value)}
-            placeholder="Buscar producto, categoría o detalle..."
-            className={styles.searchInput}
-          />
-        </div>
+
 
         <div className="flex flex-wrap gap-6">
           <section className={styles.catalogSection}>
+            <div className={styles.searchSection}>
+            <input
+              type="text"
+              value={model.search}
+              onChange={(event) => model.setSearch(event.target.value)}
+              placeholder="Buscar producto, categoría o detalle..."
+              className={styles.searchInput}
+            />
+            </div>
             <div className={styles.catalogHeader}>
               <h2 className={styles.catalogTitle}>Catálogo</h2>
               <span className={styles.catalogStatus}>

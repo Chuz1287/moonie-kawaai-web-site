@@ -6,7 +6,7 @@ import {
   compareSalesNewestFirst,
   fetchSalesFromApi,
   getSaleProfit,
-  groupSalesByDay,
+  groupSalesByEventOrDate,
 } from "@/services/sales";
 
 export type EventOption = { id: string; name: string };
@@ -136,7 +136,7 @@ export function useSalesHistory() {
     () => new Map(events.map((event) => [event.id, event.name])),
     [events]
   );
-  const groupedSales = useMemo(() => groupSalesByDay(matchingSales), [matchingSales]);
+  const groupedSales = useMemo(() => groupSalesByEventOrDate(matchingSales, eventNames), [matchingSales, eventNames]);
   const paginatedGroups = useMemo(() => {
     const result = groupedSales.reduce<{
       groups: typeof groupedSales;
