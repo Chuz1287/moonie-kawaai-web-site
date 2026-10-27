@@ -58,6 +58,8 @@ export function useInventoryDashboard(): InventoryDashboardModel {
 
   const handleAddStock = async (productId: string, quantity: number) => {
     try {
+      if (!supabase) throw new Error("Database not configured");
+      
       const item = items.find((i) => i.id === productId);
       if (!item) throw new Error("Product not found");
 
@@ -83,6 +85,8 @@ export function useInventoryDashboard(): InventoryDashboardModel {
 
   const handleRemoveItem = async (productId: string) => {
     try {
+      if (!supabase) throw new Error("Database not configured");
+      
       const { error: deleteError } = await supabase
         .from("products")
         .delete()
@@ -100,6 +104,8 @@ export function useInventoryDashboard(): InventoryDashboardModel {
 
   const handleAddItem = async (item: Omit<InventoryItem, "id" | "slug" | "gallery" | "featured">) => {
     try {
+      if (!supabase) throw new Error("Database not configured");
+      
       const { data, error: insertError } = await supabase
         .from("products")
         .insert([{
