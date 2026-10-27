@@ -20,6 +20,7 @@ export type DraftLine = {
 export type SalesViewMode = "tickets" | "pieces";
 
 const PAGE_SIZE = 100;
+const SELECTED_EVENT_KEY = "moonie_kawaai_selected_event";
 
 export function normalizeSaleSearch(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().trim();
@@ -81,12 +82,14 @@ export function useSalesHistory() {
         const eventsPayload = (await eventsResponse.json()) as { events?: EventOption[] };
 
         if (!cancelled) {
+          const loadedEvents =
+            eventsResponse.ok && Array.isArray(eventsPayload.events) ? eventsPayload.events : [];
           setSales(salesFromApi);
-          setEvents(
-            eventsResponse.ok && Array.isArray(eventsPayload.events)
-              ? eventsPayload.events
-              : []
-          );
+          setEvents(loadedEvents);
+          const savedEvent = window.localStorage.getItem(SELECTED_EVENT_KEY);
+          if (savedEvent && loadedEvents.some((event) => event.id === savedEvent)) {
+            setSelectedEvent(savedEvent);
+          }
           if (!eventsResponse.ok) {
             setLoadError("No se pudieron cargar los eventos para mostrar el historial.");
           }
@@ -287,11 +290,16 @@ export function useSalesHistory() {
     }
   }
 
+  function handleSelectEvent(eventId: string) {
+    setSelectedEvent(eventId);
+    if (eventId !== "all") window.localStorage.setItem(SELECTED_EVENT_KEY, eventId);
+  }
+
   return {
     sales,
     events,
     selectedEvent,
-    setSelectedEvent,
+    setSelectedEvent: handleSelectEvent,
     selectedDate,
     setSelectedDate,
     searchText,

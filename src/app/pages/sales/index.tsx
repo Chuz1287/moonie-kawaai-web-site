@@ -12,36 +12,23 @@ export default function SalesHistoryPage() {
   const model = useSalesHistory();
 
   return (
-    <main className={`${styles.scope} min-h-screen px-4 py-8 text-[var(--foreground)]`}>
-      <div className="mx-auto max-w-7xl">
+    <main className={styles.scope}>
+      <div className={styles.container}>
         <SalesHeader
           loading={model.loading}
           onRefresh={() => void model.handleRefresh()}
         />
 
         {model.loadError && (
-          <p
-            role="alert"
-            className="mb-5 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200"
-          >
+          <p role="alert" className={styles.alert}>
             {model.loadError}
           </p>
         )}
         {model.mutationError && (
-          <p
-            role="alert"
-            className="mb-5 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200"
-          >
+          <p role="alert" className={styles.alert}>
             {model.mutationError}
           </p>
         )}
-
-        <SalesSummaryCards
-          totalRevenue={model.totalRevenue}
-          totalProfit={model.totalProfit}
-          count={model.displayedCount}
-          viewMode={model.viewMode}
-        />
 
         <SalesFilters
           events={model.events}
@@ -56,6 +43,15 @@ export default function SalesHistoryPage() {
           onSearch={model.setSearchText}
           onSelectView={model.setViewMode}
         />
+
+
+        <SalesSummaryCards
+          totalRevenue={model.totalRevenue}
+          totalProfit={model.totalProfit}
+          count={model.displayedCount}
+          viewMode={model.viewMode}
+        />
+
 
         <SalesList model={model} />
       </div>
