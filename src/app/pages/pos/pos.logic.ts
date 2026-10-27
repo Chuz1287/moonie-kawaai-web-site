@@ -110,7 +110,7 @@ export function usePosDashboard() {
   const [eventLocation, setEventLocation] = useState("");
   const [eventStartDate, setEventStartDate] = useState("");
   const [eventEndDate, setEventEndDate] = useState("");
-  const [selectedEvent, setSelectedEvent] = useState("default");
+  const [selectedEvent, setSelectedEvent] = useState("");
   const [salesChannels, setSalesChannels] = useState<EventOption[]>([]);
   const [eventPerformance, setEventPerformance] = useState<EventPerformance | null>(null);
   const [eventPerformanceError, setEventPerformanceError] = useState("");
@@ -171,6 +171,9 @@ export function usePosDashboard() {
           const savedEvent = localStorage.getItem("moonie_kawaai_selected_event");
           if (savedEvent && events.some((event) => event.id === savedEvent)) {
             setSelectedEvent(savedEvent);
+          } else if (events.length > 0) {
+            setSelectedEvent(events[0].id);
+            localStorage.setItem("moonie_kawaai_selected_event", events[0].id);
           }
           setManagedEventId((current) =>
             current ||

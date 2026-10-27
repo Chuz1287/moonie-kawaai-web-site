@@ -57,7 +57,6 @@ export default function SalesFilters({
             className={styles.filterInput}
           >
             <option value="all">Todos los eventos</option>
-            <option value="default">Default</option>
             {events.map((event) => (
               <option key={event.id} value={event.id}>
                 {event.name}

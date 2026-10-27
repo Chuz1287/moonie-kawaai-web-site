@@ -38,7 +38,6 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
             }}
             className={styles.eventSelect}
           >
-            <option value="default">Default</option>
             {model.salesChannels.map((channel) => (
               <option key={channel.id} value={channel.id}>
                 {channel.name}
