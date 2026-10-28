@@ -7,6 +7,7 @@ export type SalesListProps = {
       items: SaleRecord[];
       total: number;
     }>;
+    matchingSales: SaleRecord[];
     pieces: Array<{
       sale: SaleRecord;
       line: NonNullable<SaleRecord["items"]>[number];
