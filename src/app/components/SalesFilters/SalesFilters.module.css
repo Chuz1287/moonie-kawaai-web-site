@@ -1,203 +1,137 @@
 .scope {
-  margin-bottom: 1.5rem;
-  border-radius: 1.5rem;
-  border: 1px solid var(--border-color);
-  padding: 1rem;
-  background: var(--surface);
-  transition: all 200ms ease;
-}
-
-.viewGroup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.viewButton {
-  border-radius: 0.75rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  border: 1px solid var(--border-color);
-  background: var(--surface-hover);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 200ms ease;
-}
-.viewButton:hover {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-.viewButton[aria-pressed=true] {
-  background: var(--accent-primary);
-  color: white;
-  border-color: var(--accent-primary);
-}
-
-.filtersContainer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.searchInput {
-  flex: 1;
-  min-width: 200px;
-}
-
-.searchLabel {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.75em;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.125em;
-  color: var(--text-tertiary);
-}
-
-.filterInput {
-  margin-top: 0.25rem;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  border-radius: 0.5rem;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1.25rem;
   border: 1px solid var(--border-color);
-  background: var(--surface-hover);
-  color: var(--text-primary);
-  transition: all 200ms ease;
-}
-.filterInput:hover {
-  border-color: var(--accent-primary);
-}
-.filterInput:focus {
-  outline: none;
-  border-color: var(--accent-primary);
   background: var(--surface);
-}
-.filterInput::-moz-placeholder {
-  color: var(--text-tertiary);
-}
-.filterInput::placeholder {
-  color: var(--text-tertiary);
-}
-
-.iconFilters {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.filterIcon {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.filterIcon:has(.hiddenSelect:focus) .iconButton, .filterIcon:has(.hiddenDateInput:focus) .iconButton {
-  border-color: var(--accent-primary);
-}
-
-.iconButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: var(--surface-hover);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  color: var(--text-primary);
-  cursor: pointer;
   transition: all 200ms ease;
-  padding: 0;
 }
-.iconButton:hover {
-  border-color: var(--accent-primary);
-  background: var(--accent-primary);
-  color: white;
-}
-.iconButton:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-}
-
-.hiddenSelect {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 3rem;
-  height: 3rem;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 20;
-}
-.hiddenSelect:focus {
-  outline: none;
-}
-
-.hiddenDateInput {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 3rem;
-  height: 3rem;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 20;
-}
-.hiddenDateInput:focus {
-  outline: none;
-}
-
 @media (min-width: 768px) {
   .scope {
     padding: 1.25rem;
   }
 }
-@media (min-width: 1024px) {
-  .filtersContainer {
-    gap: 1.5rem;
-  }
+
+.viewGroup {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-hover);
 }
-.filters {
+
+.viewButton {
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.viewButton:hover {
+  color: var(--text-primary);
+}
+.viewButton[aria-pressed=true] {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.filtersRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.filterGroup {
+.fieldIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+.searchBar {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: stretch;
+  flex: 1 1 320px;
+  min-width: 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-hover);
+  transition: all 200ms ease;
+}
+.searchBar:hover {
+  border-color: var(--accent-primary);
+}
+.searchBar:focus-within {
+  border-color: var(--accent-primary);
+  background: var(--surface);
 }
 
-.filterLabel {
+.searchField {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.searchField .fieldIcon {
+  position: absolute;
+  left: 0.75rem;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: #333;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+}
+.searchInput:focus {
+  outline: none;
+}
+.searchInput::-moz-placeholder {
+  color: var(--text-tertiary);
+}
+.searchInput::placeholder {
+  color: var(--text-tertiary);
 }
 
-.filterControl {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
+.divider {
+  width: 1px;
+  margin: 0.5rem 0;
+  background: var(--border-color);
 }
 
-.filterButton {
-  padding: 0.5rem 1rem;
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
+.dateField {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.dateField .fieldIcon {
+  position: absolute;
+  left: 0.75rem;
+  pointer-events: none;
+}
+
+.dateInput {
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+  font-size: 0.875rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  color-scheme: light dark;
   cursor: pointer;
 }
-.filterButton:hover {
-  background: #e0e0e0;
+.dateInput:focus {
+  outline: none;
 }/*# sourceMappingURL=SalesFilters.module.css.map */

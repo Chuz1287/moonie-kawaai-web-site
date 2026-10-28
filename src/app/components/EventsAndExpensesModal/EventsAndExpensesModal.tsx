@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import type { FormEvent, ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 import styles from "./EventsAndExpensesModal.module.scss";
 
 type EventRecord = {
   id: string;
   name: string;
-  location?: string | null;
+  location: string | null;
+  created_at: string;
   is_active: boolean;
   start_date: string | null;
   end_date: string | null;
@@ -16,7 +19,7 @@ type ExpenseRecord = {
   id: string;
   event_id: string;
   category: string;
-  description: string;
+  description: string | null;
   amount: number;
   created_at: string;
 };
@@ -26,69 +29,92 @@ type Props = {
   onClose: () => void;
 };
 
-const expenseCategories = ["Stand / piso", "Comida", "Sueldos", "Caseta", "Gasolina"];
+type SectionKey = "create" | "manage" | "expense" | "list";
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2,
-  }).format(amount);
+const SELECTED_EVENT_KEY = "moonie_kawaai_selected_event";
+const OTHER_CATEGORY = "Otra";
+const expenseCategories = ["Stand/piso", "Comida", "Sueldos", "Cuota de caseta", "Gasolina", OTHER_CATEGORY];
+
+const currencyFormatter = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" });
+
+function formatCurrency(value: number) {
+  return currencyFormatter.format(value);
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Ocurrió un error inesperado.";
+}
+
+async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, init);
+  const data = (await response.json().catch(() => ({}))) as T & { message?: string };
+
+  if (!response.ok) {
+    throw new Error(data.message ?? "La operación no se pudo completar.");
+  }
+
+  return data;
+}
+
+function sendJson(method: string, body: unknown): RequestInit {
+  return {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  };
+}
+
+function upsertEvent(list: EventRecord[], event: EventRecord) {
+  return list.some((item) => item.id === event.id)
+    ? list.map((item) => (item.id === event.id ? event : item))
+    : [...list, event];
+}
 
 export default function EventsAndExpensesModal({ isOpen, onClose }: Props) {
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [selectedEventId, setSelectedEventId] = useState("");
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
-  const [managedEventName, setManagedEventName] = useState("");
-  const [eventName, setEventName] = useState("");
-  const [eventLocation, setEventLocation] = useState("");
-  const [eventStartDate, setEventStartDate] = useState("");
-  const [eventEndDate, setEventEndDate] = useState("");
-  const [managedStartDate, setManagedStartDate] = useState("");
-  const [managedEndDate, setManagedEndDate] = useState("");
-  const [category, setCategory] = useState(expenseCategories[0]);
-  const [customCategory, setCustomCategory] = useState("");
-  const [amount, setAmount] = useState("");
+  const [openSection, setOpenSection] = useState<SectionKey | null>("expense");
   const [status, setStatus] = useState("");
-  const [isSavingEvent, setIsSavingEvent] = useState(false);
-  const [isSavingExpense, setIsSavingExpense] = useState(false);
-  const [updatingEvent, setUpdatingEvent] = useState(false);
-  const [editingExpenseId, setEditingExpenseId] = useState("");
-  const [editingExpenseAmount, setEditingExpenseAmount] = useState("");
-  const [updatingExpense, setUpdatingExpense] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [newName, setNewName] = useState("");
+  const [newLocation, setNewLocation] = useState("");
+  const [newStartDate, setNewStartDate] = useState("");
+  const [newEndDate, setNewEndDate] = useState("");
+
+  const [editName, setEditName] = useState("");
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
+
+  const [expenseCategory, setExpenseCategory] = useState(expenseCategories[0]);
+  const [customCategory, setCustomCategory] = useState("");
+  const [expenseAmount, setExpenseAmount] = useState("");
+
+  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
+  const [editingAmount, setEditingAmount] = useState("");
+
+  const selectedEvent = events.find((event) => event.id === selectedEventId) ?? null;
+  const visibleExpenses = expenses.filter((expense) => expense.event_id === selectedEventId);
+  const totalExpenses = visibleExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     let cancelled = false;
 
-    async function loadEvents() {
-      try {
-        const response = await fetch("/api/events");
-        const payload = (await response.json()) as { events?: EventRecord[]; message?: string };
-
-        if (!response.ok) {
-          throw new Error(payload.message ?? "No se pudieron cargar los eventos.");
-        }
-
-        if (!cancelled) {
-          const loadedEvents = Array.isArray(payload.events) ? payload.events : [];
-          setEvents(loadedEvents);
-          const savedEvent = localStorage.getItem("moonie_kawaai_selected_event");
-          const initialEvent = loadedEvents.find((event) => event.id === savedEvent) ?? loadedEvents[0];
-          setSelectedEventId(initialEvent?.id ?? "");
-          setManagedEventName(initialEvent?.name ?? "");
-          setManagedStartDate(initialEvent?.start_date ?? "");
-          setManagedEndDate(initialEvent?.end_date ?? "");
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setStatus(error instanceof Error ? error.message : "No se pudieron cargar los eventos.");
-        }
-      }
-    }
-
-    if (isOpen) {
-      void loadEvents();
-    }
+    requestJson<{ events: EventRecord[] }>("/api/events")
+      .then((data) => {
+        if (cancelled) return;
+        const stored = window.localStorage.getItem(SELECTED_EVENT_KEY);
+        setEvents(data.events);
+        setSelectedEventId(
+          (current) => current || data.events.find((item) => item.id === stored)?.id || data.events[0]?.id || ""
+        );
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setStatus(getErrorMessage(error));
+      });
 
     return () => {
       cancelled = true;
@@ -96,560 +122,502 @@ export default function EventsAndExpensesModal({ isOpen, onClose }: Props) {
   }, [isOpen]);
 
   useEffect(() => {
+    if (selectedEventId) {
+      window.localStorage.setItem(SELECTED_EVENT_KEY, selectedEventId);
+    }
+  }, [selectedEventId]);
+
+  useEffect(() => {
+    if (!isOpen || !selectedEventId) return;
+
     let cancelled = false;
 
-    async function loadExpenses() {
-      if (!selectedEventId) {
-        setExpenses([]);
-        return;
-      }
+    requestJson<{ expenses: ExpenseRecord[] }>(`/api/events/${encodeURIComponent(selectedEventId)}/expenses`)
+      .then((data) => {
+        if (!cancelled) setExpenses(data.expenses);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setStatus(getErrorMessage(error));
+      });
 
-      try {
-        const response = await fetch(`/api/events/${encodeURIComponent(selectedEventId)}/expenses`);
-        const payload = (await response.json()) as { expenses?: ExpenseRecord[]; message?: string };
-
-        if (!response.ok) {
-          throw new Error(payload.message ?? "No se pudieron cargar los gastos.");
-        }
-
-        if (!cancelled) {
-          setExpenses(Array.isArray(payload.expenses) ? payload.expenses : []);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setStatus(error instanceof Error ? error.message : "No se pudieron cargar los gastos.");
-        }
-      }
-    }
-
-    void loadExpenses();
     return () => {
       cancelled = true;
     };
-  }, [selectedEventId]);
+  }, [isOpen, selectedEventId]);
 
-  const selectedEvent = events.find((event) => event.id === selectedEventId);
-  const totalExpenses = useMemo(
-    () => expenses.reduce((sum, expense) => sum + Number(expense.amount ?? 0), 0),
-    [expenses]
-  );
+  useEffect(() => {
+    setEditName(selectedEvent?.name ?? "");
+    setEditStartDate(selectedEvent?.start_date ?? "");
+    setEditEndDate(selectedEvent?.end_date ?? "");
+  }, [selectedEvent]);
 
-  async function handleCreateEvent(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!eventName.trim() || !eventStartDate || !eventEndDate || isSavingEvent) return;
-    if (eventEndDate < eventStartDate) {
-      setStatus("La fecha de fin debe ser igual o posterior a la fecha de inicio.");
-      return;
-    }
+  useEffect(() => {
+    if (!isOpen) return;
 
-    setIsSavingEvent(true);
-    setStatus("");
-    try {
-      const response = await fetch("/api/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: eventName.trim(),
-          location: eventLocation.trim(),
-          start_date: eventStartDate,
-          end_date: eventEndDate,
-        }),
-      });
-      const payload = (await response.json()) as { event?: EventRecord; message?: string };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
 
-      if (!response.ok || !payload.event) {
-        throw new Error(payload.message ?? "No se pudo guardar el evento.");
-      }
-
-      setEvents((current) => [
-        ...current.filter((event) => event.id !== payload.event!.id),
-        payload.event!,
-      ]);
-      setSelectedEventId(payload.event.id);
-      setManagedStartDate(payload.event.start_date ?? "");
-      setManagedEndDate(payload.event.end_date ?? "");
-      localStorage.setItem("moonie_kawaai_selected_event", payload.event.id);
-      setEventName("");
-      setEventLocation("");
-      setEventStartDate("");
-      setEventEndDate("");
-      setStatus(`Evento activo: ${payload.event.name}`);
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "No se pudo guardar el evento.");
-    } finally {
-      setIsSavingEvent(false);
-    }
-  }
-
-  async function handleSaveEventName() {
-    const name = managedEventName.trim();
-    if (!selectedEvent || !name || name === selectedEvent.name || updatingEvent) return;
-
-    setUpdatingEvent(true);
-    setStatus("");
-    try {
-      const response = await fetch(`/api/events/${encodeURIComponent(selectedEvent.id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-      const payload = (await response.json()) as { event?: EventRecord; message?: string };
-
-      if (!response.ok || !payload.event) {
-        throw new Error(payload.message ?? "No se pudo actualizar el nombre del evento.");
-      }
-
-      setEvents((current) =>
-        current.map((event) => event.id === payload.event!.id ? payload.event! : event)
-      );
-      setManagedEventName(payload.event.name);
-      setStatus(`Nombre de evento actualizado a "${payload.event.name}".`);
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "No se pudo actualizar el nombre del evento.");
-    } finally {
-      setUpdatingEvent(false);
-    }
-  }
-
-  async function handleSaveEventDates() {
-    if (!selectedEvent || !managedStartDate || !managedEndDate || updatingEvent) return;
-    if (managedEndDate < managedStartDate) {
-      setStatus("La fecha de fin debe ser igual o posterior a la fecha de inicio.");
-      return;
-    }
-
-    setUpdatingEvent(true);
-    setStatus("");
-    try {
-      const response = await fetch(`/api/events/${encodeURIComponent(selectedEvent.id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ start_date: managedStartDate, end_date: managedEndDate }),
-      });
-      const payload = (await response.json()) as { event?: EventRecord; message?: string };
-
-      if (!response.ok || !payload.event) {
-        throw new Error(payload.message ?? "No se pudieron guardar las fechas del evento.");
-      }
-
-      setEvents((current) =>
-        current.map((event) => event.id === payload.event!.id ? payload.event! : event)
-      );
-      setManagedStartDate(payload.event.start_date ?? "");
-      setManagedEndDate(payload.event.end_date ?? "");
-      setStatus(`Fechas de ${payload.event.name} actualizadas.`);
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "No se pudieron guardar las fechas del evento.");
-    } finally {
-      setUpdatingEvent(false);
-    }
-  }
-
-  async function handleToggleEventStatus() {
-    if (!selectedEvent || updatingEvent) return;
-
-    const nextIsActive = !selectedEvent.is_active;
-    setUpdatingEvent(true);
-    setStatus("");
-
-    try {
-      const response = await fetch(`/api/events/${encodeURIComponent(selectedEvent.id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: nextIsActive }),
-      });
-      const payload = (await response.json()) as { event?: EventRecord; message?: string };
-
-      if (!response.ok || !payload.event) {
-        throw new Error(payload.message ?? "No se pudo actualizar el evento.");
-      }
-
-      setEvents((current) =>
-        current.map((event) => event.id === payload.event!.id ? payload.event! : event)
-      );
-
-      if (!nextIsActive && localStorage.getItem("moonie_kawaai_selected_event") === selectedEvent.id) {
-        localStorage.setItem("moonie_kawaai_selected_event", "default");
-      }
-
-      setStatus(nextIsActive
-        ? `${payload.event.name} reactivado. Ya puede seleccionarse en el POS.`
-        : `${payload.event.name} cerrado. Se conserva en el historial y ya no acepta ventas.`);
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "No se pudo actualizar el evento.");
-    } finally {
-      setUpdatingEvent(false);
-    }
-  }
-
-  async function handleDeleteEvent() {
-    if (!selectedEvent || updatingEvent) return;
-
-    if (!window.confirm(
-      `¿Eliminar "${selectedEvent.name}" y sus gastos? No se puede eliminar un evento que tenga ventas asociadas.`
-    )) {
-      return;
-    }
-
-    setUpdatingEvent(true);
-    setStatus("");
-    try {
-      const response = await fetch(`/api/events/${encodeURIComponent(selectedEvent.id)}`, {
-        method: "DELETE",
-      });
-      const payload = (await response.json()) as { message?: string };
-
-      if (!response.ok) {
-        throw new Error(payload.message ?? "No se pudo eliminar el evento.");
-      }
-
-      setEvents((current) => current.filter((event) => event.id !== selectedEvent.id));
-      setSelectedEventId("");
-      setExpenses([]);
-      if (localStorage.getItem("moonie_kawaai_selected_event") === selectedEvent.id) {
-        localStorage.setItem("moonie_kawaai_selected_event", "default");
-      }
-      setStatus(`Evento "${selectedEvent.name}" y sus gastos eliminados.`);
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "No se pudo eliminar el evento.");
-    } finally {
-      setUpdatingEvent(false);
-    }
-  }
-
-  async function handleCreateExpense(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const expenseCategory = category === "__custom__" ? customCategory.trim() : category;
-
-    if (!selectedEventId || !expenseCategory || isSavingExpense) return;
-
-    setIsSavingExpense(true);
-    setStatus("");
-    try {
-      const response = await fetch(`/api/events/${encodeURIComponent(selectedEventId)}/expenses`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          category: expenseCategory,
-          amount: Number(amount),
-        }),
-      });
-      const payload = (await response.json()) as { expense?: ExpenseRecord; message?: string };
-
-      if (!response.ok || !payload.expense) {
-        throw new Error(payload.message ?? "No se pudo guardar el gasto.");
-      }
-
-      setExpenses((current) => [payload.expense!, ...current]);
-      setAmount("");
-      setCustomCategory("");
-      setCategory(expenseCategories[0]);
-      setStatus("Gasto registrado.");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "No se pudo guardar el gasto.");
-    } finally {
-      setIsSavingExpense(false);
-    }
-  }
-
-  async function handleSaveExpenseAmount(expense: ExpenseRecord) {
-    const updatedAmount = Number(editingExpenseAmount);
-    if (
-      !selectedEventId ||
-      !Number.isFinite(updatedAmount) ||
-      updatedAmount <= 0 ||
-      updatingExpense
-    ) {
-      setStatus("Ingresa un importe mayor que cero.");
-      return;
-    }
-
-    setUpdatingExpense(true);
-    setStatus("");
-    try {
-      const response = await fetch(
-        `/api/events/${encodeURIComponent(selectedEventId)}/expenses`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ expenseId: expense.id, amount: updatedAmount }),
-        }
-      );
-      const payload = (await response.json()) as { expense?: ExpenseRecord; message?: string };
-
-      if (!response.ok || !payload.expense) {
-        throw new Error(payload.message ?? "No se pudo actualizar el gasto.");
-      }
-
-      setExpenses((current) =>
-        current.map((item) => item.id === payload.expense!.id ? payload.expense! : item)
-      );
-      setEditingExpenseId("");
-      setEditingExpenseAmount("");
-      setStatus("Importe del gasto actualizado.");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "No se pudo actualizar el gasto.");
-    } finally {
-      setUpdatingExpense(false);
-    }
-  }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
+  async function runAction(action: () => Promise<string | void>) {
+    setIsSaving(true);
+    setStatus("");
+
+    try {
+      const message = await action();
+      if (message) setStatus(message);
+    } catch (error) {
+      setStatus(getErrorMessage(error));
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  function handleCreateEvent(formEvent: FormEvent<HTMLFormElement>) {
+    formEvent.preventDefault();
+
+    void runAction(async () => {
+      const data = await requestJson<{ event: EventRecord }>(
+        "/api/events",
+        sendJson("POST", {
+          name: newName,
+          location: newLocation,
+          start_date: newStartDate,
+          end_date: newEndDate,
+        })
+      );
+
+      setEvents((current) => upsertEvent(current, data.event));
+      setSelectedEventId(data.event.id);
+      setNewName("");
+      setNewLocation("");
+      setNewStartDate("");
+      setNewEndDate("");
+      return "Evento creado y seleccionado.";
+    });
+  }
+
+  function handleSaveEventDetails(formEvent: FormEvent<HTMLFormElement>) {
+    formEvent.preventDefault();
+    if (!selectedEvent) return;
+
+    const eventId = selectedEvent.id;
+
+    void runAction(async () => {
+      const data = await requestJson<{ event: EventRecord; message?: string }>(
+        `/api/events/${encodeURIComponent(eventId)}`,
+        sendJson("PATCH", { name: editName, start_date: editStartDate, end_date: editEndDate })
+      );
+
+      setEvents((current) => upsertEvent(current, data.event));
+      return data.message ?? "Evento actualizado.";
+    });
+  }
+
+  function handleToggleStatus() {
+    if (!selectedEvent) return;
+
+    const eventId = selectedEvent.id;
+    const nextActive = !selectedEvent.is_active;
+
+    void runAction(async () => {
+      const data = await requestJson<{ event: EventRecord; message?: string }>(
+        `/api/events/${encodeURIComponent(eventId)}`,
+        sendJson("PATCH", { is_active: nextActive })
+      );
+
+      setEvents((current) => upsertEvent(current, data.event));
+      return data.message ?? (nextActive ? "Evento reactivado." : "Evento cerrado.");
+    });
+  }
+
+  function handleDeleteEvent() {
+    if (!selectedEvent) return;
+    if (!window.confirm(`¿Eliminar el evento "${selectedEvent.name}"? Esta acción no se puede deshacer.`)) return;
+
+    const eventId = selectedEvent.id;
+
+    void runAction(async () => {
+      await requestJson(`/api/events/${encodeURIComponent(eventId)}`, { method: "DELETE" });
+
+      const remaining = events.filter((item) => item.id !== eventId);
+      setEvents(remaining);
+      setSelectedEventId(remaining[0]?.id ?? "");
+      return "Evento eliminado.";
+    });
+  }
+
+  function handleCreateExpense(formEvent: FormEvent<HTMLFormElement>) {
+    formEvent.preventDefault();
+    if (!selectedEvent) return;
+
+    const category = (expenseCategory === OTHER_CATEGORY ? customCategory : expenseCategory).trim();
+    const amount = Number(expenseAmount);
+
+    if (!category) {
+      setStatus("Indica la categoría del gasto.");
+      return;
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setStatus("El importe debe ser mayor que cero.");
+      return;
+    }
+
+    const eventId = selectedEvent.id;
+
+    void runAction(async () => {
+      const data = await requestJson<{ expense: ExpenseRecord }>(
+        `/api/events/${encodeURIComponent(eventId)}/expenses`,
+        sendJson("POST", { category, description: category, amount })
+      );
+
+      setExpenses((current) => [data.expense, ...current]);
+      setExpenseAmount("");
+      setCustomCategory("");
+      return "Gasto registrado.";
+    });
+  }
+
+  function handleSaveExpenseAmount(expenseId: string) {
+    if (!selectedEvent) return;
+
+    const amount = Number(editingAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setStatus("El importe debe ser mayor que cero.");
+      return;
+    }
+
+    const eventId = selectedEvent.id;
+
+    void runAction(async () => {
+      const data = await requestJson<{ expense: ExpenseRecord; message?: string }>(
+        `/api/events/${encodeURIComponent(eventId)}/expenses`,
+        sendJson("PATCH", { expenseId, amount })
+      );
+
+      setExpenses((current) => current.map((item) => (item.id === expenseId ? data.expense : item)));
+      setEditingExpenseId(null);
+      return data.message ?? "Importe actualizado.";
+    });
+  }
+
+  function toggleSection(key: SectionKey) {
+    setOpenSection((current) => (current === key ? null : key));
+  }
+
+  function renderSection(key: SectionKey, title: string, content: ReactNode) {
+    const isSectionOpen = openSection === key;
+
+    return (
+      <div className={styles.accordionItem}>
+        <button
+          type="button"
+          className={styles.accordionHeader}
+          onClick={() => toggleSection(key)}
+          aria-expanded={isSectionOpen}
+        >
+          <span className={styles.accordionTitle}>{title}</span>
+          <ChevronDown
+            className={styles.accordionIcon}
+            size={20}
+            style={{ transform: isSectionOpen ? "rotate(180deg)" : undefined }}
+          />
+        </button>
+        {isSectionOpen && <div className={styles.accordionContent}>{content}</div>}
+      </div>
+    );
+  }
+
+  const noEventMessage = <p className={styles.noExpenses}>Selecciona o crea un evento.</p>;
+
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar modal">
-          ✕
+    <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="events-expenses-title">
+      <div className={styles.modal}>
+        <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Cerrar">
+          ×
         </button>
 
         <div className={styles.header}>
-          <div>
-            <p className={styles.subtitle}>Operación</p>
-            <h1 className={styles.title}>Eventos y gastos</h1>
-          </div>
+          <p className={styles.subtitle}>Eventos</p>
+          <h2 id="events-expenses-title" className={styles.title}>
+            Eventos y gastos
+          </h2>
+          <label className={styles.label}>
+            Evento seleccionado
+            <select
+              className={styles.select}
+              value={selectedEventId}
+              onChange={(event) => setSelectedEventId(event.target.value)}
+              disabled={events.length === 0 || isSaving}
+            >
+              {events.length === 0 && <option value="">Sin eventos</option>}
+              {events.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                  {item.is_active ? "" : " (cerrado)"}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
 
-        {status && <p role="status" className={styles.statusMessage}>{status}</p>}
+        {status && <p className={styles.statusMessage}>{status}</p>}
 
-        <div className={styles.content}>
-          <section className={styles.createEventSection}>
-            <h2 className={styles.sectionTitle}>Crear evento</h2>
-            <form onSubmit={handleCreateEvent}>
-              <label className={styles.formGroup}>
-                <span className={styles.label}>Nombre del evento</span>
-                <input required value={eventName} onChange={(event) => setEventName(event.target.value)} placeholder="Convención, bazar..." className={styles.input} />
+        <div className={styles.accordion}>
+          {renderSection(
+            "create",
+            "Crear evento",
+            <form className={styles.createEventSection} onSubmit={handleCreateEvent}>
+              <label className={styles.fieldLabel}>
+                Nombre del evento
+                <input
+                  className={styles.input}
+                  value={newName}
+                  onChange={(event) => setNewName(event.target.value)}
+                  required
+                  disabled={isSaving}
+                />
               </label>
-              <label className={styles.formGroup}>
-                <span className={styles.label}>Lugar</span>
-                <input value={eventLocation} onChange={(event) => setEventLocation(event.target.value)} placeholder="Recinto o ciudad" className={styles.input} />
+              <label className={styles.fieldLabel}>
+                Ubicación
+                <input
+                  className={styles.input}
+                  value={newLocation}
+                  onChange={(event) => setNewLocation(event.target.value)}
+                  disabled={isSaving}
+                />
               </label>
               <div className={styles.dateRow}>
-                <label className={styles.formGroup}>
-                  <span className={styles.label}>Fecha de inicio</span>
+                <label className={styles.fieldLabel}>
+                  Fecha de inicio
                   <input
-                    required
                     type="date"
-                    value={eventStartDate}
-                    max={eventEndDate || undefined}
-                    onChange={(event) => setEventStartDate(event.target.value)}
                     className={styles.input}
+                    value={newStartDate}
+                    onChange={(event) => setNewStartDate(event.target.value)}
+                    required
+                    disabled={isSaving}
                   />
                 </label>
-                <label className={styles.formGroup}>
-                  <span className={styles.label}>Fecha de fin</span>
+                <label className={styles.fieldLabel}>
+                  Fecha de fin
                   <input
-                    required
                     type="date"
-                    value={eventEndDate}
-                    min={eventStartDate || undefined}
-                    onChange={(event) => setEventEndDate(event.target.value)}
                     className={styles.input}
+                    value={newEndDate}
+                    onChange={(event) => setNewEndDate(event.target.value)}
+                    required
+                    disabled={isSaving}
                   />
                 </label>
               </div>
-              <button disabled={isSavingEvent || !eventName.trim() || !eventStartDate || !eventEndDate} className={styles.submitButton}>
-                {isSavingEvent ? "Guardando..." : "Crear y activar evento"}
+              <button type="submit" className={styles.submitButton} disabled={isSaving}>
+                Crear evento
               </button>
             </form>
-          </section>
+          )}
 
-          <section className={styles.managedEventSection}>
-            <label className={styles.formGroup}>
-              <span className={styles.label}>Evento para administrar</span>
-              <select value={selectedEventId} onChange={(event) => {
-                setSelectedEventId(event.target.value);
-                const chosenEvent = events.find((item) => item.id === event.target.value);
-                setManagedEventName(chosenEvent?.name ?? "");
-                setManagedStartDate(chosenEvent?.start_date ?? "");
-                setManagedEndDate(chosenEvent?.end_date ?? "");
-                setEditingExpenseId("");
-                setEditingExpenseAmount("");
-                if (chosenEvent?.is_active) {
-                  localStorage.setItem("moonie_kawaai_selected_event", chosenEvent.id);
-                }
-              }} className={styles.select}>
-                <option value="">Selecciona un evento</option>
-                {events.map((event) => <option key={event.id} value={event.id}>
-                  {event.name}{event.is_active ? "" : " (Cerrado)"}
-                </option>)}
-              </select>
-            </label>
-            {selectedEvent && (
-              <>
-                <div className={styles.flexWrapEnd}>
+          {renderSection(
+            "manage",
+            "Administrar evento",
+            selectedEvent ? (
+              <form className={styles.managedEventSection} onSubmit={handleSaveEventDetails}>
+                <span className={selectedEvent.is_active ? styles.statusActive : styles.statusInactive}>
+                  {selectedEvent.is_active ? "Activo" : "Cerrado"}
+                </span>
+                <label className={styles.fieldLabel}>
+                  Nombre del evento
+                  <input
+                    className={styles.input}
+                    value={editName}
+                    onChange={(event) => setEditName(event.target.value)}
+                    required
+                    disabled={isSaving}
+                  />
+                </label>
+                <div className={styles.dateRow}>
                   <label className={styles.fieldLabel}>
-                    Nombre del evento
-                    <input
-                      required
-                      value={managedEventName}
-                      onChange={(event) => setManagedEventName(event.target.value)}
-                      className={styles.input}
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => void handleSaveEventName()}
-                    disabled={updatingEvent || !managedEventName.trim() || managedEventName.trim() === selectedEvent.name}
-                    className={styles.secondaryButton}
-                  >
-                    Guardar nombre
-                  </button>
-                </div>
-                <div className={styles.flexRow}>
-                  <p className={styles.expensesLabel}>Lugar: {selectedEvent.location || "Sin especificar"}</p>
-                  <span className={selectedEvent.is_active ? styles.statusActive : styles.statusInactive}>
-                    {selectedEvent.is_active ? "Activo" : "Cerrado"}
-                  </span>
-                </div>
-                <div className={styles.flexWrap}>
-                  <label className={styles.label}>
-                    Desde
+                    Fecha de inicio
                     <input
                       type="date"
-                      required
-                      value={managedStartDate}
-                      max={managedEndDate || undefined}
-                      onChange={(event) => setManagedStartDate(event.target.value)}
                       className={styles.input}
+                      value={editStartDate}
+                      onChange={(event) => setEditStartDate(event.target.value)}
+                      disabled={isSaving}
                     />
                   </label>
-                  <label className={styles.label}>
-                    Hasta
+                  <label className={styles.fieldLabel}>
+                    Fecha de fin
                     <input
                       type="date"
-                      required
-                      value={managedEndDate}
-                      min={managedStartDate || undefined}
-                      onChange={(event) => setManagedEndDate(event.target.value)}
                       className={styles.input}
+                      value={editEndDate}
+                      onChange={(event) => setEditEndDate(event.target.value)}
+                      disabled={isSaving}
                     />
                   </label>
                 </div>
-                <div className={styles.flexWrap}>
-                  <button
-                    type="button"
-                    onClick={() => void handleSaveEventDates()}
-                    disabled={updatingEvent || !managedStartDate || !managedEndDate ||
-                      (managedStartDate === selectedEvent.start_date && managedEndDate === selectedEvent.end_date)}
-                    className={styles.secondaryButton}
-                  >
-                    Guardar fechas
+                <div className={styles.buttonGroup}>
+                  <button type="submit" className={styles.submitButton} disabled={isSaving}>
+                    Guardar cambios
                   </button>
                   <button
                     type="button"
-                    onClick={() => void handleToggleEventStatus()}
-                    disabled={updatingEvent}
-                    className={styles.secondaryButton}
+                    className={styles.warningButton}
+                    onClick={handleToggleStatus}
+                    disabled={isSaving}
                   >
-                    {updatingEvent ? "Actualizando..." : selectedEvent.is_active ? "Cerrar evento" : "Reactivar evento"}
+                    {selectedEvent.is_active ? "Cerrar evento" : "Reactivar evento"}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleDeleteEvent()}
-                    disabled={updatingEvent}
-                    className={styles.dangerButton}
-                  >
+                  <button type="button" className={styles.dangerButton} onClick={handleDeleteEvent} disabled={isSaving}>
                     Eliminar evento
                   </button>
                 </div>
-              </>
-            )}
-            <div className={styles.expensesSummary}>
-              <span className={styles.expensesLabel}>Gastos registrados</span>
-              <strong className={styles.expensesTotal}>{formatCurrency(totalExpenses)}</strong>
-            </div>
-          </section>
-        </div>
-
-        <div className={styles.bottomContent}>
-          <form onSubmit={handleCreateExpense} className={styles.expenseFormSection}>
-            <h2 className={styles.sectionTitle}>Agregar gasto</h2>
-            <label className={styles.label}>
-              Categoría
-              <select value={category} onChange={(event) => setCategory(event.target.value)} disabled={!selectedEventId} className={styles.input}>
-                {expenseCategories.map((option) => <option key={option} value={option}>{option}</option>)}
-                <option value="__custom__">Nueva categoría...</option>
-              </select>
-            </label>
-            {category === "__custom__" && <label className={styles.label}>Nombre de categoría<input required value={customCategory} onChange={(event) => setCustomCategory(event.target.value)} placeholder="Ej. hospedaje" className={styles.input} /></label>}
-            <label className={styles.label}>Importe<input required min="0.01" step="0.01" type="number" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" className={styles.input} /></label>
-            <button disabled={!selectedEventId || isSavingExpense} className={styles.addExpenseButton}>
-              {isSavingExpense ? "Guardando..." : "Guardar gasto"}
-            </button>
-          </form>
-
-          <section className={styles.expensesListSection}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Gastos del evento</h2>
-              <span className={styles.expensesLabel}>{expenses.length} registros</span>
-            </div>
-            {expenses.length === 0 ? (
-              <p className={styles.noExpenses}>Selecciona un evento y registra sus gastos.</p>
+              </form>
             ) : (
-              <div className={styles.expenseList}>
-                {expenses.map((expense) => (
-                  <article key={expense.id} className={styles.expenseRow}>
-                    <div>
-                      <p className={styles.expenseCategory}>{expense.category}</p>
-                      <p className={styles.expenseDate}>{new Date(expense.created_at).toLocaleDateString("es-MX")}</p>
-                    </div>
-                    <div className={styles.expenseRowRight}>
-                      {editingExpenseId === expense.id ? (
-                        <>
-                          <label className={styles.srOnly} htmlFor={`expense-amount-${expense.id}`}>
-                            Importe de {expense.category}
-                          </label>
-                          <input
-                            id={`expense-amount-${expense.id}`}
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            value={editingExpenseAmount}
-                            onChange={(event) => setEditingExpenseAmount(event.target.value)}
-                            className={styles.editAmountInput}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => void handleSaveExpenseAmount(expense)}
-                            disabled={updatingExpense || !editingExpenseAmount}
-                            className={styles.smallButtonSuccess}
-                          >
-                            Guardar
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingExpenseId("");
-                              setEditingExpenseAmount("");
-                            }}
-                            disabled={updatingExpense}
-                            className={styles.smallButton}
-                          >
-                            Cancelar
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <strong className={styles.expenseAmountDisplay}>{formatCurrency(Number(expense.amount))}</strong>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingExpenseId(expense.id);
-                              setEditingExpenseAmount(String(expense.amount));
-                            }}
-                            className={styles.smallButtonPrimary}
-                          >
-                            Editar importe
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </article>
-                ))}
+              noEventMessage
+            )
+          )}
+
+          {renderSection(
+            "expense",
+            "Agregar gasto",
+            selectedEvent ? (
+              <form className={styles.expenseFormSection} onSubmit={handleCreateExpense}>
+                <div className={styles.flexWrapEnd}>
+                  <label className={styles.fieldLabel}>
+                    Categoría
+                    <select
+                      className={styles.select}
+                      value={expenseCategory}
+                      onChange={(event) => setExpenseCategory(event.target.value)}
+                      disabled={isSaving}
+                    >
+                      {expenseCategories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {expenseCategory === OTHER_CATEGORY && (
+                    <label className={styles.fieldLabel}>
+                      Categoría personalizada
+                      <input
+                        className={styles.input}
+                        value={customCategory}
+                        onChange={(event) => setCustomCategory(event.target.value)}
+                        disabled={isSaving}
+                      />
+                    </label>
+                  )}
+                  <label className={styles.fieldLabel}>
+                    Importe (MXN)
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className={styles.input}
+                      value={expenseAmount}
+                      onChange={(event) => setExpenseAmount(event.target.value)}
+                      required
+                      disabled={isSaving}
+                    />
+                  </label>
+                </div>
+                <button type="submit" className={styles.addExpenseButton} disabled={isSaving}>
+                  Agregar gasto
+                </button>
+              </form>
+            ) : (
+              noEventMessage
+            )
+          )}
+
+          {renderSection(
+            "list",
+            "Gastos del evento",
+            selectedEvent ? (
+              <div className={styles.expensesListSection}>
+                <div className={styles.expensesSummary}>
+                  <p className={styles.expensesLabel}>Total de gastos</p>
+                  <strong className={styles.expensesTotal}>{formatCurrency(totalExpenses)}</strong>
+                </div>
+
+                {visibleExpenses.length === 0 ? (
+                  <p className={styles.noExpenses}>Sin gastos registrados.</p>
+                ) : (
+                  <div className={styles.expenseList}>
+                    {visibleExpenses.map((expense) => (
+                      <div key={expense.id} className={styles.expenseRow}>
+                        <div>
+                          <p className={styles.expenseCategory}>{expense.category}</p>
+                          <p className={styles.expenseDate}>
+                            {new Date(expense.created_at).toLocaleDateString("es-MX")}
+                          </p>
+                        </div>
+                        <div className={styles.expenseRowRight}>
+                          {editingExpenseId === expense.id ? (
+                            <>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                className={styles.editAmountInput}
+                                value={editingAmount}
+                                onChange={(event) => setEditingAmount(event.target.value)}
+                                aria-label="Nuevo importe"
+                              />
+                              <button
+                                type="button"
+                                className={styles.smallButtonSuccess}
+                                onClick={() => handleSaveExpenseAmount(expense.id)}
+                                disabled={isSaving}
+                              >
+                                Guardar
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.smallButton}
+                                onClick={() => setEditingExpenseId(null)}
+                                disabled={isSaving}
+                              >
+                                Cancelar
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span className={styles.expenseAmountDisplay}>
+                                {formatCurrency(Number(expense.amount))}
+                              </span>
+                              <button
+                                type="button"
+                                className={styles.smallButtonPrimary}
+                                onClick={() => {
+                                  setEditingExpenseId(expense.id);
+                                  setEditingAmount(String(expense.amount));
+                                }}
+                                disabled={isSaving}
+                              >
+                                Editar
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </section>
+            ) : (
+              noEventMessage
+            )
+          )}
         </div>
       </div>
     </div>

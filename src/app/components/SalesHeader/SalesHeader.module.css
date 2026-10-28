@@ -4,7 +4,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .titleSection {
@@ -27,6 +26,43 @@
   font-weight: 900;
   line-height: 1.2;
   color: var(--text-primary);
+}
+
+.eventWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+.eventSelect {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  max-width: 100%;
+  padding: 0 2rem 0 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.eventSelect:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 4px;
+  border-radius: 0.25rem;
+}
+.eventSelect option {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.eventIcon {
+  position: absolute;
+  right: 0;
+  pointer-events: none;
+  color: var(--text-tertiary);
 }
 
 .actions {

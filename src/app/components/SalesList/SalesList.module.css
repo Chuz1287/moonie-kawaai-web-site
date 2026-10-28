@@ -1,193 +1,388 @@
 @charset "UTF-8";
+.tableWrap, .accordion, .detailPane, .masterPane {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
 .scope {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  min-width: 0;
 }
 
-.dateGroup {
+.toolbar {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.dateHeader {
+.layoutSwitch {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-hover);
+}
+
+.layoutButton {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.layoutButton:hover {
+  color: var(--text-primary);
+}
+.layoutButton[aria-pressed=true] {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.counter {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Layout: Split */
+.split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+}
+
+.masterHeader {
   display: flex;
   justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+}
+
+.masterList {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.masterItem {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
   align-items: center;
-  gap: 2rem;
-}
-.dateHeader h3 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  border-left: 3px solid transparent;
+  background: transparent;
   color: var(--text-primary);
-  letter-spacing: 0.05em;
+  text-align: left;
+  cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease;
 }
-.dateHeader .groupTotal {
-  font-size: 1.75rem;
+.masterItem:last-child {
+  border-bottom: none;
+}
+.masterItem:hover {
+  background: rgba(var(--accent-primary-rgb), 0.05);
+}
+.masterItem[aria-pressed=true] {
+  background: rgba(var(--accent-primary-rgb), 0.1);
+  border-left-color: var(--accent-primary);
+}
+
+.masterMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.masterTitle {
   font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.masterMeta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.masterTotal {
+  font-weight: 700;
+  font-size: 0.9rem;
   color: var(--accent-success);
   white-space: nowrap;
 }
 
-.ticketList {
+.detailPane {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  padding: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .detailPane {
+    position: sticky;
+    top: 1rem;
+  }
 }
 
-.ticketRow {
+.detailTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.detailMeta {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.detailMeta strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.linesWrap {
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  overflow-x: auto;
+}
+
+.linesTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.linesTable th {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  background: var(--surface-hover);
+  border-bottom: 1px solid var(--border-color);
+}
+.linesTable td {
+  padding: 0.75rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+.linesTable tr:last-child td {
+  border-bottom: none;
+}
+
+.numeric {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.center {
+  text-align: center;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.totalGrand {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.totalGrand span:last-child {
+  color: var(--accent-success);
+}
+
+.detailActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Layout: Acordeón */
+.accordionItem {
+  border-bottom: 1px solid var(--border-color);
+}
+.accordionItem:last-child {
+  border-bottom: none;
+}
+
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+.accordionHeader:hover {
+  background: rgba(var(--accent-primary-rgb), 0.05);
+}
+
+.accordionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.chevron {
+  display: inline-flex;
+  color: var(--text-tertiary);
+  transition: transform 200ms ease, color 200ms ease;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+  color: var(--accent-primary);
+}
+
+.accordionBody {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 1.5rem;
-  background: var(--surface);
-  border: 1px solid var(--border-color);
-  border-radius: 1.5rem;
-  transition: all 200ms ease;
-}
-.ticketRow:hover {
-  border-color: var(--accent-primary);
-  background: rgba(var(--surface-rgb), 0.8);
+  padding: 1rem 1.25rem 1.25rem 2.75rem;
+  background: rgba(var(--surface-rgb), 0.6);
+  border-top: 1px solid var(--border-color);
 }
 
-.ticketHeader {
+.bodyMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+.itemList li {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.ticketInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  flex: 1;
-}
-.ticketInfo .ticketNumber {
-  font-size: 1.1rem;
-  font-weight: 700;
+  gap: 1rem;
   color: var(--text-primary);
-  letter-spacing: 0.02em;
-}
-.ticketInfo .ticketMeta {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  flex-wrap: wrap;
-}
-.ticketInfo .ticketMeta span {
-  display: flex;
-  align-items: center;
-}
-.ticketInfo .ticketMeta span:not(:last-child)::after {
-  content: "•";
-  margin-left: 1rem;
-  color: var(--text-secondary);
 }
 
-.ticketAmount {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.75rem;
-}
-.ticketAmount .amountValue {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--accent-success);
-}
-.ticketAmount .amountLabel {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-}
-.ticketAmount .profitInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
-}
-.ticketAmount .profitInfo .profitLabel {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  font-weight: 600;
-}
-.ticketAmount .profitInfo .profitValue {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-secondary);
+/* Layout: Tabla */
+.tableWrap {
+  overflow-x: auto;
 }
 
-.productsSection {
-  padding: 1rem 0;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-}
-.productsSection .productsTable {
+.denseTable {
   width: 100%;
-  font-size: 0.875rem;
-  display: flex;
-  flex-direction: column;
+  border-collapse: collapse;
+  font-size: 0.8rem;
 }
-.productsSection .tableHeader {
-  display: flex;
-  flex-wrap: wrap;
-  background: rgba(var(--surface-rgb), 0.5);
+.denseTable th,
+.denseTable td {
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  white-space: nowrap;
   border-bottom: 1px solid var(--border-color);
 }
-.productsSection .headerCell {
-  flex: 1;
-  min-width: 80px;
-  padding: 0.75rem 1rem;
-  font-weight: 700;
-  color: var(--text-secondary);
+.denseTable th {
+  font-size: 0.7rem;
   text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  background: var(--surface-hover);
 }
-.productsSection .tableBody {
-  display: flex;
-  flex-direction: column;
+.denseTable td {
+  color: var(--text-primary);
 }
-.productsSection .tableRow {
-  display: flex;
-  flex-wrap: wrap;
-  border-bottom: 1px solid var(--border-color);
+.denseTable tbody tr {
   transition: background 200ms ease;
 }
-.productsSection .tableRow:last-child {
-  border-bottom: none;
-}
-.productsSection .tableRow:hover {
+.denseTable tbody tr:hover {
   background: rgba(var(--accent-primary-rgb), 0.05);
 }
-.productsSection .cell {
-  flex: 1;
-  min-width: 80px;
-  padding: 0.75rem 1rem;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-}
-.productsSection .cell:nth-child(3), .productsSection .cell:nth-child(4), .productsSection .cell:nth-child(5) {
-  text-align: right;
+.denseTable tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.ticketActions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-items: flex-start;
+.ticketCell {
+  font-weight: 700;
 }
 
+.totalCell {
+  font-weight: 700;
+  color: var(--accent-success) !important;
+}
+
+.itemsCell {
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-secondary) !important;
+}
+
+/* Compartido */
 .warningMessage {
+  width: 100%;
   padding: 0.5rem 0.75rem;
   font-size: 0.8rem;
   color: var(--accent-warning);
@@ -196,6 +391,7 @@
   border-radius: 0.25rem;
 }
 
+/* Vista por piezas */
 .piecesView {
   display: flex;
   flex-direction: column;
@@ -206,6 +402,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding: 1rem;
   background: var(--surface);
   border: 1px solid var(--border-color);
@@ -228,6 +425,7 @@
 }
 .pieceInfo .saleDetails {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   font-size: 0.9rem;
   color: var(--text-secondary);
@@ -247,7 +445,7 @@
 .loadMore {
   display: flex;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 0.5rem;
 }
 
 .loadMoreBtn {
@@ -265,34 +463,4 @@
 }
 .loadMoreBtn:active {
   transform: scale(0.98);
-}
-
-/* Animación de acordeón */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.products-list:not(.collapsed) .product-item {
-  animation: slideDown 0.3s ease forwards;
-}
-.products-list:not(.collapsed) .product-item:nth-child(1) {
-  animation-delay: 0.05s;
-}
-.products-list:not(.collapsed) .product-item:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.products-list:not(.collapsed) .product-item:nth-child(3) {
-  animation-delay: 0.15s;
-}
-.products-list:not(.collapsed) .product-item:nth-child(4) {
-  animation-delay: 0.2s;
-}
-.products-list:not(.collapsed) .product-item:nth-child(5) {
-  animation-delay: 0.25s;
 }/*# sourceMappingURL=SalesList.module.css.map */

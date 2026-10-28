@@ -40,7 +40,7 @@ export default function CartPanel({
           color: "var(--text-primary)",
           boxShadow: "0 25px 50px -12px rgba(109, 40, 217, 0.3)",
         }}
-        className="fixed bottom-4 left-1/2 z-40 flex w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left backdrop-blur transition hover:shadow-lg"
+        className="fixed bottom-24 md:bottom-4 left-1/2 z-40 flex w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left backdrop-blur transition hover:shadow-lg"
       >
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 text-lg">🛒</div>

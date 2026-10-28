@@ -1,4 +1,75 @@
-/* SalesSummaryCards Styles */
+.scope {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .scope {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  transition: border-color 200ms ease;
+}
+.card:hover {
+  border-color: var(--accent-primary);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.iconBox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.6rem;
+}
+
+.success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+
+.accent {
+  background: rgba(var(--accent-primary-rgb), 0.12);
+  color: var(--accent-primary);
+}
+
+.neutral {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
 .scope {
   display: flex;
   flex-wrap: wrap;

@@ -1,29 +1,24 @@
 "use client";
 
-import { useRef } from "react";
-import { LineChart, Calendar } from "lucide-react";
+import { Calendar, Search } from "lucide-react";
 import type { SalesFiltersProps } from "./SalesFilters.logic";
-import { inputClassName } from "./SalesFilters.logic";
 import styles from "./SalesFilters.module.scss";
 
+type SalesFiltersViewProps = Omit<
+  SalesFiltersProps,
+  "events" | "selectedEvent" | "onSelectEvent"
+>;
+
 export default function SalesFilters({
-  events,
-  selectedEvent,
   selectedDate,
   searchText,
   viewMode,
-  ticketCount,
-  pieceCount,
-  onSelectEvent,
   onSelectDate,
   onSearch,
   onSelectView,
-}: SalesFiltersProps) {
-  const eventSelectRef = useRef<HTMLSelectElement>(null);
-  const dateInputRef = useRef<HTMLInputElement>(null);
-
+}: SalesFiltersViewProps) {
   return (
-    <section className={styles.scope}>
+    <section className={styles.scope} aria-label="Filtros de ventas">
       <div className={styles.viewGroup} role="group" aria-label="Tipo de vista">
         <button
           type="button"
@@ -31,8 +26,7 @@ export default function SalesFilters({
           aria-pressed={viewMode === "tickets"}
           className={styles.viewButton}
         >
-          Vista por ticket 
-          {/* ({ticketCount}) */}
+          Por ticket
         </button>
         <button
           type="button"
@@ -40,70 +34,35 @@ export default function SalesFilters({
           aria-pressed={viewMode === "pieces"}
           className={styles.viewButton}
         >
-          Vista por piezas 
-          {/* ({pieceCount}) */}
+          Por piezas
         </button>
       </div>
 
-      <div className={styles.filtersContainer}>
-        <div className={styles.searchInput}>
-          <label className={styles.searchLabel}>
+      <div className={styles.filtersRow}>
+        <div className={styles.searchBar}>
+          <label className={styles.searchField}>
+            <Search size={16} className={styles.fieldIcon} aria-hidden="true" />
             <input
               type="search"
               value={searchText}
               onChange={(event) => onSearch(event.target.value)}
-              placeholder="Busca por Nombre o ID"
-              className={styles.filterInput}
+              placeholder="Buscar por ticket o producto..."
+              className={styles.searchInput}
             />
           </label>
-        </div>
 
-        <div className={styles.iconFilters}>
-          <div className={styles.filterIcon}>
-            <button
-              type="button"
-              onClick={() => eventSelectRef.current?.click()}
-              title={`Evento: ${events.find((e) => e.id === selectedEvent)?.name || "Todos"}`}
-              className={styles.iconButton}
-              aria-label="Filtrar por evento"
-            >
-              <LineChart size={20} />
-            </button>
-            <select
-              ref={eventSelectRef}
-              value={selectedEvent}
-              onChange={(event) => onSelectEvent(event.target.value)}
-              className={styles.hiddenSelect}
-              aria-label="Seleccionar evento"
-            >
-              <option value="all">Todos los eventos</option>
-              {events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <span className={styles.divider} aria-hidden="true" />
 
-          <div className={styles.filterIcon}>
-            <button
-              type="button"
-              onClick={() => dateInputRef.current?.click()}
-              title={selectedDate || "Seleccionar fecha"}
-              className={styles.iconButton}
-              aria-label="Filtrar por fecha"
-            >
-              <Calendar size={20} />
-            </button>
+          <label className={styles.dateField}>
+            <Calendar size={14} className={styles.fieldIcon} aria-hidden="true" />
             <input
-              ref={dateInputRef}
               type="date"
               value={selectedDate}
               onChange={(event) => onSelectDate(event.target.value)}
-              className={styles.hiddenDateInput}
+              className={styles.dateInput}
               aria-label="Seleccionar fecha"
             />
-          </div>
+          </label>
         </div>
       </div>
     </section>

@@ -3,6 +3,7 @@ import { Outfit, Geist_Mono } from "next/font/google";
 import packageJson from "../../package.json";
 import VersionLogger from "@/components/VersionLogger";
 import Navigation from "@/components/Navigation";
+import SideMenu from "@/components/SideMenu";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -29,8 +30,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="h-full w-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <VersionLogger version={packageJson.version} />
-        <div className="flex-1 overflow-auto pb-20 md:pb-0">
-          {children}
+        <div className="flex flex-1 min-h-0">
+          <SideMenu />
+          <div className="flex-1 min-w-0 overflow-auto pb-20 md:pb-0">
+            {children}
+          </div>
         </div>
         <Navigation />
       </body>

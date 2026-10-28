@@ -1,10 +1,8 @@
 @use '../../../design-system/_variables' as *;
 
 .bottomNav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  flex-shrink: 0;
   width: 100%;
   height: auto;
   background: var(--surface);
@@ -13,7 +11,6 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  z-index: 40;
   padding: 0.75rem 0;
   margin: 0;
   gap: 0;

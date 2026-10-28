@@ -5,22 +5,15 @@
 }
 
 .header {
-  border-radius: 1.5rem;
-  border: 1px solid var(--border-color);
-  padding: 1.25rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  padding-bottom: 1.25rem;
   margin-bottom: 1.5rem;
-  background: var(--surface);
+  border-bottom: 1px solid var(--border-color);
   transition: all 200ms ease;
 }
 
 .searchSection {
-  border-radius: 1.5rem;
-  border: 1px solid var(--border-color);
-  padding: 1rem;
-  background: var(--surface);
+  position: relative;
   margin-bottom: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   transition: border-color 200ms ease, background 200ms ease;
 }
 .searchSection .searchInput {
@@ -28,7 +21,7 @@
   border-radius: 1rem;
   border: 1px solid var(--border-color);
   background: var(--surface-secondary);
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
   font-size: 0.875rem;
   color: var(--text-primary);
   transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
@@ -44,12 +37,43 @@
   outline: none;
 }
 
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+@media (min-width: 1024px) {
+  .workspace {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.cartColumn {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .cartColumn {
+    display: block;
+    flex: 0 0 24rem;
+    position: sticky;
+    top: 1.5rem;
+  }
+}
+
 .catalogSection {
-  border-radius: 1.5rem;
-  border: 1px solid var(--border-color);
-  background: var(--surface);
-  padding: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 0;
   transition: border-color 200ms ease, background 200ms ease;
 }
 .catalogSection .catalogHeader {

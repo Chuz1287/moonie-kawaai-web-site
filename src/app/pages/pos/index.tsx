@@ -6,6 +6,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import EventManagementDialog from "@/components/EventManagementDialog";
 import EventPerformancePanel from "@/components/EventPerformancePanel";
 import { EventsAndExpensesModal } from "@/components/EventsAndExpensesModal";
+import { Search } from "lucide-react";
 import styles from "./pos.module.scss";
 import { usePosDashboard } from "./pos.logic";
 
@@ -22,18 +23,20 @@ export default function PosDashboard() {
 
         <EventManagementDialog model={model} />
 
-        <div className={styles.searchSection}>
-          <input
-            type="text"
-            value={model.search}
-            onChange={(event) => model.setSearch(event.target.value)}
-            placeholder="Buscar producto, categoría o detalle..."
-            className={styles.searchInput}
-          />
-        </div>
 
-        <div className="flex flex-wrap gap-6">
+
+        <div className={styles.workspace}>
           <section className={styles.catalogSection}>
+            <div className={styles.searchSection}>
+              <Search size={18} className={styles.searchIcon} aria-hidden="true" />
+            <input
+              type="text"
+              value={model.search}
+              onChange={(event) => model.setSearch(event.target.value)}
+              placeholder="Buscar producto, categoría o detalle..."
+              className={styles.searchInput}
+            />
+            </div>
             <div className={styles.catalogHeader}>
               <h2 className={styles.catalogTitle}>Catálogo</h2>
               <span className={styles.catalogStatus}>
@@ -49,6 +52,21 @@ export default function PosDashboard() {
             />
           </section>
 
+          <aside className={styles.cartColumn}>
+            <CartPanel
+              cart={model.cart}
+              products={model.productCatalog}
+              onChangeQuantity={model.handleChangeQuantity}
+              onChangePrice={model.handleChangePrice}
+              onRemove={model.handleRemove}
+              onCheckout={model.handleCheckout}
+              subtotal={model.totals.subtotal}
+              tax={model.totals.tax}
+              total={model.totals.total}
+            />
+          </aside>
+
+          <div className="lg:hidden">
           {model.hasCartItems && !model.isCartOpen && (
             <CartPanel
               cart={model.cart}
@@ -63,6 +81,7 @@ export default function PosDashboard() {
               total={model.totals.total}
             />
           )}
+          </div>
         </div>
 
         {model.hasCartItems && model.isCartOpen && (
