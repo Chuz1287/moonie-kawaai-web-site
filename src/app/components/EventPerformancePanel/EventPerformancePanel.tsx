@@ -51,19 +51,6 @@ export default function EventPerformancePanel({ model }: { model: PosDashboardMo
               "Default"}
           </h2>
         </div>
-        {eventPerformance && !isVisible && (
-          <strong
-            className={
-              eventPerformance.balance >= 0
-                ? styles.balancePositive
-                : styles.balanceNegative
-            }
-          >
-            {eventPerformance.balance >= 0
-              ? `Ganancia ${formatPosCurrency(eventPerformance.balance)}`
-              : `Faltan ${formatPosCurrency(eventPerformance.amountToBreakEven)}`}
-          </strong>
-        )}
         <button
           type="button"
           onClick={() => setIsVisible(!isVisible)}
@@ -75,21 +62,22 @@ export default function EventPerformancePanel({ model }: { model: PosDashboardMo
         </button>
       </div>
 
+      {eventPerformance && (
+        <strong
+          className={
+            eventPerformance.balance >= 0
+              ? styles.balancePositive
+              : styles.balanceNegative
+          }
+        >
+          {eventPerformance.balance >= 0
+            ? `Ganancia ${formatPosCurrency(eventPerformance.balance)}`
+            : `Faltan ${formatPosCurrency(eventPerformance.amountToBreakEven)}`}
+        </strong>
+      )}
+
       {isVisible && (
         <>
-          {eventPerformance && (
-            <strong
-              className={
-                eventPerformance.balance >= 0
-                  ? styles.balancePositive
-                  : styles.balanceNegative
-              }
-            >
-              {eventPerformance.balance >= 0
-                ? `Ganancia ${formatPosCurrency(eventPerformance.balance)}`
-                : `Faltan ${formatPosCurrency(eventPerformance.amountToBreakEven)}`}
-            </strong>
-          )}
 
           {model.eventPerformanceError ? (
             <p role="alert" className={styles.error}>

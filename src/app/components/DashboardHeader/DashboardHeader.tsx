@@ -59,6 +59,10 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
           >
             <PenLine />
           </button>
+
+          {model.selectedEvent && (
+            <span className={styles.activeBadge}>Evento Activo</span>
+          )}
         </div>
       </div>
 

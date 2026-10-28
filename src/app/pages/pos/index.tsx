@@ -6,6 +6,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import EventManagementDialog from "@/components/EventManagementDialog";
 import EventPerformancePanel from "@/components/EventPerformancePanel";
 import { EventsAndExpensesModal } from "@/components/EventsAndExpensesModal";
+import { Search } from "lucide-react";
 import styles from "./pos.module.scss";
 import { usePosDashboard } from "./pos.logic";
 
@@ -24,9 +25,10 @@ export default function PosDashboard() {
 
 
 
-        <div className="flex flex-wrap gap-6">
+        <div className={styles.workspace}>
           <section className={styles.catalogSection}>
             <div className={styles.searchSection}>
+              <Search size={18} className={styles.searchIcon} aria-hidden="true" />
             <input
               type="text"
               value={model.search}
@@ -50,6 +52,21 @@ export default function PosDashboard() {
             />
           </section>
 
+          <aside className={styles.cartColumn}>
+            <CartPanel
+              cart={model.cart}
+              products={model.productCatalog}
+              onChangeQuantity={model.handleChangeQuantity}
+              onChangePrice={model.handleChangePrice}
+              onRemove={model.handleRemove}
+              onCheckout={model.handleCheckout}
+              subtotal={model.totals.subtotal}
+              tax={model.totals.tax}
+              total={model.totals.total}
+            />
+          </aside>
+
+          <div className="lg:hidden">
           {model.hasCartItems && !model.isCartOpen && (
             <CartPanel
               cart={model.cart}
@@ -64,6 +81,7 @@ export default function PosDashboard() {
               total={model.totals.total}
             />
           )}
+          </div>
         </div>
 
         {model.hasCartItems && model.isCartOpen && (
