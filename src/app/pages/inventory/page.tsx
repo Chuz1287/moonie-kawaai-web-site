@@ -8,6 +8,8 @@ import InventoryCard from "@/components/InventoryCard/InventoryCard";
 import InventoryAccordionItem from "@/components/InventoryAccordionItem/InventoryAccordionItem";
 import AddInventoryModal from "@/components/AddInventoryModal/AddInventoryModal";
 import { useInventoryDashboard } from "@/components/InventoryDashboard.logic";
+import BulkImageUploader from "@/components/BulkImageUploader/BulkImageUploader";
+import BulkProductImporter from "@/components/BulkProductImporter/BulkProductImporter";
 import styles from "./inventory.module.scss";
 
 export default function InventoryPage() {
@@ -58,6 +60,8 @@ export default function InventoryPage() {
             <Plus size={20} />
             Agregar Artículo
           </button>
+          <BulkProductImporter />
+          <BulkImageUploader />
           <button
             onClick={() => void model.refreshInventory()}
             className={styles.button}
