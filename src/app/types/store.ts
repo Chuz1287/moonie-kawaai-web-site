@@ -1,5 +1,6 @@
 export type Product = {
   id: string;
+  code?: string;
   slug: string;
   name: string;
   description: string;
@@ -12,6 +13,7 @@ export type Product = {
   category: string;
   series?: string;
   image: string;
+  coverImage?: string;
   gallery: string[];
   tags: string[];
 };

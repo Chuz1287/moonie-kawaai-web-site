@@ -36,6 +36,16 @@
   cursor: pointer;
 }
 
+.productImage {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  margin-bottom: 0.75rem;
+  border-radius: 1rem;
+  background: var(--background);
+  object-fit: cover;
+}
+
 .cardHeader {
   display: flex;
   align-items: flex-start;

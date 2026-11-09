@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ChevronDown, Trash2 } from "lucide-react";
 import type { InventoryAccordionItemProps } from "./InventoryAccordionItem.logic";
 import styles from "./InventoryAccordionItem.module.scss";
@@ -24,6 +25,17 @@ export default function InventoryAccordionItem({
 
       {isExpanded && (
         <div className={styles.accordionContent}>
+          {item.coverImage ? (
+            <Image
+              src={item.coverImage}
+              alt={`Cover de ${item.name}`}
+              className={styles.productImage}
+              width={300}
+              height={300}
+              loading="lazy"
+              unoptimized
+            />
+          ) : null}
           <div className={styles.contentRow}>
             <span className={styles.label}>Serie</span>
             <p>{item.series || "—"}</p>

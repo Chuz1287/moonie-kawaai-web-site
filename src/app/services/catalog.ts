@@ -1,5 +1,6 @@
 import type { Product } from "@/types/store";
 import { createClient } from "@supabase/supabase-js";
+import { getProductCoverUrl } from "@/lib/cloudinary";
 
 const fallbackProducts: Product[] = [
   {
@@ -130,9 +131,17 @@ function mapSupabaseProduct(row: Record<string, unknown>): Product {
   const normalizedCost = rawCost > 0 ? rawCost : price > 0 ? price * 0.7 : 0;
   const slug = toSlug(String(row.slug ?? name));
   const featured = stock > 0;
+  const code = String(row.Codigo ?? row.code ?? "").trim();
+  const series = anime ? String(anime) : undefined;
+  const coverImage = getProductCoverUrl({
+    code,
+    category,
+    series,
+  });
 
   return {
     id: String(row.id ?? slug),
+    code,
     slug,
     name,
     description: [category, anime, row.personaje, row.character, row.characters]
@@ -148,8 +157,9 @@ function mapSupabaseProduct(row: Record<string, unknown>): Product {
     stock: Number.isFinite(stock) ? stock : 0,
     featured,
     category,
-    series: anime ? String(anime) : undefined,
+    series,
     image: String(row.image ?? defaultImage),
+    coverImage: coverImage ?? undefined,
     gallery: [String(row.image ?? defaultImage), defaultImage],
     tags: [anime, row.personaje, row.character, row.characters, row.tipo, row.categoria, row.marca]
       .filter(Boolean)

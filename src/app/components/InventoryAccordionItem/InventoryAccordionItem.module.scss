@@ -64,6 +64,16 @@
   animation: slideDown 200ms ease;
 }
 
+.productImage {
+  display: block;
+  width: min(100%, 300px);
+  aspect-ratio: 1;
+  align-self: center;
+  border-radius: $radius-md;
+  background: var(--background);
+  object-fit: cover;
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;

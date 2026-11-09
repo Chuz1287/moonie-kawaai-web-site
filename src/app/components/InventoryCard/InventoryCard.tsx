@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import type { InventoryCardProps } from "./InventoryCard.logic";
 import styles from "./InventoryCard.module.scss";
@@ -5,6 +6,17 @@ import styles from "./InventoryCard.module.scss";
 export default function InventoryCard({ item, onAddStock, onDelete }: InventoryCardProps) {
   return (
     <div className={styles.card}>
+      {item.coverImage ? (
+        <Image
+          src={item.coverImage}
+          alt={`Cover de ${item.name}`}
+          className={styles.productImage}
+          width={300}
+          height={300}
+          loading="lazy"
+          unoptimized
+        />
+      ) : null}
       <div className={styles.cardHeader}>
         <div className={styles.headerInfo}>
           <h3 className={styles.itemName}>{item.name}</h3>

@@ -91,6 +91,80 @@ export function getOptimizedImageUrl(
   return `${getCloudinaryBaseUrl()}/${transformationPath}${publicId}`;
 }
 
+export type ProductCoverPath = {
+  code: string;
+  category: string;
+  series?: string;
+};
+
+function getProductCloudinaryType(category: string): string | null {
+  const normalizedCategory = category
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (["videojuego", "videojuegos"].includes(normalizedCategory)) {
+    return "Videojuegos";
+  }
+
+  if (["anime", "chichona", "horror"].includes(normalizedCategory)) {
+    return "Anime";
+  }
+
+  return null;
+}
+
+function getProductCloudinarySeries(series: string): string {
+  const normalizedSeries = series
+    .trim()
+    .toLocaleLowerCase("es-MX")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  const folderAliases: Record<string, string> = {
+    baki: "Baki Hanma",
+  };
+
+  return folderAliases[normalizedSeries] ?? series.trim();
+}
+
+export function getProductCoverUrl({
+  code,
+  category,
+  series,
+}: ProductCoverPath): string | null {
+  const normalizedCode = code.trim();
+  const seriesFolder = series ? getProductCloudinarySeries(series) : "";
+  const typeFolder = getProductCloudinaryType(category);
+  const cloudinaryBaseUrl = getCloudinaryBaseUrl();
+
+  if (!cloudinaryBaseUrl || !normalizedCode || !seriesFolder || !typeFolder) {
+    return null;
+  }
+
+  const publicId = [
+    "moonie-kawaii",
+    "products",
+    typeFolder,
+    seriesFolder,
+    normalizedCode,
+    "Cover",
+  ]
+    .map(encodeURIComponent)
+    .join("/");
+  const optimizedUrl = getOptimizedImageUrl(publicId, {
+    width: 300,
+    height: 300,
+    crop: "fill",
+    gravity: "auto",
+    quality: "auto",
+    format: "webp",
+  });
+
+  return `${optimizedUrl}.webp`;
+}
+
 export async function uploadImage(file: File): Promise<CloudinaryUploadResult> {
   if (!cloudName || !uploadPreset) {
     throw new Error(
