@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Product } from "@/types/store";
 import { fetchProductsFromSupabase } from "@/services/catalog";
+import type { InventoryFormValues } from "./AddInventoryModal/AddInventoryModal.logic";
 
 export interface InventoryItem extends Product {}
 
@@ -26,6 +27,7 @@ export interface InventoryDashboardModel {
   handleAddStock: (productId: string, quantity: number) => Promise<void>;
   handleRemoveItem: (productId: string) => Promise<void>;
   handleAddItem: (item: Omit<InventoryItem, "id" | "slug" | "gallery" | "featured"> & { series?: string }) => Promise<void>;
+  handleEditItem: (productId: string, item: InventoryFormValues) => Promise<void>;
   filteredItems: InventoryItem[];
   inventorySummary: InventorySummary;
 }
@@ -104,27 +106,56 @@ export function useInventoryDashboard(): InventoryDashboardModel {
 
   const handleAddItem = async (item: Omit<InventoryItem, "id" | "slug" | "gallery" | "featured">) => {
     try {
-      if (!supabase) throw new Error("Database not configured");
-      
-      const { data, error: insertError } = await supabase
-        .from("products")
-        .insert([{
-          ...item,
-          slug: item.name.toLowerCase().replace(/\s+/g, "-"),
-          gallery: [],
-          featured: false,
-        }])
-        .select();
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+      });
+      const result = (await response.json()) as {
+        message?: string;
+        product?: InventoryItem;
+      };
 
-      if (insertError) throw new Error(insertError.message);
-
-      if (data) {
-        setItems((prev) => [...prev, ...(data as InventoryItem[])]);
+      if (!response.ok || !result.product) {
+        throw new Error(result.message ?? "No se pudo agregar el producto.");
       }
+
+      const createdProduct = result.product;
+      setItems((prev) => [...prev, createdProduct]);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error adding product";
       setError(message);
       console.error("Add product error:", err);
+      throw err;
+    }
+  };
+
+  const handleEditItem = async (productId: string, item: InventoryFormValues) => {
+    try {
+      const response = await fetch(`/api/products/${encodeURIComponent(productId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+      });
+      const result = (await response.json()) as {
+        message?: string;
+        product?: InventoryItem;
+      };
+
+      if (!response.ok || !result.product) {
+        throw new Error(result.message ?? "No se pudo actualizar el producto.");
+      }
+
+      const updatedProduct = result.product;
+      setItems((previous) =>
+        previous.map((product) => product.id === productId ? updatedProduct : product)
+      );
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al actualizar el producto.";
+      setError(message);
+      console.error("Update product error:", err);
+      throw err;
     }
   };
 
@@ -176,6 +207,7 @@ export function useInventoryDashboard(): InventoryDashboardModel {
     handleAddStock,
     handleRemoveItem,
     handleAddItem,
+    handleEditItem,
     filteredItems,
     inventorySummary,
   };

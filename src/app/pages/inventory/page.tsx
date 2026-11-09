@@ -16,6 +16,12 @@ export default function InventoryPage() {
   const model = useInventoryDashboard();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const editingItem = model.items.find((item) => item.id === editingItemId);
+  const openEditModal = (productId: string) => {
+    setEditingItemId(productId);
+    setShowAddModal(true);
+  };
 
   const toggleExpanded = (id: string) => {
     setExpandedItems((prev) => {
@@ -54,7 +60,10 @@ export default function InventoryPage() {
 
         <div className={styles.actionButtons}>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              setEditingItemId(null);
+              setShowAddModal(true);
+            }}
             className={styles.buttonPrimary}
           >
             <Plus size={20} />
@@ -80,6 +89,7 @@ export default function InventoryPage() {
             item={item}
             onAddStock={model.handleAddStock}
             onDelete={model.handleRemoveItem}
+            onEdit={() => openEditModal(item.id)}
           />
         ))}
       </div>
@@ -94,15 +104,26 @@ export default function InventoryPage() {
             onToggle={() => toggleExpanded(item.id)}
             onAddStock={model.handleAddStock}
             onDelete={model.handleRemoveItem}
+            onEdit={() => openEditModal(item.id)}
           />
         ))}
       </div>
 
-      <AddInventoryModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSubmit={model.handleAddItem}
-      />
+      {showAddModal && (
+        <AddInventoryModal
+          isOpen={showAddModal}
+          onClose={() => {
+            setShowAddModal(false);
+            setEditingItemId(null);
+          }}
+          editingItem={editingItem}
+          categoryOptions={[...new Set(model.items.map((item) => item.category).filter(Boolean))].sort()}
+          seriesOptions={[...new Set(model.items.map((item) => item.series).filter((series): series is string => Boolean(series)))].sort()}
+          onSubmit={(item, productId) => productId
+            ? model.handleEditItem(productId, item)
+            : model.handleAddItem(item)}
+        />
+      )}
     </div>
   );
 }

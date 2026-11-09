@@ -167,3 +167,18 @@
     background: rgba(248, 113, 113, 0.1);
   }
 }
+
+.editButton {
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--accent-primary);
+  cursor: pointer;
+  transition: all 150ms ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(168, 85, 247, 0.1);
+  }
+}

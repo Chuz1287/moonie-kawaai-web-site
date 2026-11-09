@@ -1,9 +1,9 @@
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import type { InventoryCardProps } from "./InventoryCard.logic";
 import styles from "./InventoryCard.module.scss";
 
-export default function InventoryCard({ item, onAddStock, onDelete }: InventoryCardProps) {
+export default function InventoryCard({ item, onAddStock, onDelete, onEdit }: InventoryCardProps) {
   return (
     <div className={styles.card}>
       {item.coverImage ? (
@@ -20,15 +20,20 @@ export default function InventoryCard({ item, onAddStock, onDelete }: InventoryC
       <div className={styles.cardHeader}>
         <div className={styles.headerInfo}>
           <h3 className={styles.itemName}>{item.name}</h3>
-          <p className={styles.itemCode}>Slug: {item.slug}</p>
+          <p className={styles.itemCode}>Código: {item.code || item.slug}</p>
         </div>
-        <button
-          onClick={() => onDelete(item.id)}
-          className={styles.deleteButton}
-          aria-label="Eliminar artículo"
-        >
-          <Trash2 size={18} />
-        </button>
+        <div className={styles.headerActions}>
+          <button onClick={onEdit} className={styles.editButton} aria-label="Editar artículo">
+            <Pencil size={18} />
+          </button>
+          <button
+            onClick={() => onDelete(item.id)}
+            className={styles.deleteButton}
+            aria-label="Eliminar artículo"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       </div>
 
       <div className={styles.cardContent}>

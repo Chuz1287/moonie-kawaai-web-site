@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ChevronDown, Trash2 } from "lucide-react";
+import { ChevronDown, Pencil, Trash2 } from "lucide-react";
 import type { InventoryAccordionItemProps } from "./InventoryAccordionItem.logic";
 import styles from "./InventoryAccordionItem.module.scss";
 
@@ -9,13 +9,14 @@ export default function InventoryAccordionItem({
   onToggle,
   onAddStock,
   onDelete,
+  onEdit,
 }: InventoryAccordionItemProps) {
   return (
     <div className={styles.accordionItem}>
       <button className={styles.accordionHeader} onClick={onToggle}>
         <div className={styles.accordionTitle}>
           <h3>{item.name}</h3>
-          <p className={styles.accordionCode}>Slug: {item.slug}</p>
+          <p className={styles.accordionCode}>Código: {item.code || item.slug}</p>
         </div>
         <ChevronDown
           size={20}
@@ -69,6 +70,14 @@ export default function InventoryAccordionItem({
                 +
               </button>
             </div>
+            <button
+              onClick={onEdit}
+              className={styles.editButton}
+              aria-label="Editar artículo"
+              title="Editar artículo"
+            >
+              <Pencil size={16} />
+            </button>
             <button
               onClick={() => onDelete(item.id)}
               className={styles.deleteButtonSmall}

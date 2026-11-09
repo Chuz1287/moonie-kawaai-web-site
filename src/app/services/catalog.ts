@@ -121,7 +121,7 @@ function toSlug(value: string): string {
     .slice(0, 80);
 }
 
-function mapSupabaseProduct(row: Record<string, unknown>): Product {
+export function mapSupabaseProduct(row: Record<string, unknown>): Product {
   const name = String(row.personaje ?? row.character ?? row.name ?? "Producto sin nombre");
   const category = String(row.tipo ?? row.category ?? row.categoria ?? "General");
   const anime = row.anime ?? row.serie ?? row.series;
