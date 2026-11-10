@@ -179,14 +179,14 @@ function buildPlan(
 
   summary.totalRows = rows.length;
   const planned = rows.map<PlannedRow>((row) => {
-    if (!row.code) {
+    if (mode === "create" && !row.code) {
       summary.skippedNoCode += 1;
       const issue = { row: row.rowNumber, code: "", reason: "Fila omitida: no tiene Código." };
       issues.push(issue);
       return { row, issue };
     }
 
-    if ((workbookCodeCounts.get(row.code) ?? 0) > 1) {
+    if (row.code && (workbookCodeCounts.get(row.code) ?? 0) > 1) {
       summary.skippedDuplicateCode += 1;
       const issue = {
         row: row.rowNumber,
@@ -228,31 +228,31 @@ function buildPlan(
       return { row };
     }
 
-    if (matchesByCode.length > 1) {
-      summary.skippedConflict += 1;
-      const issue = {
-        row: row.rowNumber,
-        code: row.code,
-        reason: "El Código corresponde a más de un producto en la base de datos.",
-      };
-      issues.push(issue);
-      return { row, issue };
-    }
-
     const codeMatch = matchesByCode[0];
     const idMatch = row.id ? rowsById.get(row.id) : undefined;
-    if (codeMatch && idMatch && String(codeMatch.id) !== String(idMatch.id)) {
-      summary.skippedConflict += 1;
+    if (row.id && !idMatch) {
+      summary.skippedNotFound += 1;
       const issue = {
         row: row.rowNumber,
         code: row.code,
-        reason: "El Código y el id del Excel apuntan a productos diferentes.",
+        reason: `No existe un producto con el id "${row.id}".`,
       };
       issues.push(issue);
       return { row, issue };
     }
 
-    const target = codeMatch ?? idMatch;
+    if (!idMatch && matchesByCode.length > 1) {
+      summary.skippedConflict += 1;
+      const issue = {
+        row: row.rowNumber,
+        code: row.code,
+        reason: "El Código corresponde a más de un producto en la base de datos; incluye el id exportado para identificarlo.",
+      };
+      issues.push(issue);
+      return { row, issue };
+    }
+
+    const target = idMatch ?? codeMatch;
     if (!target) {
       summary.skippedNotFound += 1;
       const issue = {
@@ -264,10 +264,26 @@ function buildPlan(
       return { row, issue };
     }
 
+    const codeIsChanging = Boolean(row.code) &&
+      String(target.Codigo ?? "").trim() !== row.code;
+    if (
+      codeIsChanging &&
+      matchesByCode.some((product) => String(product.id) !== String(target.id))
+    ) {
+      summary.skippedConflict += 1;
+      const issue = {
+        row: row.rowNumber,
+        code: row.code,
+        reason: "El nuevo Código ya pertenece a otro producto.",
+      };
+      issues.push(issue);
+      return { row, issue };
+    }
+
     const updates = Object.keys(row.payload).filter(
       (key) => key !== "Codigo" && (includeStock || key !== "stock")
     );
-    const codeChanges = String(target.Codigo ?? "").trim() !== row.code;
+    const codeChanges = codeIsChanging;
     if (updates.length === 0 && !codeChanges) {
       summary.skippedNoChanges += 1;
       const issue = {

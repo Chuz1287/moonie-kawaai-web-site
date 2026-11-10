@@ -158,8 +158,10 @@ export default function BulkProductImporter() {
               <p className={styles.eyebrow}>Inventario</p>
               <h2 id="bulk-product-import-title">Importar productos por Excel</h2>
               <p className={styles.description}>
-                Usa el Excel exportado desde la base de datos. Las filas sin
-                Código se omiten; las celdas vacías no borran datos existentes.
+                Usa el Excel exportado desde la base de datos para que cada fila
+                se identifique por id. Los valores no vacíos del Excel reemplazan
+                los actuales; las celdas vacías los conservan. El Código también
+                se actualiza, siempre que no pertenezca a otro artículo.
               </p>
             </div>
             <button
@@ -185,8 +187,8 @@ export default function BulkProductImporter() {
               <span>
                 <strong>Actualizar existentes</strong>
                 <small>
-                  Busca por Codigo. En la primera actualización también usa el
-                  id del Excel si todavía no había Código guardado.
+                  Identifica por id del Excel exportado; permite sobrescribir
+                  el Código y los demás campos con los valores del archivo.
                 </small>
               </span>
             </label>

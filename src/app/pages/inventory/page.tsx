@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, RefreshCw } from "lucide-react";
 import InventoryHeader from "@/components/InventoryHeader/InventoryHeader";
 import InventorySummary from "@/components/InventorySummary";
@@ -10,6 +10,7 @@ import AddInventoryModal from "@/components/AddInventoryModal/AddInventoryModal"
 import { useInventoryDashboard } from "@/components/InventoryDashboard.logic";
 import BulkImageUploader from "@/components/BulkImageUploader/BulkImageUploader";
 import BulkProductImporter from "@/components/BulkProductImporter/BulkProductImporter";
+import ProductOptionsManager from "@/components/ProductOptionsManager/ProductOptionsManager";
 import styles from "./inventory.module.scss";
 
 export default function InventoryPage() {
@@ -17,7 +18,35 @@ export default function InventoryPage() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [managedOptions, setManagedOptions] = useState({ categories: [] as string[], series: [] as string[] });
   const editingItem = model.items.find((item) => item.id === editingItemId);
+  const categoryOptions = useMemo(
+    () => [...new Set([
+      ...model.items.map((item) => item.category),
+      ...managedOptions.categories,
+    ].filter(Boolean))].sort(),
+    [managedOptions.categories, model.items]
+  );
+  const seriesOptions = useMemo(
+    () => [...new Set([
+      ...model.items.map((item) => item.series).filter((series): series is string => Boolean(series)),
+      ...managedOptions.series,
+    ])].sort(),
+    [managedOptions.series, model.items]
+  );
+
+  const refreshProductOptions = async () => {
+    const response = await fetch("/api/product-options", { cache: "no-store" });
+    const result = (await response.json()) as {
+      categories?: string[];
+      series?: string[];
+      message?: string;
+    };
+    if (!response.ok || !result.categories || !result.series) {
+      throw new Error(result.message ?? "No se pudieron cargar las categorías y series.");
+    }
+    setManagedOptions({ categories: result.categories, series: result.series });
+  };
   const openEditModal = (productId: string) => {
     setEditingItemId(productId);
     setShowAddModal(true);
@@ -71,6 +100,7 @@ export default function InventoryPage() {
           </button>
           <BulkProductImporter />
           <BulkImageUploader />
+          <ProductOptionsManager onOptionsChanged={refreshProductOptions} />
           <button
             onClick={() => void model.refreshInventory()}
             className={styles.button}
@@ -117,11 +147,16 @@ export default function InventoryPage() {
             setEditingItemId(null);
           }}
           editingItem={editingItem}
-          categoryOptions={[...new Set(model.items.map((item) => item.category).filter(Boolean))].sort()}
-          seriesOptions={[...new Set(model.items.map((item) => item.series).filter((series): series is string => Boolean(series)))].sort()}
-          onSubmit={(item, productId) => productId
-            ? model.handleEditItem(productId, item)
-            : model.handleAddItem(item)}
+          categoryOptions={categoryOptions}
+          seriesOptions={seriesOptions}
+          onSubmit={async (item, productId) => {
+            if (productId) {
+              await model.handleEditItem(productId, item);
+            } else {
+              await model.handleAddItem(item);
+            }
+            await refreshProductOptions();
+          }}
         />
       )}
     </div>
