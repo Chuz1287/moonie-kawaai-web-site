@@ -12,6 +12,8 @@ export type Product = {
   featured: boolean;
   category: string;
   series?: string;
+  height?: string;
+  boxIncluded?: boolean;
   image: string;
   coverImage?: string;
   gallery: string[];

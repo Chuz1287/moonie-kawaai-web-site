@@ -121,6 +121,60 @@ function toSlug(value: string): string {
     .slice(0, 80);
 }
 
+function getImageValues(row: Record<string, unknown>): string[] {
+  const imageFields = [
+    row.image,
+    row.imagen,
+    row.image_url,
+    row.imagen_url,
+    row.foto,
+    row.foto_url,
+  ];
+  const galleryFields = [row.gallery, row.images, row.imagenes, row.fotos];
+  const values = [
+    ...imageFields,
+    ...galleryFields.flatMap((value) => Array.isArray(value) ? value : []),
+  ];
+
+  return [...new Set(values
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim())
+    .filter(Boolean))];
+}
+
+function getBoxIncluded(row: Record<string, unknown>): boolean | undefined {
+  const value =
+    row.box_included ??
+    row.boxIncluded ??
+    row.incluye_caja ??
+    row.tiene_caja ??
+    row.con_caja ??
+    row.caja;
+
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value !== "string" && typeof value !== "number") {
+    return undefined;
+  }
+
+  const normalized = String(value).trim().toLocaleLowerCase("es-MX");
+  if (/^(sí|si|true|1|incluida|incluido|con caja)$/u.test(normalized)) {
+    return true;
+  }
+  if (/^(no|false|0|sin caja|no incluida|no incluido)$/u.test(normalized)) {
+    return false;
+  }
+  if (/\b(con caja|caja incluida|incluye caja)\b/u.test(normalized)) {
+    return true;
+  }
+  if (/\b(sin caja|no incluye caja)\b/u.test(normalized)) {
+    return false;
+  }
+
+  return undefined;
+}
+
 export function mapSupabaseProduct(row: Record<string, unknown>): Product {
   const name = String(row.personaje ?? row.character ?? row.name ?? "Producto sin nombre");
   const category = String(row.tipo ?? row.category ?? row.categoria ?? "General");
@@ -133,6 +187,7 @@ export function mapSupabaseProduct(row: Record<string, unknown>): Product {
   const featured = stock > 0;
   const code = String(row.Codigo ?? row.code ?? "").trim();
   const series = anime ? String(anime) : undefined;
+  const images = getImageValues(row);
   const coverImage = getProductCoverUrl({
     code,
     category,
@@ -144,10 +199,15 @@ export function mapSupabaseProduct(row: Record<string, unknown>): Product {
     code,
     slug,
     name,
-    description: [category, anime, row.personaje, row.character, row.characters]
-      .filter(Boolean)
-      .map(String)
-      .join(" "),
+    description: String(
+      row.Descripcion ??
+      row.descripcion ??
+      row.description ??
+      [category, anime, row.personaje, row.character, row.characters]
+        .filter(Boolean)
+        .map(String)
+        .join(" ")
+    ),
     shortDescription: [row.caja ? String(row.caja) : null, row.marca ? String(row.marca) : null]
       .filter(Boolean)
       .join(" • ") || "Artículo disponible",
@@ -158,20 +218,28 @@ export function mapSupabaseProduct(row: Record<string, unknown>): Product {
     featured,
     category,
     series,
-    image: String(row.image ?? defaultImage),
+    height: String(row.Altura ?? row.altura ?? row.height ?? "").trim() || undefined,
+    boxIncluded: getBoxIncluded(row),
+    image: images[0] ?? defaultImage,
     coverImage: coverImage ?? undefined,
-    gallery: [String(row.image ?? defaultImage), defaultImage],
+    gallery: images,
     tags: [anime, row.personaje, row.character, row.characters, row.tipo, row.categoria, row.marca]
       .filter(Boolean)
       .map(String),
   };
 }
 
-export async function fetchProductsFromSupabase(): Promise<Product[]> {
+export async function fetchProductsFromSupabase(
+  options: { fallbackOnError?: boolean } = {}
+): Promise<Product[]> {
+  const fallbackOnError = options.fallbackOnError !== false;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !anonKey) {
+    if (!fallbackOnError) {
+      throw new Error("Supabase no está configurado; no se puede generar el catálogo del inventario.");
+    }
     return fallbackProducts;
   }
 
@@ -185,12 +253,24 @@ export async function fetchProductsFromSupabase(): Promise<Product[]> {
 
     const { data, error } = await client.from("products").select("*");
 
-    if (error || !data) {
+    if (error) {
+      if (!fallbackOnError) {
+        throw new Error(`No se pudo consultar el inventario: ${error.message}`);
+      }
+      return fallbackProducts;
+    }
+    if (!data) {
+      if (!fallbackOnError) {
+        throw new Error("Supabase no devolvió los productos del inventario.");
+      }
       return fallbackProducts;
     }
 
     return data.map((row) => mapSupabaseProduct(row as Record<string, unknown>));
-  } catch {
+  } catch (error) {
+    if (!fallbackOnError) {
+      throw error;
+    }
     return fallbackProducts;
   }
 }

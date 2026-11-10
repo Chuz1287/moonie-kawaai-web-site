@@ -53,7 +53,6 @@ export default function InventoryAccordionItem({
             <span className={styles.label}>Precio</span>
             <p>MXN ${item.price.toFixed(2)}</p>
           </div>
-
           <div className={styles.accordionFooter}>
             <div className={styles.stockControl}>
               <button

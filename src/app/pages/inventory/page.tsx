@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { BookOpen, Plus, RefreshCw } from "lucide-react";
 import InventoryHeader from "@/components/InventoryHeader/InventoryHeader";
 import InventorySummary from "@/components/InventorySummary";
 import InventoryCard from "@/components/InventoryCard/InventoryCard";
@@ -88,6 +89,10 @@ export default function InventoryPage() {
         />
 
         <div className={styles.actionButtons}>
+          <Link href="/catalog?export=web" className={styles.buttonPrimary}>
+            <BookOpen size={20} aria-hidden="true" />
+            Descargar catálogo web
+          </Link>
           <button
             onClick={() => {
               setEditingItemId(null);

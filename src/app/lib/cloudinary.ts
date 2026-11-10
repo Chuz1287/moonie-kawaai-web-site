@@ -129,7 +129,7 @@ function getProductCloudinarySeries(series: string): string {
   return folderAliases[normalizedSeries] ?? series.trim();
 }
 
-export function getProductCoverUrl({
+export function getProductCloudinaryFolder({
   code,
   category,
   series,
@@ -137,20 +137,34 @@ export function getProductCoverUrl({
   const normalizedCode = code.trim();
   const seriesFolder = series ? getProductCloudinarySeries(series) : "";
   const typeFolder = getProductCloudinaryType(category);
-  const cloudinaryBaseUrl = getCloudinaryBaseUrl();
 
-  if (!cloudinaryBaseUrl || !normalizedCode || !seriesFolder || !typeFolder) {
+  if (!normalizedCode || !seriesFolder || !typeFolder) {
     return null;
   }
 
-  const publicId = [
+  return [
     "moonie-kawaii",
     "products",
     typeFolder,
     seriesFolder,
     normalizedCode,
-    "Cover",
-  ]
+  ].join("/");
+}
+
+export function getProductCoverUrl({
+  code,
+  category,
+  series,
+}: ProductCoverPath): string | null {
+  const cloudinaryBaseUrl = getCloudinaryBaseUrl();
+  const productFolder = getProductCloudinaryFolder({ code, category, series });
+
+  if (!cloudinaryBaseUrl || !productFolder) {
+    return null;
+  }
+
+  const publicId = `${productFolder}/Cover`
+    .split("/")
     .map(encodeURIComponent)
     .join("/");
   const optimizedUrl = getOptimizedImageUrl(publicId, {
