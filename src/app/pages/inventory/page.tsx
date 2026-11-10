@@ -91,7 +91,11 @@ export default function InventoryPage() {
         <div className={styles.actionButtons}>
           <Link href="/catalog?export=web" className={styles.buttonPrimary}>
             <BookOpen size={20} aria-hidden="true" />
-            Descargar catálogo web
+            Descargar PDF web
+          </Link>
+          <Link href="/catalog" className={styles.button}>
+            <BookOpen size={20} aria-hidden="true" />
+            Ver catálogo interactivo
           </Link>
           <button
             onClick={() => {

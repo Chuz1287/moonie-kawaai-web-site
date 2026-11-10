@@ -28,7 +28,7 @@ function getImageUrlForMode(src: string, mode: ExportMode): string {
   if (uploadIndex < 0) return src;
 
   const transformations =
-    mode === "web" ? "w_1000,c_limit,q_55,f_webp" : "w_1800,c_limit,q_90,f_auto";
+    mode === "web" ? "w_1600,c_limit,q_80,f_webp" : "w_2200,c_limit,q_92,f_auto";
   const insertionPoint = uploadIndex + uploadPath.length;
   return `${src.slice(0, insertionPoint)}${transformations}/${src.slice(insertionPoint)}`;
 }
@@ -134,11 +134,11 @@ export default function CatalogPage() {
 
       const attempts = mode === "web"
         ? [
-            { scale: 0.75, quality: 0.48 },
-            { scale: 0.65, quality: 0.4 },
-            { scale: 0.55, quality: 0.34 },
-            { scale: 0.45, quality: 0.3 },
-            { scale: 0.35, quality: 0.25 },
+            { scale: 1.25, quality: 0.82 },
+            { scale: 1.1, quality: 0.74 },
+            { scale: 0.95, quality: 0.66 },
+            { scale: 0.8, quality: 0.55 },
+            { scale: 0.65, quality: 0.45 },
           ]
         : [{ scale: 1.5, quality: 0.88 }];
       let output: Blob | null = null;
@@ -309,7 +309,7 @@ export default function CatalogPage() {
           const mainImage = usableImages.includes(selectedImage ?? "")
             ? selectedImage
             : usableImages[0];
-          const thumbnails = usableImages.filter((image) => image !== mainImage).slice(0, 4);
+          const thumbnails = usableImages.slice(0, 5);
 
           return (
             <article className={styles.sheet} key={product.id}>
@@ -327,6 +327,7 @@ export default function CatalogPage() {
                   <div className={styles.mainPhoto}>
                     {mainImage ? (
                       <Image
+                        key={mainImage}
                         src={getImageUrlForMode(mainImage, exportMode)}
                         alt={product.name}
                         fill
@@ -350,11 +351,14 @@ export default function CatalogPage() {
                         <button
                           type="button"
                           key={image}
-                          className={styles.thumbnail}
-                          onClick={() =>
+                          className={`${styles.thumbnail} ${mainImage === image ? styles.thumbnailActive : ""}`}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
                             setSelectedImages((current) => ({ ...current, [product.id]: image }))
-                          }
+                          }}
                           aria-label={`Mostrar foto adicional ${index + 1} de ${product.name}`}
+                          aria-pressed={mainImage === image}
                         >
                           <Image
                             src={getImageUrlForMode(image, exportMode)}
