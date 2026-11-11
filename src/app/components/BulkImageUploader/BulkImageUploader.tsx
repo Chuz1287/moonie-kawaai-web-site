@@ -5,11 +5,23 @@ import { FolderUp, Images, Upload, X } from "lucide-react";
 import styles from "./BulkImageUploader.module.scss";
 import { getDroppedFiles, useBulkImageUploader } from "./BulkImageUploader.logic";
 
-export default function BulkImageUploader() {
+type BulkImageUploaderProps = {
+  initialDestinationFolder?: string;
+  stripTopLevelFolder?: boolean;
+  showDestinationInput?: boolean;
+  triggerLabel?: string;
+};
+
+export default function BulkImageUploader({
+  initialDestinationFolder,
+  stripTopLevelFolder = false,
+  showDestinationInput = true,
+  triggerLabel = "Subir imágenes por lote",
+}: BulkImageUploaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const folderInputRef = useRef<HTMLInputElement | null>(null);
-  const model = useBulkImageUploader();
+  const model = useBulkImageUploader(initialDestinationFolder);
   const progressValue =
     model.items.length > 0
       ? Math.round((model.completedCount / model.items.length) * 100)
@@ -46,7 +58,7 @@ export default function BulkImageUploader() {
         onClick={() => setIsOpen(true)}
       >
         <Images size={18} />
-        Subir imágenes por lote
+        {triggerLabel}
       </button>
 
       <dialog
@@ -88,20 +100,28 @@ export default function BulkImageUploader() {
             </button>
           </header>
 
-          <label className={styles.fieldLabel} htmlFor="cloudinary-destination">
-            Carpeta destino en Cloudinary
-          </label>
-          <input
-            id="cloudinary-destination"
-            className={styles.destinationInput}
-            value={model.destinationFolder}
-            onChange={(event) => model.setDestinationFolder(event.target.value)}
-            placeholder="moonie-kawaii/products"
-            disabled={model.isUploading}
-          />
-          <small className={styles.destinationHint}>
-            La ruta de destino debe estar dentro de <code>moonie-kawaii/</code>.
-          </small>
+          {showDestinationInput ? (
+            <>
+              <label className={styles.fieldLabel} htmlFor="cloudinary-destination">
+                Carpeta destino en Cloudinary
+              </label>
+              <input
+                id="cloudinary-destination"
+                className={styles.destinationInput}
+                value={model.destinationFolder}
+                onChange={(event) => model.setDestinationFolder(event.target.value)}
+                placeholder="moonie-kawaii/products"
+                disabled={model.isUploading}
+              />
+              <small className={styles.destinationHint}>
+                La ruta de destino debe estar dentro de <code>moonie-kawaii/</code>.
+              </small>
+            </>
+          ) : (
+            <p className={styles.destinationHint}>
+              Destino: <strong>{model.destinationFolder}</strong>
+            </p>
+          )}
 
           <div
             className={`${styles.dropzone} ${
@@ -148,10 +168,17 @@ export default function BulkImageUploader() {
               multiple
               onChange={(event) => {
                 const files = Array.from(event.currentTarget.files ?? []).map(
-                  (file) => ({
-                    file,
-                    relativePath: file.webkitRelativePath || file.name,
-                  })
+                  (file) => {
+                    const relativePath = file.webkitRelativePath || file.name;
+                    const relativeSegments = relativePath.split("/");
+                    return {
+                      file,
+                      relativePath:
+                        stripTopLevelFolder && relativeSegments.length > 1
+                          ? relativeSegments.slice(1).join("/")
+                          : relativePath,
+                    };
+                  }
                 );
                 model.addFiles(files);
                 event.currentTarget.value = "";

@@ -145,8 +145,8 @@ export async function getDroppedFiles(
   }));
 }
 
-export function useBulkImageUploader() {
-  const [destinationFolder, setDestinationFolder] = useState(defaultDestination);
+export function useBulkImageUploader(initialDestination = defaultDestination) {
+  const [destinationFolder, setDestinationFolder] = useState(initialDestination);
   const [items, setItems] = useState<BatchImageItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);

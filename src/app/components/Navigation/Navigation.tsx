@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, TrendingUp, Package, Moon, Sun } from "lucide-react";
+import { ShoppingCart, TrendingUp, Package, Images, Moon, Sun } from "lucide-react";
 import styles from "./Navigation.module.scss";
 
 export default function Navigation() {
@@ -60,6 +60,15 @@ export default function Navigation() {
       >
         <Package size={24} />
         <span className={styles.label}>Inventario</span>
+      </Link>
+
+      <Link
+        href="/media"
+        className={`${styles.navItem} ${pathname.includes("/media") ? styles.active : ""}`}
+        aria-current={pathname.includes("/media") ? "page" : undefined}
+      >
+        <Images size={24} />
+        <span className={styles.label}>Imágenes</span>
       </Link>
 
       <button
