@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { ProductGridProps } from "./ProductGrid.logic";
 import { formatCurrency, useCatalogStockDrafts } from "./ProductGrid.logic";
 import styles from "./ProductGrid.module.scss";
@@ -20,6 +21,17 @@ export default function ProductGrid({ products, onAdd, onAddStock }: ProductGrid
               onClick={() => onAdd(product)}
               className={styles.cardButton}
             >
+              {product.coverImage ? (
+                <Image
+                  src={product.coverImage}
+                  alt={`Cover de ${product.name}`}
+                  className={styles.productImage}
+                  width={300}
+                  height={300}
+                  loading="lazy"
+                  unoptimized
+                />
+              ) : null}
               <div className={styles.cardHeader}>
                 <div>
                   <p className={styles.cardCategory}>{product.category}</p>

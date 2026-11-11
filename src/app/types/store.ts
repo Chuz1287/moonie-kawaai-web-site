@@ -1,5 +1,6 @@
 export type Product = {
   id: string;
+  code?: string;
   slug: string;
   name: string;
   description: string;
@@ -11,7 +12,10 @@ export type Product = {
   featured: boolean;
   category: string;
   series?: string;
+  height?: string;
+  boxIncluded?: boolean;
   image: string;
+  coverImage?: string;
   gallery: string[];
   tags: string[];
 };

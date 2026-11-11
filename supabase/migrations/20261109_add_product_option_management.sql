@@ -1,0 +1,2 @@
+https://res.cloudinary.com/moonie-kawaii-img/image/upload/w_300,h_300,c_fill,g_auto,q_auto,f_webp/moonie-kawaii/products/Anime/Azur%20Lane/FIG-AL-02/Cover.webp
+https://res.cloudinary.com/moonie-kawaii-img/image/upload/v1794324508/moonie-kawaii/products/Videojuegos/Azur%20Lane/FIG-AL-01/Cover.png

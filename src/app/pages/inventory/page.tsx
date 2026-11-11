@@ -1,19 +1,57 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { BookOpen, Plus, RefreshCw } from "lucide-react";
 import InventoryHeader from "@/components/InventoryHeader/InventoryHeader";
 import InventorySummary from "@/components/InventorySummary";
 import InventoryCard from "@/components/InventoryCard/InventoryCard";
 import InventoryAccordionItem from "@/components/InventoryAccordionItem/InventoryAccordionItem";
 import AddInventoryModal from "@/components/AddInventoryModal/AddInventoryModal";
 import { useInventoryDashboard } from "@/components/InventoryDashboard.logic";
+import BulkImageUploader from "@/components/BulkImageUploader/BulkImageUploader";
+import BulkProductImporter from "@/components/BulkProductImporter/BulkProductImporter";
+import ProductOptionsManager from "@/components/ProductOptionsManager/ProductOptionsManager";
 import styles from "./inventory.module.scss";
 
 export default function InventoryPage() {
   const model = useInventoryDashboard();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [managedOptions, setManagedOptions] = useState({ categories: [] as string[], series: [] as string[] });
+  const editingItem = model.items.find((item) => item.id === editingItemId);
+  const categoryOptions = useMemo(
+    () => [...new Set([
+      ...model.items.map((item) => item.category),
+      ...managedOptions.categories,
+    ].filter(Boolean))].sort(),
+    [managedOptions.categories, model.items]
+  );
+  const seriesOptions = useMemo(
+    () => [...new Set([
+      ...model.items.map((item) => item.series).filter((series): series is string => Boolean(series)),
+      ...managedOptions.series,
+    ])].sort(),
+    [managedOptions.series, model.items]
+  );
+
+  const refreshProductOptions = async () => {
+    const response = await fetch("/api/product-options", { cache: "no-store" });
+    const result = (await response.json()) as {
+      categories?: string[];
+      series?: string[];
+      message?: string;
+    };
+    if (!response.ok || !result.categories || !result.series) {
+      throw new Error(result.message ?? "No se pudieron cargar las categorías y series.");
+    }
+    setManagedOptions({ categories: result.categories, series: result.series });
+  };
+  const openEditModal = (productId: string) => {
+    setEditingItemId(productId);
+    setShowAddModal(true);
+  };
 
   const toggleExpanded = (id: string) => {
     setExpandedItems((prev) => {
@@ -51,13 +89,27 @@ export default function InventoryPage() {
         />
 
         <div className={styles.actionButtons}>
+          <Link href="/catalog?export=web" className={styles.buttonPrimary}>
+            <BookOpen size={20} aria-hidden="true" />
+            Descargar PDF web
+          </Link>
+          <Link href="/catalog" className={styles.button}>
+            <BookOpen size={20} aria-hidden="true" />
+            Ver catálogo interactivo
+          </Link>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              setEditingItemId(null);
+              setShowAddModal(true);
+            }}
             className={styles.buttonPrimary}
           >
             <Plus size={20} />
             Agregar Artículo
           </button>
+          <BulkProductImporter />
+          <BulkImageUploader />
+          <ProductOptionsManager onOptionsChanged={refreshProductOptions} />
           <button
             onClick={() => void model.refreshInventory()}
             className={styles.button}
@@ -76,6 +128,7 @@ export default function InventoryPage() {
             item={item}
             onAddStock={model.handleAddStock}
             onDelete={model.handleRemoveItem}
+            onEdit={() => openEditModal(item.id)}
           />
         ))}
       </div>
@@ -90,15 +143,31 @@ export default function InventoryPage() {
             onToggle={() => toggleExpanded(item.id)}
             onAddStock={model.handleAddStock}
             onDelete={model.handleRemoveItem}
+            onEdit={() => openEditModal(item.id)}
           />
         ))}
       </div>
 
-      <AddInventoryModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSubmit={model.handleAddItem}
-      />
+      {showAddModal && (
+        <AddInventoryModal
+          isOpen={showAddModal}
+          onClose={() => {
+            setShowAddModal(false);
+            setEditingItemId(null);
+          }}
+          editingItem={editingItem}
+          categoryOptions={categoryOptions}
+          seriesOptions={seriesOptions}
+          onSubmit={async (item, productId) => {
+            if (productId) {
+              await model.handleEditItem(productId, item);
+            } else {
+              await model.handleAddItem(item);
+            }
+            await refreshProductOptions();
+          }}
+        />
+      )}
     </div>
   );
 }
