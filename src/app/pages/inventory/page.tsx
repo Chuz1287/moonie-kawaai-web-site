@@ -89,6 +89,16 @@ export default function InventoryPage() {
         />
 
         <div className={styles.actionButtons}>
+          <button
+            type="button"
+            onClick={() => model.setShowOutOfStock(!model.showOutOfStock)}
+            className={styles.button}
+            aria-pressed={model.showOutOfStock}
+          >
+            {model.showOutOfStock
+              ? "Ocultar sin stock"
+              : `Ver sin stock (${model.outOfStockCount})`}
+          </button>
           <Link href="/catalog?export=web" className={styles.buttonPrimary}>
             <BookOpen size={20} aria-hidden="true" />
             Descargar PDF web
@@ -121,32 +131,41 @@ export default function InventoryPage() {
       </div>
 
       {/* Desktop Grid */}
-      <div className={styles.gridContainer}>
-        {model.filteredItems.map((item) => (
-          <InventoryCard
-            key={item.id}
-            item={item}
-            onAddStock={model.handleAddStock}
-            onDelete={model.handleRemoveItem}
-            onEdit={() => openEditModal(item.id)}
-          />
-        ))}
-      </div>
+      {model.filteredItems.length === 0 ? (
+        <p className={styles.emptyState}>
+          {model.searchQuery
+            ? "No hay productos con existencia que coincidan con la búsqueda."
+            : "No hay productos con existencia para mostrar."}
+        </p>
+      ) : (
+        <>
+          <div className={styles.gridContainer}>
+            {model.filteredItems.map((item) => (
+              <InventoryCard
+                key={item.id}
+                item={item}
+                onAddStock={model.handleAddStock}
+                onDelete={model.handleRemoveItem}
+                onEdit={() => openEditModal(item.id)}
+              />
+            ))}
+          </div>
 
-      {/* Mobile Accordion */}
-      <div className={styles.accordionContainer}>
-        {model.filteredItems.map((item) => (
-          <InventoryAccordionItem
-            key={item.id}
-            item={item}
-            isExpanded={expandedItems.has(item.id)}
-            onToggle={() => toggleExpanded(item.id)}
-            onAddStock={model.handleAddStock}
-            onDelete={model.handleRemoveItem}
-            onEdit={() => openEditModal(item.id)}
-          />
-        ))}
-      </div>
+          <div className={styles.accordionContainer}>
+            {model.filteredItems.map((item) => (
+              <InventoryAccordionItem
+                key={item.id}
+                item={item}
+                isExpanded={expandedItems.has(item.id)}
+                onToggle={() => toggleExpanded(item.id)}
+                onAddStock={model.handleAddStock}
+                onDelete={model.handleRemoveItem}
+                onEdit={() => openEditModal(item.id)}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       {showAddModal && (
         <AddInventoryModal

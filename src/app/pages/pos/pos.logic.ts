@@ -313,43 +313,6 @@ export function usePosDashboard() {
     setStatus(`${product.name} agregado al carrito`);
   };
 
-  const handleAddStock = async (product: Product, quantity: number) => {
-    const amount = Math.max(1, Number(quantity) || 1);
-
-    try {
-      const response = await fetch("/api/products/stock", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: product.id,
-          delta: amount,
-          operation: "add",
-        }),
-      });
-      const payload = (await response.json()) as {
-        ok?: boolean;
-        product?: Product;
-        message?: string;
-      };
-
-      if (!response.ok || !payload.product) {
-        throw new Error(payload.message ?? "No se pudo actualizar el stock");
-      }
-
-      setProductCatalog((current) =>
-        current.map((entry) => (entry.id === product.id ? payload.product! : entry))
-      );
-      setStatus(
-        `Stock de ${product.name} actualizado +${amount}. ${
-          payload.message ?? "Sincronizado en vivo."
-        }`
-      );
-    } catch (error) {
-      console.error("Add stock API failed", error);
-      setStatus(`No se pudo actualizar el stock de ${product.name} desde la API.`);
-    }
-  };
-
   const handleChangeQuantity = (productId: string, quantity: number) => {
     const product = productCatalog.find((entry) => entry.id === productId);
     const stockLimit = product
@@ -738,7 +701,6 @@ export function usePosDashboard() {
     hasCartItems,
     totalEventExpenses,
     handleAddToCart,
-    handleAddStock,
     handleChangeQuantity,
     handleChangePrice,
     handleRemove,

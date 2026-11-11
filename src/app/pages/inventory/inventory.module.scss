@@ -147,3 +147,11 @@
     display: none;
   }
 }
+
+.emptyState {
+  padding: 2rem;
+  border: 1px dashed var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-secondary);
+  text-align: center;
+}
