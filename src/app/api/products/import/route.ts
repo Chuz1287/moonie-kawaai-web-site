@@ -23,6 +23,7 @@ const importableColumns = new Map<string, string>([
   ["personaje", "personaje"],
   ["serie", "serie"],
   ["tipo", "tipo"],
+  ["categorias", "categorias"],
   ["caja", "caja"],
   ["marca", "marca"],
   ["altura", "Altura"],
@@ -39,7 +40,7 @@ type WorkbookRow = {
   rowNumber: number;
   code: string;
   id: string;
-  payload: Record<string, string | number | boolean | null>;
+  payload: Record<string, string | number | boolean | string[] | null>;
 };
 
 type ExistingProduct = {
@@ -71,8 +72,11 @@ function getCellValue(value: ExcelJS.CellValue): string | number | boolean | nul
   return null;
 }
 
-function isBlankValue(value: string | number | boolean | null): boolean {
-  return value === null || (typeof value === "string" && value.trim() === "");
+function isBlankValue(value: unknown): boolean {
+  return value === null ||
+    value === undefined ||
+    (typeof value === "string" && value.trim() === "") ||
+    (Array.isArray(value) && value.length === 0);
 }
 
 async function parseWorkbook(file: File): Promise<WorkbookRow[]> {
@@ -127,9 +131,37 @@ async function parseWorkbook(file: File): Promise<WorkbookRow[]> {
 
       const databaseColumn = importableColumns.get(header);
       if (databaseColumn && !isBlankValue(value)) {
-        payload[databaseColumn] =
-          typeof value === "string" ? value.trim() : value;
+        if (databaseColumn === "categorias") {
+          if (typeof value !== "string") {
+            throw new Error(`La columna "categorias" debe contener una lista de texto en la fila ${rowNumber}.`);
+          }
+          const trimmedValue = value.trim();
+          let categories: string[] | null = null;
+          try {
+            const parsed: unknown = JSON.parse(trimmedValue);
+            if (Array.isArray(parsed) && parsed.every((category) => typeof category === "string")) {
+              categories = parsed.map((category) => category.trim()).filter(Boolean);
+            }
+          } catch {
+            categories = null;
+          }
+          payload.categorias = categories ?? trimmedValue.split("|").map((category) => category.trim()).filter(Boolean);
+        } else {
+          payload[databaseColumn] =
+            typeof value === "string" ? value.trim() : value;
+        }
       }
+    }
+
+    const primaryCategory = payload.tipo;
+    if (typeof primaryCategory === "string" && primaryCategory.trim()) {
+      const categories = Array.isArray(payload.categorias) ? payload.categorias : [];
+      payload.categorias = [
+        primaryCategory.trim(),
+        ...categories.filter((category) => category !== primaryCategory.trim()),
+      ];
+    } else if (Array.isArray(payload.categorias) && payload.categorias[0]) {
+      payload.tipo = payload.categorias[0];
     }
 
     rows.push({ rowNumber, code, id, payload });

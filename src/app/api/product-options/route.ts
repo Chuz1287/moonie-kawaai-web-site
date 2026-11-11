@@ -3,9 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_ANON_KEY;
 
 function getClient() {
   if (!supabaseUrl || !supabaseKey) {
@@ -33,7 +32,7 @@ export async function GET() {
     ] = await Promise.all([
       client.from("product_categories").select("name").order("name"),
       client.from("product_series").select("name").order("name"),
-      client.from("products").select("tipo, serie"),
+      client.from("products").select("tipo, serie, categorias"),
     ]);
 
     if (categoriesError) throw new Error(categoriesError.message);
@@ -44,6 +43,11 @@ export async function GET() {
       categories: uniqueValues([
         ...(categories ?? []).map((option) => option.name),
         ...(products ?? []).map((product) => product.tipo as string | null),
+        ...(products ?? []).flatMap((product) =>
+          Array.isArray(product.categorias)
+            ? product.categorias.filter((category): category is string => typeof category === "string")
+            : []
+        ),
       ]),
       series: uniqueValues([
         ...(series ?? []).map((option) => option.name),

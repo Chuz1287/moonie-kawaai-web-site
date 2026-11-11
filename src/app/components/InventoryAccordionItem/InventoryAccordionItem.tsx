@@ -43,7 +43,7 @@ export default function InventoryAccordionItem({
           </div>
           <div className={styles.contentRow}>
             <span className={styles.label}>Categoría</span>
-            <p>{item.category || "—"}</p>
+            <p>{(item.categories ?? [item.category]).join(", ") || "—"}</p>
           </div>
           <div className={styles.contentRow}>
             <span className={styles.label}>Stock</span>

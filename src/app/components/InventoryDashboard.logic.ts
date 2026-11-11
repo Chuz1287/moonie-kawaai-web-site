@@ -169,7 +169,7 @@ export function useInventoryDashboard(): InventoryDashboardModel {
       const matchesSearch = !query || (
         item.name.toLowerCase().includes(query) ||
         item.slug.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query) ||
+        (item.categories ?? [item.category]).some((category) => category.toLocaleLowerCase("es-MX").includes(query)) ||
         (item.series?.toLowerCase().includes(query) ?? false)
       );
       return matchesSearch && (showOutOfStock || item.stock > 0);

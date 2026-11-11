@@ -31,7 +31,9 @@ export default function ProductGrid({ products, onAdd }: ProductGridProps) {
               ) : null}
               <div className={styles.cardHeader}>
                 <div>
-                  <p className={styles.cardCategory}>{product.category}</p>
+                  <p className={styles.cardCategory}>
+                    {(product.categories ?? [product.category]).join(" · ")}
+                  </p>
                   <h3 className={styles.cardTitle}>{product.name}</h3>
                 </div>
                 <span className={styles.cardStock}>{product.stock}</span>

@@ -27,7 +27,20 @@ export async function PATCH(
   const code = String(body.code ?? "").trim();
   const name = String(body.name ?? "").trim();
   const series = String(body.series ?? "").trim();
-  const category = String(body.category ?? "").trim();
+  const requestedCategories = body.categories;
+  if (requestedCategories !== undefined && (
+    !Array.isArray(requestedCategories) ||
+    requestedCategories.some((category) => typeof category !== "string")
+  )) {
+    return NextResponse.json({ message: "La lista de categorías no es válida." }, { status: 400 });
+  }
+  const categories = [...new Set(
+    (Array.isArray(requestedCategories) ? requestedCategories : [body.category])
+      .filter((category): category is string => typeof category === "string")
+      .map((category) => category.trim())
+      .filter(Boolean)
+  )];
+  const category = categories[0] ?? "";
   const caja = String(body.shortDescription ?? "").trim();
   const price = Number(body.price ?? 0);
   const cost = Number(body.cost ?? 0);
@@ -85,6 +98,7 @@ export async function PATCH(
         personaje: name,
         serie: series,
         tipo: category,
+        categorias: categories,
         stock,
         precio: price,
         costo: cost,

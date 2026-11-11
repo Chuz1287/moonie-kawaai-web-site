@@ -44,7 +44,7 @@ export default function InventoryCard({ item, onAddStock, onDelete, onEdit }: In
           </div>
           <div className={styles.field}>
             <span className={styles.label}>Categoría</span>
-            <p className={styles.value}>{item.category || "—"}</p>
+            <p className={styles.value}>{(item.categories ?? [item.category]).join(", ") || "—"}</p>
           </div>
         </div>
 

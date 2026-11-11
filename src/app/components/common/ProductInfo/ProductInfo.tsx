@@ -11,7 +11,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   return (
     <div className={styles.scope}>
       <div className={styles.categoryAndTitle}>
-        <p className={styles.category}>{product.category}</p>
+        <p className={styles.category}>
+          {(product.categories ?? [product.category]).join(" · ")}
+        </p>
         <h1 className={styles.title}>{product.name}</h1>
       </div>
 

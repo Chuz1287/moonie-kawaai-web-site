@@ -23,7 +23,7 @@ export default function InventoryPage() {
   const editingItem = model.items.find((item) => item.id === editingItemId);
   const categoryOptions = useMemo(
     () => [...new Set([
-      ...model.items.map((item) => item.category),
+      ...model.items.flatMap((item) => item.categories ?? [item.category]),
       ...managedOptions.categories,
     ].filter(Boolean))].sort(),
     [managedOptions.categories, model.items]

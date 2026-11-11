@@ -21,7 +21,13 @@ alter table public.products
   add column if not exists marca text,
   add column if not exists precio_tik_tok numeric(12, 2),
   add column if not exists precio_ml numeric(12, 2),
-  add column if not exists titulo_publicaciones text;
+  add column if not exists titulo_publicaciones text,
+  add column if not exists categorias text[] not null default '{}';
+
+update public.products
+set categorias = array[btrim(tipo)]
+where cardinality(categorias) = 0
+  and nullif(btrim(tipo), '') is not null;
 
 create table if not exists public.product_categories (
   name text primary key,
@@ -37,6 +43,13 @@ insert into public.product_categories (name)
 select distinct btrim(tipo)
 from public.products
 where nullif(btrim(tipo), '') is not null
+on conflict (name) do nothing;
+
+insert into public.product_categories (name)
+select distinct product_category.category
+from public.products
+cross join lateral unnest(categorias) as product_category(category)
+where nullif(btrim(product_category.category), '') is not null
 on conflict (name) do nothing;
 
 insert into public.product_series (name)
@@ -193,6 +206,21 @@ begin
 
   execute format('update public.products set %I = $1 where btrim(%I) = $2', product_column, product_column)
     using new_name, old_name;
+  if option_type = 'category' then
+    update public.products
+    set categorias = array(
+      select mapped.category
+      from (
+        select
+          case when value = old_name then new_name else value end as category,
+          min(ordinal) as position
+        from unnest(categorias) with ordinality as existing(value, ordinal)
+        group by case when value = old_name then new_name else value end
+      ) as mapped
+      order by mapped.position
+    )
+    where old_name = any(coalesce(categorias, '{}'::text[]));
+  end if;
   execute format('delete from public.%I where name = $1', option_table) using old_name;
   execute format('insert into public.%I (name) values ($1) on conflict (name) do nothing', option_table)
     using new_name;
@@ -237,6 +265,14 @@ begin
 
   execute format('select exists(select 1 from public.products where btrim(%I) = $1)', product_column)
     into is_used using option_name;
+  if option_type = 'category' then
+    select is_used or exists(
+      select 1
+      from public.products
+      where option_name = any(coalesce(categorias, '{}'::text[]))
+    )
+    into is_used;
+  end if;
 
   if is_used then
     raise exception 'No se puede borrar una opción que está en uso.' using errcode = '23503';
@@ -258,6 +294,7 @@ alter table public.sales
   add column if not exists items jsonb not null default '[]'::jsonb;
 
 create index if not exists idx_products_category on public.products (category);
+create index if not exists idx_products_categories on public.products using gin (categorias);
 create index if not exists idx_products_name on public.products (name);
 create index if not exists idx_sales_status on public.sales (status);
 create index if not exists idx_sales_created_at on public.sales (created_at desc);

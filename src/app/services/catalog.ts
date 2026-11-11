@@ -177,7 +177,19 @@ function getBoxIncluded(row: Record<string, unknown>): boolean | undefined {
 
 export function mapSupabaseProduct(row: Record<string, unknown>): Product {
   const name = String(row.personaje ?? row.character ?? row.name ?? "Producto sin nombre");
-  const category = String(row.tipo ?? row.category ?? row.categoria ?? "General");
+  const primaryCategory = String(row.tipo ?? row.category ?? row.categoria ?? "General").trim();
+  const categories = Array.isArray(row.categorias)
+    ? [...new Set(row.categorias
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean))]
+    : [];
+  const normalizedCategories = categories.length > 0
+    ? categories
+    : primaryCategory
+      ? [primaryCategory]
+      : ["General"];
+  const category = normalizedCategories[0];
   const anime = row.anime ?? row.serie ?? row.series;
   const price = Number(row.precio ?? row.price ?? 0);
   const stock = Number(row.stock ?? 0);
@@ -217,13 +229,14 @@ export function mapSupabaseProduct(row: Record<string, unknown>): Product {
     stock: Number.isFinite(stock) ? stock : 0,
     featured,
     category,
+    categories: normalizedCategories,
     series,
     height: String(row.Altura ?? row.altura ?? row.height ?? "").trim() || undefined,
     boxIncluded: getBoxIncluded(row),
     image: images[0] ?? defaultImage,
     coverImage: coverImage ?? undefined,
     gallery: images,
-    tags: [anime, row.personaje, row.character, row.characters, row.tipo, row.categoria, row.marca]
+    tags: [anime, row.personaje, row.character, row.characters, ...normalizedCategories, row.marca]
       .filter(Boolean)
       .map(String),
   };
@@ -296,7 +309,7 @@ export async function getProductById(id: string): Promise<Product | undefined> {
 
 export async function getCategories(): Promise<string[]> {
   const products = await getProducts();
-  return [...new Set(products.map((product) => product.category))];
+  return [...new Set(products.flatMap((product) => product.categories ?? [product.category]))];
 }
 
 export async function updateStock(productId: string, quantity: number): Promise<Product | undefined> {
