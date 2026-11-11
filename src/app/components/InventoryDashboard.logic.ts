@@ -25,6 +25,8 @@ export interface InventoryDashboardModel {
   setSearchQuery: (query: string) => void;
   showOutOfStock: boolean;
   setShowOutOfStock: (show: boolean) => void;
+  totalProductCount: number;
+  inStockCount: number;
   outOfStockCount: number;
   refreshInventory: () => Promise<void>;
   handleAddStock: (productId: string, quantity: number) => Promise<void>;
@@ -172,10 +174,16 @@ export function useInventoryDashboard(): InventoryDashboardModel {
         (item.categories ?? [item.category]).some((category) => category.toLocaleLowerCase("es-MX").includes(query)) ||
         (item.series?.toLowerCase().includes(query) ?? false)
       );
-      return matchesSearch && (showOutOfStock || item.stock > 0);
+      const matchesStockView = showOutOfStock ? item.stock <= 0 : item.stock > 0;
+      return matchesSearch && matchesStockView;
     });
   }, [items, searchQuery, showOutOfStock]);
 
+  const totalProductCount = items.length;
+  const inStockCount = useMemo(
+    () => items.filter((item) => item.stock > 0).length,
+    [items]
+  );
   const outOfStockCount = useMemo(
     () => items.filter((item) => item.stock <= 0).length,
     [items]
@@ -214,6 +222,8 @@ export function useInventoryDashboard(): InventoryDashboardModel {
     setSearchQuery,
     showOutOfStock,
     setShowOutOfStock,
+    totalProductCount,
+    inStockCount,
     outOfStockCount,
     refreshInventory: fetchInventory,
     handleAddStock,

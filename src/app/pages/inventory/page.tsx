@@ -79,6 +79,10 @@ export default function InventoryPage() {
 
       <InventorySummary summary={model.inventorySummary} />
 
+      <p className={styles.inventoryCount} role="status">
+        Productos registrados en inventario: <strong>{model.totalProductCount}</strong>
+      </p>
+
       <div className={styles.controls}>
         <input
           type="text"
@@ -96,7 +100,7 @@ export default function InventoryPage() {
             aria-pressed={model.showOutOfStock}
           >
             {model.showOutOfStock
-              ? "Ocultar sin stock"
+              ? `Ver con stock (${model.inStockCount})`
               : `Ver sin stock (${model.outOfStockCount})`}
           </button>
           <Link href="/catalog?export=web" className={styles.buttonPrimary}>
@@ -133,9 +137,13 @@ export default function InventoryPage() {
       {/* Desktop Grid */}
       {model.filteredItems.length === 0 ? (
         <p className={styles.emptyState}>
-          {model.searchQuery
-            ? "No hay productos con existencia que coincidan con la búsqueda."
-            : "No hay productos con existencia para mostrar."}
+          {model.showOutOfStock
+            ? model.searchQuery
+              ? "No hay productos sin stock que coincidan con la búsqueda."
+              : "No hay productos sin stock para mostrar."
+            : model.searchQuery
+              ? "No hay productos con existencia que coincidan con la búsqueda."
+              : "No hay productos con existencia para mostrar."}
         </p>
       ) : (
         <>

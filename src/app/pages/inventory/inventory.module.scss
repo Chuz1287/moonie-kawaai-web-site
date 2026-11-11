@@ -22,6 +22,16 @@
   font-size: $text-sm;
 }
 
+.inventoryCount {
+  margin: -0.75rem 0 0;
+  color: var(--text-secondary);
+  font-size: $text-sm;
+
+  strong {
+    color: var(--text-primary);
+  }
+}
+
 /* ─── CONTROLS ───────────────────────────────────────────────── */
 .controls {
   display: flex;
