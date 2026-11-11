@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getProductCloudinaryFolder } from "@/lib/cloudinary";
+import { getCloudinaryCloudName, getProductCloudinaryFolder } from "@/lib/cloudinary";
 import { fetchProductsFromSupabase } from "@/services/catalog";
 import type { Product } from "@/types/store";
 
@@ -18,9 +18,20 @@ type CloudinarySearchResponse = {
 };
 
 async function fetchCloudinaryResources(): Promise<CloudinaryResource[]> {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
+  const privateCloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+  const publicCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
+  const cloudName = getCloudinaryCloudName();
   const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
   const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+
+  console.info("[Catalog API] Cloudinary configuration check.", {
+    privateCloudNameConfigured: Boolean(privateCloudName),
+    publicCloudNameConfigured: Boolean(publicCloudName),
+    cloudNamesMatch: Boolean(privateCloudName && publicCloudName && privateCloudName === publicCloudName),
+    cloudNameSource: privateCloudName ? "CLOUDINARY_CLOUD_NAME" : publicCloudName ? "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME" : "missing",
+    apiKeyConfigured: Boolean(apiKey),
+    apiSecretConfigured: Boolean(apiSecret),
+  });
 
   if (!cloudName || !apiKey || !apiSecret) {
     throw new Error("Cloudinary no está configurado para consultar las imágenes del catálogo.");

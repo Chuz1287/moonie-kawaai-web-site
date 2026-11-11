@@ -35,22 +35,31 @@ export class CloudinaryUploadError extends Error {
   }
 }
 
-const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const publicCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
 const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
+export function getCloudinaryCloudName(): string {
+  if (typeof window === "undefined") {
+    return process.env.CLOUDINARY_CLOUD_NAME?.trim() || publicCloudName || "";
+  }
+
+  return publicCloudName || "";
+}
+
 export function getCloudinaryBaseUrl(): string {
-  if (!cloudName) {
+  const configuredCloudName = getCloudinaryCloudName();
+  if (!configuredCloudName) {
     return "";
   }
 
-  return `https://res.cloudinary.com/${cloudName}/image/upload`;
+  return `https://res.cloudinary.com/${configuredCloudName}/image/upload`;
 }
 
 export function getOptimizedImageUrl(
   publicId: string,
   options: CloudinaryImageOptions = {}
 ): string {
-  if (!cloudName) {
+  if (!getCloudinaryCloudName()) {
     return publicId;
   }
 
@@ -180,7 +189,7 @@ export function getProductCoverUrl({
 }
 
 export async function uploadImage(file: File): Promise<CloudinaryUploadResult> {
-  if (!cloudName || !uploadPreset) {
+  if (!publicCloudName || !uploadPreset) {
     throw new Error(
       "Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET."
     );
@@ -192,7 +201,7 @@ export async function uploadImage(file: File): Promise<CloudinaryUploadResult> {
   formData.append("folder", "moonie-kawaii/products");
 
   const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+    `https://api.cloudinary.com/v1_1/${publicCloudName}/image/upload`,
     {
       method: "POST",
       body: formData,
@@ -213,7 +222,7 @@ export async function uploadImageToFolder(
   assetFolder: string,
   publicId: string
 ): Promise<CloudinaryUploadResult> {
-  if (!cloudName) {
+  if (!publicCloudName) {
     throw new Error("Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME.");
   }
 
@@ -244,7 +253,7 @@ export async function uploadImageToFolder(
   formData.append("overwrite", "false");
 
   const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+    `https://api.cloudinary.com/v1_1/${publicCloudName}/image/upload`,
     {
       method: "POST",
       body: formData,

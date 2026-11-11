@@ -10,6 +10,15 @@ const supabaseKey =
 
 export async function GET() {
   const products = await fetchProductsFromSupabase();
+  const privateCloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+  const publicCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
+  console.info("[Products API] Cloudinary configuration check.", {
+    privateCloudNameConfigured: Boolean(privateCloudName),
+    publicCloudNameConfigured: Boolean(publicCloudName),
+    cloudNamesMatch: Boolean(privateCloudName && publicCloudName && privateCloudName === publicCloudName),
+    productCount: products.length,
+    productsWithCoverUrl: products.filter((product) => Boolean(product.coverImage)).length,
+  });
 
   return NextResponse.json({
     products,
