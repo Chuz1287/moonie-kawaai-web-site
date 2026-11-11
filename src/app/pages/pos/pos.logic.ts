@@ -19,12 +19,14 @@ function normalizeCatalogSearchText(value: string): string {
 }
 
 export function filterCatalogProducts(products: Product[], search: string): Product[] {
+  const availableProducts = products.filter((product) => product.stock > 0);
+
   if (!search.trim()) {
-    return products.slice(0, 6);
+    return availableProducts.slice(0, 6);
   }
 
   const term = normalizeCatalogSearchText(search.trim());
-  return products.filter((product) => {
+  return availableProducts.filter((product) => {
     const searchableText = normalizeCatalogSearchText(
       [
         product.name,
