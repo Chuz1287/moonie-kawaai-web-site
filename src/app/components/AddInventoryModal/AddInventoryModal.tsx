@@ -12,6 +12,12 @@ type SearchableDropdownProps = {
   onChange: (value: string) => void;
 };
 
+type CategorySelectorProps = {
+  options: string[];
+  selected: string[];
+  onChange: (categories: string[]) => void;
+};
+
 function normalizeSearch(value: string) {
   return value
     .normalize("NFD")
@@ -23,13 +29,95 @@ const emptyForm = {
   code: "",
   name: "",
   shortDescription: "",
-  category: "",
+  categories: [] as string[],
+  categoryDraft: "",
   series: "",
   stock: "" as number | "",
   price: "" as number | "",
   cost: "" as number | "",
   image: "",
 };
+
+function CategorySelector({ options, selected, onChange }: CategorySelectorProps) {
+  const listboxId = useId();
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const filteredOptions = useMemo(() => {
+    const normalizedQuery = normalizeSearch(query.trim());
+    return options.filter((option) =>
+      normalizeSearch(option).includes(normalizedQuery) && !selected.includes(option)
+    );
+  }, [options, query, selected]);
+
+  return (
+    <div className={styles.searchableDropdown}>
+      <div className={styles.searchInputWrap}>
+        <Search size={16} aria-hidden="true" />
+        <input
+          type="text"
+          role="combobox"
+          aria-label="Agregar categoría"
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-expanded={isOpen}
+          placeholder={isOpen ? "Buscar categoría..." : "Agregar otra categoría"}
+          value={query}
+          onFocus={() => setIsOpen(true)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setIsOpen(true);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              if (filteredOptions[0]) {
+                onChange([...selected, filteredOptions[0]]);
+                setQuery("");
+                setIsOpen(false);
+              }
+            } else if (event.key === "Escape") {
+              setIsOpen(false);
+              setQuery("");
+            }
+          }}
+          onBlur={() => {
+            setIsOpen(false);
+            setQuery("");
+          }}
+        />
+        <ChevronDown size={16} aria-hidden="true" />
+      </div>
+      {isOpen && (
+        <div id={listboxId} className={styles.optionsList} role="listbox" aria-label="Categorías disponibles">
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
+              <button
+                type="button"
+                role="option"
+                aria-selected={false}
+                key={option}
+                className={styles.option}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  onChange([...selected, option]);
+                  setQuery("");
+                  setIsOpen(false);
+                }}
+              >
+                <span>{option}</span>
+                <Plus size={16} aria-hidden="true" />
+              </button>
+            ))
+          ) : (
+            <p className={styles.noOptions}>
+              {query.trim() ? "No se encontraron categorías." : "Ya seleccionaste todas las categorías."}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function SearchableDropdown({
   options,
@@ -148,7 +236,9 @@ export default function AddInventoryModal({
         shortDescription: editingItem.shortDescription === "Artículo disponible"
           ? ""
           : editingItem.shortDescription.split(" • ")[0] ?? "",
-        category: editingItem.category,
+        categories: editingItem.categories?.length
+          ? [...editingItem.categories]
+          : [editingItem.category],
         series: editingItem.series ?? "",
         stock: editingItem.stock,
         price: editingItem.price,
@@ -161,11 +251,25 @@ export default function AddInventoryModal({
   const [addingCategory, setAddingCategory] = useState(false);
   const [addingSeries, setAddingSeries] = useState(false);
 
+  const addCategory = () => {
+    const category = formData.categoryDraft.trim();
+    if (!category) return;
+    setFormData((current) => ({
+      ...current,
+      categories: current.categories.includes(category)
+        ? current.categories
+        : [...current.categories, category],
+      categoryDraft: "",
+    }));
+    setAddingCategory(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = formData.code.trim();
     const name = formData.name.trim();
-    const category = formData.category.trim();
+    const categories = [...new Set(formData.categories.map((category) => category.trim()).filter(Boolean))];
+    const category = categories[0] ?? "";
     const series = formData.series.trim();
     const stock = formData.stock === "" ? 0 : formData.stock;
     const price = formData.price === "" ? 0 : formData.price;
@@ -191,6 +295,7 @@ export default function AddInventoryModal({
         name,
         shortDescription: formData.shortDescription.trim(),
         category,
+        categories,
         series,
         tags: [],
         image: formData.image,
@@ -271,31 +376,84 @@ export default function AddInventoryModal({
                   autoFocus
                   type="text"
                   placeholder="Nueva categoría"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  required
+                  value={formData.categoryDraft}
+                  onChange={(e) => setFormData({ ...formData, categoryDraft: e.target.value })}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addCategory();
+                    }
+                  }}
                 />
               ) : (
-                <SearchableDropdown
+                <CategorySelector
                   options={categoryOptions}
-                  value={formData.category}
-                  placeholder="Buscar o seleccionar categoría"
-                  onChange={(category) => setFormData({ ...formData, category })}
+                  selected={formData.categories}
+                  onChange={(categories) => setFormData({ ...formData, categories })}
                 />
               )}
               <button
                 type="button"
                 className={styles.addOptionButton}
                 aria-label={addingCategory ? "Cancelar nueva categoría" : "Agregar nueva categoría"}
-                title={addingCategory ? "Cancelar" : "Agregar nueva categoría"}
+                title={addingCategory ? "Agregar categoría nueva" : "Agregar nueva categoría"}
                 onClick={() => {
-                  setFormData({ ...formData, category: "" });
-                  setAddingCategory(!addingCategory);
+                  if (addingCategory) {
+                    if (formData.categoryDraft.trim()) {
+                      addCategory();
+                    } else {
+                      setAddingCategory(false);
+                    }
+                    return;
+                  }
+                  setFormData({ ...formData, categoryDraft: "" });
+                  setAddingCategory(true);
                 }}
               >
-                {addingCategory ? <X size={18} /> : <Plus size={18} />}
+                {addingCategory
+                  ? formData.categoryDraft.trim()
+                    ? <Check size={18} />
+                    : <X size={18} />
+                  : <Plus size={18} />}
               </button>
             </div>
+            {formData.categories.length > 0 ? (
+              <ul className={styles.selectedCategories} aria-label="Categorías seleccionadas">
+                {formData.categories.map((category, index) => (
+                  <li key={category} className={index === 0 ? styles.primaryCategory : ""}>
+                    <span>
+                      {category}
+                      {index === 0 ? " · Principal (define la imagen)" : ""}
+                    </span>
+                    <div className={styles.categoryActions}>
+                      {index > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => setFormData((current) => ({
+                            ...current,
+                            categories: [category, ...current.categories.filter((entry) => entry !== category)],
+                          }))}
+                        >
+                          Hacer principal
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        aria-label={`Quitar categoría ${category}`}
+                        onClick={() => setFormData((current) => ({
+                          ...current,
+                          categories: current.categories.filter((entry) => entry !== category),
+                        }))}
+                      >
+                        <X size={15} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.categoryHint}>Selecciona al menos una categoría. La primera será la principal.</p>
+            )}
           </div>
           <input
             type="number"

@@ -11,6 +11,7 @@ export type Product = {
   stock: number;
   featured: boolean;
   category: string;
+  categories?: string[];
   series?: string;
   height?: string;
   boxIncluded?: boolean;

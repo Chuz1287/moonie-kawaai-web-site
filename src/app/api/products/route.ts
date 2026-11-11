@@ -36,7 +36,20 @@ export async function POST(request: Request) {
 
   const code = String(body.code ?? "").trim();
   const name = String(body.name ?? "").trim();
-  const category = String(body.category ?? "").trim();
+  const requestedCategories = body.categories;
+  if (requestedCategories !== undefined && (
+    !Array.isArray(requestedCategories) ||
+    requestedCategories.some((category) => typeof category !== "string")
+  )) {
+    return NextResponse.json({ message: "La lista de categorías no es válida." }, { status: 400 });
+  }
+  const categories = [...new Set(
+    (Array.isArray(requestedCategories) ? requestedCategories : [body.category])
+      .filter((category): category is string => typeof category === "string")
+      .map((category) => category.trim())
+      .filter(Boolean)
+  )];
+  const category = categories[0] ?? "";
   const series = String(body.series ?? "").trim();
   const shortDescription = String(body.shortDescription ?? "").trim();
   const price = Number(body.price ?? 0);
@@ -87,10 +100,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const productRow: Record<string, string | number> = {
+    const productRow: Record<string, string | number | string[]> = {
       Codigo: code,
       personaje: name,
       tipo: category,
+      categorias: categories,
       serie: series,
       stock,
       precio: price,

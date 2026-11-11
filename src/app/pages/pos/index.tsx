@@ -48,7 +48,6 @@ export default function PosDashboard() {
             <ProductGrid
               products={model.filteredProducts}
               onAdd={model.handleAddToCart}
-              onAddStock={model.handleAddStock}
             />
           </section>
 

@@ -2,17 +2,14 @@
 
 import Image from "next/image";
 import type { ProductGridProps } from "./ProductGrid.logic";
-import { formatCurrency, useCatalogStockDrafts } from "./ProductGrid.logic";
+import { formatCurrency } from "./ProductGrid.logic";
 import styles from "./ProductGrid.module.scss";
 
-export default function ProductGrid({ products, onAdd, onAddStock }: ProductGridProps) {
-  const { getDraftQuantity, updateDraftQuantity, resetDraftQuantity } = useCatalogStockDrafts();
-
+export default function ProductGrid({ products, onAdd }: ProductGridProps) {
   return (
     <div className={styles.scope}>
       {products.map((product) => {
         const cost = product.cost ?? product.price * 0.7;
-        const quantityDraft = getDraftQuantity(product.id);
 
         return (
           <div key={product.id} className={styles.productCard}>
@@ -34,7 +31,9 @@ export default function ProductGrid({ products, onAdd, onAddStock }: ProductGrid
               ) : null}
               <div className={styles.cardHeader}>
                 <div>
-                  <p className={styles.cardCategory}>{product.category}</p>
+                  <p className={styles.cardCategory}>
+                    {(product.categories ?? [product.category]).join(" · ")}
+                  </p>
                   <h3 className={styles.cardTitle}>{product.name}</h3>
                 </div>
                 <span className={styles.cardStock}>{product.stock}</span>
@@ -53,50 +52,6 @@ export default function ProductGrid({ products, onAdd, onAddStock }: ProductGrid
                 </div>
               </div>
             </button>
-
-            <div className={styles.cardActions}>
-              <div className={styles.actionButtons}>
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onAddStock(product, 1);
-                  }}
-                  className={styles.addStockButton}
-                >
-                  +1
-                </button>
-
-                <div className={styles.quantityInput}>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={quantityDraft}
-                    onClick={(event) => event.stopPropagation()}
-                    onChange={(event) => {
-                      updateDraftQuantity(product.id, parseInt(event.target.value) || 1);
-                    }}
-                    aria-label={`Cantidad para agregar stock de ${product.name}`}
-                  />
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      const parsed = Number(quantityDraft || "1");
-                      if (Number.isFinite(parsed) && parsed > 0) {
-                        onAddStock(product, parsed);
-                        resetDraftQuantity(product.id);
-                      }
-                    }}
-                  >
-                    OK
-                  </button>
-                </div>
-              </div>
-
-              <span className={styles.actionLabel}>Agregar stock</span>
-            </div>
           </div>
         );
       })}

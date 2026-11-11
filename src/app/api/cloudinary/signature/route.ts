@@ -4,18 +4,31 @@ import { normalizeCloudinaryPath } from "@/lib/cloudinary-upload-path";
 
 const cloudinaryApiKey = process.env.CLOUDINARY_API_KEY?.trim();
 const cloudinaryApiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+const privateCloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+const publicCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
+const cloudinaryCloudName = privateCloudName || publicCloudName;
 const allowedAssetRoot = "moonie-kawaii";
 
 export async function POST(request: Request) {
-  if (!cloudinaryApiKey || !cloudinaryApiSecret) {
+  if (!cloudinaryApiKey || !cloudinaryApiSecret || !cloudinaryCloudName) {
     return NextResponse.json(
       {
         message:
-          "Configura CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET en el servidor para habilitar la carga por lote.",
+          "Configura CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET en el servidor para habilitar la carga por lote.",
       },
       { status: 500 }
     );
   }
+
+  console.info("[Cloudinary signature] Server configuration check.", {
+    cloudNameConfigured: true,
+    cloudNameSource: privateCloudName ? "CLOUDINARY_CLOUD_NAME" : "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+    cloudNamesMatch: Boolean(
+      privateCloudName && publicCloudName && privateCloudName === publicCloudName
+    ),
+    apiKeyConfigured: true,
+    apiSecretConfigured: true,
+  });
 
   let body: { assetFolder?: unknown; publicId?: unknown };
   try {
@@ -81,6 +94,7 @@ export async function POST(request: Request) {
     .digest("hex");
 
   return NextResponse.json({
+    cloudName: cloudinaryCloudName,
     apiKey: cloudinaryApiKey,
     timestamp,
     signature,

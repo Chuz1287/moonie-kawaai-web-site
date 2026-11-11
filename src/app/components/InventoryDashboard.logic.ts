@@ -23,6 +23,11 @@ export interface InventoryDashboardModel {
   error: string | null;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  showOutOfStock: boolean;
+  setShowOutOfStock: (show: boolean) => void;
+  totalProductCount: number;
+  inStockCount: number;
+  outOfStockCount: number;
   refreshInventory: () => Promise<void>;
   handleAddStock: (productId: string, quantity: number) => Promise<void>;
   handleRemoveItem: (productId: string) => Promise<void>;
@@ -37,6 +42,7 @@ export function useInventoryDashboard(): InventoryDashboardModel {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showOutOfStock, setShowOutOfStock] = useState(false);
 
   const fetchInventory = async () => {
     try {
@@ -160,17 +166,28 @@ export function useInventoryDashboard(): InventoryDashboardModel {
   };
 
   const filteredItems = useMemo(() => {
-    if (!searchQuery) return items;
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.trim().toLocaleLowerCase("es-MX");
     return items.filter((item) => {
-      return (
+      const matchesSearch = !query || (
         item.name.toLowerCase().includes(query) ||
         item.slug.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query) ||
+        (item.categories ?? [item.category]).some((category) => category.toLocaleLowerCase("es-MX").includes(query)) ||
         (item.series?.toLowerCase().includes(query) ?? false)
       );
+      const matchesStockView = showOutOfStock ? item.stock <= 0 : item.stock > 0;
+      return matchesSearch && matchesStockView;
     });
-  }, [items, searchQuery]);
+  }, [items, searchQuery, showOutOfStock]);
+
+  const totalProductCount = items.length;
+  const inStockCount = useMemo(
+    () => items.filter((item) => item.stock > 0).length,
+    [items]
+  );
+  const outOfStockCount = useMemo(
+    () => items.filter((item) => item.stock <= 0).length,
+    [items]
+  );
 
   const inventorySummary = useMemo(() => {
     const totalInventoryCost = items.reduce((sum, item) => {
@@ -203,6 +220,11 @@ export function useInventoryDashboard(): InventoryDashboardModel {
     error,
     searchQuery,
     setSearchQuery,
+    showOutOfStock,
+    setShowOutOfStock,
+    totalProductCount,
+    inStockCount,
+    outOfStockCount,
     refreshInventory: fetchInventory,
     handleAddStock,
     handleRemoveItem,

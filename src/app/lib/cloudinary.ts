@@ -18,6 +18,7 @@ export type CloudinaryUploadResult = {
 };
 
 export type CloudinarySignedUploadParams = {
+  cloudName: string;
   apiKey: string;
   timestamp: number;
   signature: string;
@@ -222,10 +223,6 @@ export async function uploadImageToFolder(
   assetFolder: string,
   publicId: string
 ): Promise<CloudinaryUploadResult> {
-  if (!publicCloudName) {
-    throw new Error("Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME.");
-  }
-
   const signatureResponse = await fetch("/api/cloudinary/signature", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -253,7 +250,7 @@ export async function uploadImageToFolder(
   formData.append("overwrite", "false");
 
   const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${publicCloudName}/image/upload`,
+    `https://api.cloudinary.com/v1_1/${encodeURIComponent(signaturePayload.cloudName)}/image/upload`,
     {
       method: "POST",
       body: formData,

@@ -50,6 +50,13 @@ no lo subas a Git ni compartas la clave de servidor. Las funciones de carga de
 imágenes también pueden requerir las variables públicas de Cloudinary definidas
 en `src/lib/cloudinary.ts`.
 
+## Migraciones de Supabase
+
+Antes de desplegar cambios de esquema, ejecuta en el SQL Editor de Supabase las
+migraciones pendientes de `supabase/migrations/` en orden por fecha. La migración
+`20261111_add_multiple_product_categories.sql` agrega la lista de categorías por
+producto y conserva la columna `tipo` como categoría principal para las imágenes.
+
 ## Comandos
 
 ```bash

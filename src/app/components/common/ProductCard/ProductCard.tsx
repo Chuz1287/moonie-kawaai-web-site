@@ -12,7 +12,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         className={styles.image}
       />
       <div className={styles.content}>
-        <p className={styles.category}>{product.category}</p>
+        <p className={styles.category}>
+          {(product.categories ?? [product.category]).join(" · ")}
+        </p>
         <h3 className={styles.name}>{product.name}</h3>
         <p className={styles.description}>{product.shortDescription}</p>
         <div className={styles.footer}>
@@ -23,4 +25,3 @@ export default function ProductCard({ product }: ProductCardProps) {
     </div>
   );
 }
-
