@@ -58,10 +58,12 @@ CLOUDINARY_API_SECRET=<api-secret>
 ```
 
 La administración de medios está disponible en `/media` y permite navegar por
-las carpetas de productos, cargar imágenes, renombrarlas y eliminarlas. Mientras
-no se integre el inicio de sesión global, estas operaciones no tienen control de
-acceso por usuario; confirma los cambios con cuidado. El API Secret debe
-permanecer solo en el servidor.
+las carpetas de productos, cargar imágenes, reemplazar archivos existentes,
+renombrarlas y eliminarlas. El inventario, el POS y el catálogo usan la versión
+vigente de cada portada de Cloudinary para evitar mostrar una copia anterior al
+reemplazarla. Mientras no se integre el inicio de sesión global, estas
+operaciones no tienen control de acceso por usuario; confirma los cambios con
+cuidado. El API Secret debe permanecer solo en el servidor.
 
 ## Migraciones de Supabase
 

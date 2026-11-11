@@ -536,6 +536,7 @@ export default function MediaPage() {
             stripTopLevelFolder
             showDestinationInput={false}
             triggerLabel="Subir a carpeta seleccionada"
+            allowOverwrite
           />
         </div>
       </header>

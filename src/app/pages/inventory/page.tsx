@@ -189,6 +189,7 @@ export default function InventoryPage() {
             } else {
               await model.handleAddItem(item);
             }
+            await model.refreshInventory();
             await refreshProductOptions();
           }}
         />

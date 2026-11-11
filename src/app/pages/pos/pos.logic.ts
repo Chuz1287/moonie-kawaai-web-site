@@ -205,6 +205,37 @@ export function usePosDashboard() {
 
   useEffect(() => {
     let cancelled = false;
+    const refreshProductImages = async () => {
+      try {
+        const response = await fetch("/api/products", { cache: "no-store" });
+        const payload = (await response.json()) as {
+          products?: Product[];
+          message?: string;
+        };
+        if (!response.ok || !Array.isArray(payload.products)) {
+          throw new Error(payload.message ?? "No se pudo actualizar el catálogo.");
+        }
+        if (!cancelled) setProductCatalog(payload.products);
+      } catch (error) {
+        if (!cancelled) {
+          setStatus(
+            error instanceof Error
+              ? error.message
+              : "No se pudo actualizar el catálogo."
+          );
+        }
+      }
+    };
+
+    window.addEventListener("cloudinary-assets-updated", refreshProductImages);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("cloudinary-assets-updated", refreshProductImages);
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
 
     async function loadEventPerformance() {
       setEventPerformance(null);
@@ -361,7 +392,16 @@ export function usePosDashboard() {
       }
 
       if (Array.isArray(payload.products)) {
-        setProductCatalog(payload.products);
+        const currentCoverImages = new Map(
+          productCatalog.map((product) => [product.id, product.coverImage])
+        );
+        setProductCatalog(
+          payload.products.map((product) => ({
+            ...product,
+            coverImage:
+              currentCoverImages.get(product.id) ?? product.coverImage,
+          }))
+        );
       }
 
       setEventPerformanceRefresh((current) => current + 1);

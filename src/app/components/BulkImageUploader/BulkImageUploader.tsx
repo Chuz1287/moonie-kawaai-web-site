@@ -10,6 +10,7 @@ type BulkImageUploaderProps = {
   stripTopLevelFolder?: boolean;
   showDestinationInput?: boolean;
   triggerLabel?: string;
+  allowOverwrite?: boolean;
 };
 
 export default function BulkImageUploader({
@@ -17,8 +18,10 @@ export default function BulkImageUploader({
   stripTopLevelFolder = false,
   showDestinationInput = true,
   triggerLabel = "Subir imágenes por lote",
+  allowOverwrite = false,
 }: BulkImageUploaderProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [overwriteExisting, setOverwriteExisting] = useState(false);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const folderInputRef = useRef<HTMLInputElement | null>(null);
   const model = useBulkImageUploader(initialDestinationFolder);
@@ -122,6 +125,23 @@ export default function BulkImageUploader({
               Destino: <strong>{model.destinationFolder}</strong>
             </p>
           )}
+
+          {allowOverwrite ? (
+            <label className={styles.overwriteOption}>
+              <input
+                type="checkbox"
+                checked={overwriteExisting}
+                onChange={(event) => setOverwriteExisting(event.target.checked)}
+                disabled={model.isUploading}
+              />
+              <span>
+                Reemplazar archivos con el mismo nombre
+                <small>
+                  Úsalo para corregir imágenes existentes, por ejemplo Cover.
+                </small>
+              </span>
+            </label>
+          ) : null}
 
           <div
             className={`${styles.dropzone} ${
@@ -287,7 +307,17 @@ export default function BulkImageUploader({
               <button
                 type="button"
                 className={styles.uploadButton}
-                onClick={() => void model.uploadPending()}
+                onClick={() => {
+                  if (
+                    overwriteExisting &&
+                    !window.confirm(
+                      "Los archivos con el mismo nombre en Cloudinary serán reemplazados permanentemente. ¿Deseas continuar?"
+                    )
+                  ) {
+                    return;
+                  }
+                  void model.uploadPending(overwriteExisting);
+                }}
                 disabled={
                   model.isUploading ||
                   model.summary.pending === 0 ||

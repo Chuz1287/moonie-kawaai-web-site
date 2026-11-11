@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+import {
+  getCloudinaryCloudName,
+  getProductCloudinaryFolder,
+  getProductCoverUrl,
+} from "@/lib/cloudinary";
 import { fetchProductsFromSupabase, mapSupabaseProduct } from "@/services/catalog";
 import { createClient } from "@supabase/supabase-js";
 
@@ -7,6 +12,70 @@ const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_ANON_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+export const dynamic = "force-dynamic";
+
+type CloudinaryAsset = {
+  asset_folder?: string;
+  public_id: string;
+  version: number;
+};
+
+type CloudinarySearchResponse = {
+  resources?: CloudinaryAsset[];
+  next_cursor?: string;
+  error?: { message?: string };
+};
+
+async function fetchCurrentCoverVersions(): Promise<Map<string, number>> {
+  const cloudName = getCloudinaryCloudName();
+  const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+  const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error("No están configuradas las credenciales de lectura de Cloudinary.");
+  }
+
+  const versions = new Map<string, number>();
+  let nextCursor: string | undefined;
+
+  do {
+    const body: Record<string, string> = {
+      expression: "asset_folder=moonie-kawaii/products/* AND resource_type:image",
+      max_results: "500",
+    };
+    if (nextCursor) body.next_cursor = nextCursor;
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/resources/search`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString("base64")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        cache: "no-store",
+      }
+    );
+    const result = (await response.json()) as CloudinarySearchResponse;
+    if (!response.ok) {
+      throw new Error(
+        result.error?.message ?? "No se pudieron consultar las versiones de las portadas."
+      );
+    }
+
+    for (const asset of result.resources ?? []) {
+      const fileName = asset.public_id.split("/").at(-1)?.toLocaleLowerCase();
+      const productFolder = asset.public_id.split("/").slice(0, -1).join("/");
+      if (fileName === "cover" && Number.isSafeInteger(asset.version)) {
+        versions.set(productFolder, asset.version);
+      }
+    }
+    nextCursor = result.next_cursor;
+  } while (nextCursor);
+
+  return versions;
+}
 
 export async function GET() {
   const products = await fetchProductsFromSupabase();
@@ -20,9 +89,37 @@ export async function GET() {
     productsWithCoverUrl: products.filter((product) => Boolean(product.coverImage)).length,
   });
 
+  try {
+    const coverVersions = await fetchCurrentCoverVersions();
+    for (const product of products) {
+      const folder = getProductCloudinaryFolder({
+        code: product.code ?? "",
+        category: product.category,
+        series: product.series,
+      });
+      const version = folder ? coverVersions.get(folder) : undefined;
+      if (version) {
+        product.coverImage = getProductCoverUrl(
+          {
+            code: product.code ?? "",
+            category: product.category,
+            series: product.series,
+          },
+          version
+        ) ?? undefined;
+      }
+    }
+  } catch (error) {
+    console.error("Could not retrieve current Cloudinary cover versions:", error);
+  }
+
   return NextResponse.json({
     products,
     total: products.length,
+  }, {
+    headers: {
+      "Cache-Control": "no-store, max-age=0",
+    },
   });
 }
 

@@ -1,6 +1,7 @@
 export type CloudinaryImageOptions = {
   width?: number;
   height?: number;
+  version?: number;
   crop?: "fill" | "scale" | "fit" | "limit" | "thumb" | "pad";
   quality?: "auto" | number;
   format?: "auto" | "jpg" | "png" | "webp";
@@ -24,6 +25,7 @@ export type CloudinarySignedUploadParams = {
   signature: string;
   assetFolder: string;
   publicId: string;
+  overwrite: boolean;
 };
 
 export class CloudinaryUploadError extends Error {
@@ -97,8 +99,12 @@ export function getOptimizedImageUrl(
   const transformationPath = transformations.length
     ? `${transformations.join(",")}/`
     : "";
+  const versionPath =
+    Number.isSafeInteger(options.version) && options.version && options.version > 0
+      ? `v${options.version}/`
+      : "";
 
-  return `${getCloudinaryBaseUrl()}/${transformationPath}${publicId}`;
+  return `${getCloudinaryBaseUrl()}/${versionPath}${transformationPath}${publicId}`;
 }
 
 export type ProductCoverPath = {
@@ -165,7 +171,7 @@ export function getProductCoverUrl({
   code,
   category,
   series,
-}: ProductCoverPath): string | null {
+}: ProductCoverPath, version?: number): string | null {
   const cloudinaryBaseUrl = getCloudinaryBaseUrl();
   const productFolder = getProductCloudinaryFolder({ code, category, series });
 
@@ -184,8 +190,8 @@ export function getProductCoverUrl({
     gravity: "auto",
     quality: "auto",
     format: "webp",
+    version,
   });
-
   return `${optimizedUrl}.webp`;
 }
 
@@ -221,12 +227,13 @@ export async function uploadImage(file: File): Promise<CloudinaryUploadResult> {
 export async function uploadImageToFolder(
   file: File,
   assetFolder: string,
-  publicId: string
+  publicId: string,
+  overwrite = false
 ): Promise<CloudinaryUploadResult> {
   const signatureResponse = await fetch("/api/cloudinary/signature", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ assetFolder, publicId }),
+    body: JSON.stringify({ assetFolder, publicId, overwrite }),
   });
   const signaturePayload = (await signatureResponse.json()) as
     | CloudinarySignedUploadParams
@@ -247,7 +254,7 @@ export async function uploadImageToFolder(
   formData.append("signature", signaturePayload.signature);
   formData.append("asset_folder", signaturePayload.assetFolder);
   formData.append("public_id", signaturePayload.publicId);
-  formData.append("overwrite", "false");
+  formData.append("overwrite", String(signaturePayload.overwrite));
 
   const response = await fetch(
     `https://api.cloudinary.com/v1_1/${encodeURIComponent(signaturePayload.cloudName)}/image/upload`,

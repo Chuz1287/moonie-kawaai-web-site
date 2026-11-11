@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Product } from "@/types/store";
-import { fetchProductsFromSupabase } from "@/services/catalog";
 import type { InventoryFormValues } from "./AddInventoryModal/AddInventoryModal.logic";
 
 export interface InventoryItem extends Product {}
@@ -49,8 +48,15 @@ export function useInventoryDashboard(): InventoryDashboardModel {
       setLoading(true);
       setError(null);
 
-      const products = await fetchProductsFromSupabase();
-      setItems((products as InventoryItem[]) || []);
+      const response = await fetch("/api/products", { cache: "no-store" });
+      const result = (await response.json()) as {
+        products?: InventoryItem[];
+        message?: string;
+      };
+      if (!response.ok || !Array.isArray(result.products)) {
+        throw new Error(result.message ?? "No se pudo actualizar el inventario.");
+      }
+      setItems(result.products);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error fetching inventory";
       setError(message);
@@ -62,6 +68,9 @@ export function useInventoryDashboard(): InventoryDashboardModel {
 
   useEffect(() => {
     void fetchInventory();
+    window.addEventListener("cloudinary-assets-updated", fetchInventory);
+    return () =>
+      window.removeEventListener("cloudinary-assets-updated", fetchInventory);
   }, []);
 
   const handleAddStock = async (productId: string, quantity: number) => {

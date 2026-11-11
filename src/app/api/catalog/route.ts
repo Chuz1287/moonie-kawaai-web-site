@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getCloudinaryCloudName, getProductCloudinaryFolder } from "@/lib/cloudinary";
+import {
+  getCloudinaryCloudName,
+  getProductCloudinaryFolder,
+  getProductCoverUrl,
+} from "@/lib/cloudinary";
 import { fetchProductsFromSupabase } from "@/services/catalog";
 import type { Product } from "@/types/store";
 
@@ -9,6 +13,7 @@ type CloudinaryResource = {
   asset_folder?: string;
   public_id: string;
   secure_url: string;
+  version?: number;
 };
 
 type CloudinarySearchResponse = {
@@ -120,10 +125,47 @@ export async function GET() {
   try {
     const products = await fetchProductsFromSupabase({ fallbackOnError: false });
     const resources = await fetchCloudinaryResources();
+    const coverResources = new Map<string, number>();
+    for (const resource of resources) {
+      const version = resource.version;
+      if (
+        resource.public_id.split("/").at(-1)?.toLocaleLowerCase() === "cover" &&
+        typeof version === "number" &&
+        Number.isSafeInteger(version)
+      ) {
+        coverResources.set(
+          resource.public_id.split("/").slice(0, -1).join("/"),
+          version
+        );
+      }
+    }
+
+    for (const product of products) {
+      const folder = getProductCloudinaryFolder({
+        code: product.code ?? "",
+        category: product.category,
+        series: product.series,
+      });
+      const version = folder ? coverResources.get(folder) : undefined;
+      if (version) {
+        product.coverImage = getProductCoverUrl(
+          {
+            code: product.code ?? "",
+            category: product.category,
+            series: product.series,
+          },
+          version
+        ) ?? undefined;
+      }
+    }
 
     return NextResponse.json({
       products,
       imagesByProduct: mapImagesByProduct(products, resources),
+    }, {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
     });
   } catch (error) {
     console.error("Catalog generation data error:", error);
