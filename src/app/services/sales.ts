@@ -325,6 +325,17 @@ export async function deleteSaleFromSupabase(id: string): Promise<SaleMutationRe
     const { error } = await client.rpc("delete_sale_with_inventory", { sale_id: id });
     if (error) {
       console.error("Delete sale error:", error);
+      if (
+        error.code === "PGRST202" ||
+        /could not find the function|function .* does not exist|schema cache/i.test(error.message)
+      ) {
+        return {
+          ok: false,
+          status: 503,
+          message:
+            "La eliminación segura de ventas no está instalada en Supabase. Aplica la migración 20261111164152_restore_sale_delete_rpc.sql y vuelve a intentar.",
+        };
+      }
       return { ok: false, status: /no existe|not found/i.test(error.message) ? 404 : 409, message: error.message };
     }
     return { ok: true };

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { fetchSalesFromSupabase } from "@/services/sales";
 import { fetchProductsFromSupabase } from "@/services/catalog";
+import type { Product } from "@/types/store";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceRoleKey =
@@ -209,13 +210,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const refreshedProducts = await fetchProductsFromSupabase();
+    let refreshedProducts: Product[] | undefined;
+    let refreshWarning = "";
+    try {
+      refreshedProducts = await fetchProductsFromSupabase();
+    } catch (refreshError) {
+      // The sale is already persisted. Do not report it as failed just because
+      // the follow-up catalog refresh failed.
+      console.error("Sale succeeded but inventory refresh failed:", refreshError);
+      refreshWarning = "No se pudo actualizar el catálogo; actualiza la página.";
+    }
 
     return NextResponse.json({
       ok: true,
       sale: createdSale,
       products: refreshedProducts,
-      message: "Venta registrada y stock actualizado en vivo.",
+      message: refreshWarning
+        ? `Venta registrada. ${refreshWarning}`
+        : "Venta registrada y stock actualizado en vivo.",
     });
   } catch (error) {
     return NextResponse.json(

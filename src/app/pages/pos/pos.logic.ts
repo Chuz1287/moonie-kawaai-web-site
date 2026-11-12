@@ -144,15 +144,25 @@ export function usePosDashboard() {
     async function loadProducts() {
       try {
         const response = await fetch("/api/products");
-        const payload = (await response.json()) as { products?: Product[] };
+        const payload = (await response.json()) as {
+          products?: Product[];
+          message?: string;
+        };
+        if (!response.ok || !Array.isArray(payload.products)) {
+          throw new Error(payload.message ?? "No se pudo cargar el inventario.");
+        }
 
         if (!cancelled) {
-          setProductCatalog(payload.products ?? []);
+          setProductCatalog(payload.products);
           setStatus("CatÃ¡logo cargado desde Supabase");
         }
-      } catch {
+      } catch (error) {
         if (!cancelled) {
-          setStatus("No se pudo cargar el catÃ¡logo desde Supabase");
+          setStatus(
+            error instanceof Error
+              ? error.message
+              : "No se pudo cargar el catÃ¡logo desde Supabase"
+          );
         }
       }
     }

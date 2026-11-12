@@ -123,7 +123,7 @@ function mapImagesByProduct(
 
 export async function GET() {
   try {
-    const products = await fetchProductsFromSupabase({ fallbackOnError: false });
+    const products = await fetchProductsFromSupabase();
     const resources = await fetchCloudinaryResources();
     const coverResources = new Map<string, number>();
     for (const resource of resources) {
@@ -159,9 +159,22 @@ export async function GET() {
       }
     }
 
+    const allImagesByProduct = mapImagesByProduct(products, resources);
+    const catalogProducts = products.filter(
+      (product) =>
+        product.stock > 0 &&
+        (allImagesByProduct[product.id]?.length ?? 0) > 0
+    );
+    const catalogProductIds = new Set(catalogProducts.map((product) => product.id));
+    const imagesByProduct = Object.fromEntries(
+      Object.entries(allImagesByProduct).filter(([productId]) =>
+        catalogProductIds.has(productId)
+      )
+    );
+
     return NextResponse.json({
-      products,
-      imagesByProduct: mapImagesByProduct(products, resources),
+      products: catalogProducts,
+      imagesByProduct,
     }, {
       headers: {
         "Cache-Control": "no-store, max-age=0",

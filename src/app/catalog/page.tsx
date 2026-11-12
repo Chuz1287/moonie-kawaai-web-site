@@ -89,15 +89,14 @@ export default function CatalogPage() {
     [imagesByProduct, products]
   );
 
-  const productsWithImages = useMemo(
+  const catalogProducts = useMemo(
     () =>
       productImages
-        .filter(({ images }) => images.length > 0)
         .map(({ product, images }) => ({
           product,
           images: images.filter((image) => !failedImages.has(image)),
         }))
-        .filter(({ images }) => images.length > 0)
+        .filter(({ product, images }) => product.stock > 0 && images.length > 0)
         .sort((first, second) => {
           const firstSeries = first.product.series?.trim() ?? "";
           const secondSeries = second.product.series?.trim() ?? "";
@@ -217,7 +216,7 @@ export default function CatalogPage() {
     if (
       loading ||
       error ||
-      productsWithImages.length === 0 ||
+      catalogProducts.length === 0 ||
       autoExportStarted.current ||
       new URLSearchParams(window.location.search).get("export") !== "web"
     ) {
@@ -234,7 +233,7 @@ export default function CatalogPage() {
       cancelled = true;
       window.clearTimeout(exportTimer);
     };
-  }, [error, exportCatalog, loading, productsWithImages]);
+  }, [catalogProducts, error, exportCatalog, loading]);
 
   const markImageFailed = (src: string) => {
     setFailedImages((current) => new Set(current).add(src));
@@ -253,10 +252,10 @@ export default function CatalogPage() {
     );
   }
 
-  if (productsWithImages.length === 0) {
+  if (catalogProducts.length === 0) {
     return (
       <main className={styles.state}>
-        <p>No hay productos con imágenes disponibles para incluir en el catálogo.</p>
+        <p>No hay productos con stock e imágenes disponibles para incluir en el catálogo.</p>
         <Link href="/pages/inventory">Volver al inventario</Link>
       </main>
     );
@@ -303,7 +302,7 @@ export default function CatalogPage() {
         data-export-mode={exportMode}
         data-exporting={exporting ? "true" : "false"}
       >
-        {productsWithImages.map(({ product, images }) => {
+        {catalogProducts.map(({ product, images }) => {
           const usableImages = images.filter((image) => !failedImages.has(image));
           const selectedImage = selectedImages[product.id];
           const mainImage = usableImages.includes(selectedImage ?? "")

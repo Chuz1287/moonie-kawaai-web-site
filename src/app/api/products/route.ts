@@ -6,6 +6,7 @@ import {
 } from "@/lib/cloudinary";
 import { fetchProductsFromSupabase, mapSupabaseProduct } from "@/services/catalog";
 import { createClient } from "@supabase/supabase-js";
+import type { Product } from "@/types/store";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey =
@@ -78,7 +79,14 @@ async function fetchCurrentCoverVersions(): Promise<Map<string, number>> {
 }
 
 export async function GET() {
-  const products = await fetchProductsFromSupabase();
+  let products: Product[];
+  try {
+    products = await fetchProductsFromSupabase();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "No se pudo consultar el inventario.";
+    console.error("Product inventory query failed:", error);
+    return NextResponse.json({ message }, { status: 500 });
+  }
   const privateCloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
   const publicCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
   console.info("[Products API] Cloudinary configuration check.", {
