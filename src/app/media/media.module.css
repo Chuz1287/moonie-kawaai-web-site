@@ -1,0 +1,577 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 1600px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
+  color: var(--text-primary);
+}
+
+.header,
+.headerActions,
+.assetToolbar,
+.assetActions,
+.dialogActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.header {
+  align-items: flex-start;
+}
+.header h1 {
+  margin: 0.15rem 0 0;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+.header p:not(.eyebrow) {
+  max-width: 680px;
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--accent-primary);
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.headerActions {
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+
+.secondaryButton,
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.7rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.secondaryButton:disabled,
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.secondaryButton {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.primaryButton {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+  color: var(--background);
+}
+
+.warning,
+.error,
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid;
+  border-radius: 0.75em;
+  font-size: 0.875em;
+}
+.warning svg,
+.error svg,
+.notice svg {
+  flex: 0 0 auto;
+}
+.warning p,
+.error p,
+.notice p {
+  margin: 0.25rem 0 0;
+  line-height: 1.5;
+}
+
+.warning {
+  border-color: color-mix(in srgb, var(--accent-error) 35%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-error) 7%, var(--surface));
+  color: var(--text-primary);
+}
+.warning > svg {
+  color: var(--accent-error);
+}
+
+.error {
+  border-color: var(--accent-error);
+  color: var(--accent-error);
+}
+
+.notice {
+  border-color: color-mix(in srgb, var(--accent-primary) 40%, var(--border-color));
+  color: var(--text-primary);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 550px;
+}
+
+.folderPanel,
+.assetPanel {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1em;
+  background: var(--surface);
+}
+
+.folderPanel {
+  align-self: start;
+  max-height: 75vh;
+  overflow: auto;
+}
+
+.folderPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.folderPanelHeader h2 {
+  margin: 0;
+  font-size: 1.125em;
+}
+.folderPanelHeader button {
+  padding: 0.35rem 0.45rem;
+  border: 0;
+  border-radius: 0.375em;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.75em;
+  cursor: pointer;
+}
+.folderPanelHeader button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  color: var(--text-primary);
+}
+.folderPanelHeader button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.folderTree,
+.folderChildren {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.folderChildren {
+  margin-left: 0.8rem;
+  padding-left: 0.45rem;
+  border-left: 1px solid var(--border-color);
+}
+
+.folderSearch {
+  width: 100%;
+  margin-bottom: 0.65rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  background: var(--background);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.875em;
+}
+
+.folderButton {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 0.5rem;
+  padding: 0.55rem 0.45rem;
+  border: 0;
+  border-radius: 0.375em;
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+.folderButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.folderButton svg {
+  flex: 0 0 auto;
+  color: var(--accent-primary);
+}
+.folderButton span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.folderButton small {
+  color: var(--text-tertiary);
+}
+.folderButton:hover, .folderButton.selectedFolder {
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+  color: var(--text-primary);
+}
+
+.folderRow {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.selectionCheckbox {
+  flex: 0 0 auto;
+  margin: 0 0.2rem;
+  accent-color: var(--accent-primary);
+}
+
+.folderToggle {
+  display: grid;
+  flex: 0 0 1.6rem;
+  width: 1.6rem;
+  height: 2.15rem;
+  place-items: center;
+  border: 0;
+  border-radius: 0.375em;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.folderToggle:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  color: var(--accent-primary);
+}
+.folderToggle:disabled {
+  cursor: default;
+  opacity: 0;
+}
+
+.folderDeleteButton {
+  display: grid;
+  flex: 0 0 1.8rem;
+  width: 1.8rem;
+  height: 2rem;
+  place-items: center;
+  border: 0;
+  border-radius: 0.375em;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.folderDeleteButton:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-error) 10%, transparent);
+  color: var(--accent-error);
+}
+.folderDeleteButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.muted {
+  color: var(--text-tertiary);
+  font-size: 0.875em;
+}
+
+.assetPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  color: var(--text-tertiary);
+  font-size: 0.75em;
+}
+.breadcrumbs span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.breadcrumbs button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.breadcrumbs button:disabled {
+  color: var(--text-primary);
+  font-weight: 700;
+  cursor: default;
+}
+
+.assetToolbar h2 {
+  margin: 0;
+  font-size: 1.25em;
+  overflow-wrap: anywhere;
+}
+.assetToolbar p {
+  margin: 0.25rem 0 0;
+  color: var(--text-tertiary);
+  font-size: 0.75em;
+}
+
+.assetToolbarActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.assetToolbarActions input {
+  width: min(100%, 250px);
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  background: var(--background);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.deleteSelectedButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.45rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--accent-error) 55%, var(--border-color));
+  border-radius: 0.75em;
+  background: color-mix(in srgb, var(--accent-error) 8%, var(--surface));
+  color: var(--accent-error);
+  font: inherit;
+  font-size: 0.75em;
+  font-weight: 600;
+  cursor: pointer;
+}
+.deleteSelectedButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.selectAllAssets,
+.assetSelection {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-secondary);
+  font-size: 0.75em;
+}
+.selectAllAssets input,
+.assetSelection input {
+  accent-color: var(--accent-primary);
+}
+
+.selectAllAssets {
+  align-self: flex-start;
+}
+
+.assetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 0.85rem;
+}
+
+.assetCard {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  background: var(--background);
+}
+
+.preview {
+  display: grid;
+  aspect-ratio: 1;
+  place-items: center;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--text-primary) 5%, var(--surface));
+}
+.preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.assetInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.65rem 0.7rem 0.35rem;
+}
+.assetInfo strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875em;
+}
+.assetInfo .assetSelection {
+  padding: 0.45rem 0.7rem 0;
+}
+.assetInfo small {
+  color: var(--text-tertiary);
+  font-size: 0.75em;
+}
+
+.assetActions {
+  justify-content: flex-start;
+  padding: 0.5rem 0.7rem 0.7rem;
+}
+.assetActions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.4rem;
+  border: 0;
+  border-radius: 0.375em;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.75em;
+  cursor: pointer;
+}
+.assetActions button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  color: var(--text-primary);
+}
+.assetActions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.assetActions .deleteButton:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-error) 10%, transparent);
+  color: var(--accent-error);
+}
+
+.working {
+  display: block;
+  padding: 0 0.7rem 0.65rem;
+  color: var(--text-tertiary);
+}
+
+.emptyState {
+  display: flex;
+  flex: 1;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+.emptyState strong {
+  color: var(--text-primary);
+}
+.emptyState span {
+  max-width: 360px;
+  font-size: 0.875em;
+}
+
+.modalOverlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.renameDialog {
+  display: flex;
+  width: min(100%, 450px);
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1em;
+  background: var(--surface);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+}
+.renameDialog h2 {
+  margin: 0;
+}
+.renameDialog p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875em;
+  line-height: 1.5;
+}
+.renameDialog label {
+  font-size: 0.875em;
+  font-weight: 600;
+}
+.renameDialog input {
+  padding: 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  background: var(--background);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.dialogActions {
+  justify-content: flex-end;
+  margin-top: 0.3rem;
+}
+
+@media (max-width: 800px) {
+  .header {
+    flex-direction: column;
+  }
+  .headerActions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  .folderPanel {
+    max-height: 260px;
+  }
+}
+@media (max-width: 540px) {
+  .page {
+    padding: 0.85rem;
+  }
+  .assetToolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .assetToolbar .assetToolbarActions,
+  .assetToolbar .assetToolbarActions input {
+    width: 100%;
+  }
+  .assetGrid {
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  }
+}/*# sourceMappingURL=media.module.css.map */

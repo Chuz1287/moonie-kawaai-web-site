@@ -15,7 +15,6 @@ import styles from "./inventory.module.scss";
 
 export default function InventoryPage() {
   const model = useInventoryDashboard();
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [managedOptions, setManagedOptions] = useState({ categories: [] as string[], series: [] as string[] });
@@ -50,18 +49,6 @@ export default function InventoryPage() {
   const openEditModal = (productId: string) => {
     setEditingItemId(productId);
     setShowAddModal(true);
-  };
-
-  const toggleExpanded = (id: string) => {
-    setExpandedItems((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
   };
 
   if (model.loading) {
@@ -162,8 +149,6 @@ export default function InventoryPage() {
               <InventoryAccordionItem
                 key={item.id}
                 item={item}
-                isExpanded={expandedItems.has(item.id)}
-                onToggle={() => toggleExpanded(item.id)}
                 onAddStock={model.handleAddStock}
                 onDelete={model.handleRemoveItem}
                 onEdit={() => openEditModal(item.id)}
