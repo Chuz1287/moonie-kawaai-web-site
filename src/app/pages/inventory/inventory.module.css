@@ -22,6 +22,15 @@
   font-size: 0.875em;
 }
 
+.inventoryCount {
+  margin: -0.75rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.875em;
+}
+.inventoryCount strong {
+  color: var(--text-primary);
+}
+
 /* ─── CONTROLS ───────────────────────────────────────────────── */
 .controls {
   display: flex;
@@ -63,11 +72,6 @@
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
-}
-@media (min-width: 768px) {
-  .actionButtons {
-    flex-wrap: nowrap;
-  }
 }
 
 /* ─── BUTTONS ────────────────────────────────────────────────── */
@@ -113,6 +117,7 @@
   align-items: center;
   gap: 0.5rem;
   white-space: nowrap;
+  text-decoration: none;
 }
 .buttonPrimary:hover {
   filter: brightness(1.15);
@@ -148,4 +153,12 @@
   .accordionContainer {
     display: none;
   }
+}
+
+.emptyState {
+  padding: 2rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 0.75em;
+  color: var(--text-secondary);
+  text-align: center;
 }/*# sourceMappingURL=inventory.module.css.map */

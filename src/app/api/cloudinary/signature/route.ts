@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     apiSecretConfigured: true,
   });
 
-  let body: { assetFolder?: unknown; publicId?: unknown };
+  let body: { assetFolder?: unknown; publicId?: unknown; overwrite?: unknown };
   try {
     body = (await request.json()) as { assetFolder?: unknown; publicId?: unknown };
   } catch {
@@ -79,9 +79,10 @@ export async function POST(request: Request) {
   }
 
   const timestamp = Math.floor(Date.now() / 1000);
+  const overwrite = body.overwrite === true;
   const parameters = {
     asset_folder: assetFolder,
-    overwrite: "false",
+    overwrite: String(overwrite),
     public_id: publicId,
     timestamp: String(timestamp),
   };
@@ -100,5 +101,6 @@ export async function POST(request: Request) {
     signature,
     assetFolder,
     publicId,
+    overwrite,
   });
 }

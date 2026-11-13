@@ -145,8 +145,8 @@ export async function getDroppedFiles(
   }));
 }
 
-export function useBulkImageUploader() {
-  const [destinationFolder, setDestinationFolder] = useState(defaultDestination);
+export function useBulkImageUploader(initialDestination = defaultDestination) {
+  const [destinationFolder, setDestinationFolder] = useState(initialDestination);
   const [items, setItems] = useState<BatchImageItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -191,7 +191,7 @@ export function useBulkImageUploader() {
     setSelectionMessage(message);
   }, []);
 
-  const uploadPending = useCallback(async () => {
+  const uploadPending = useCallback(async (overwriteExisting = false) => {
     const folder = destinationFolder.trim();
     if (!folder) {
       setSelectionMessage("Escribe la carpeta de destino en Cloudinary.");
@@ -217,6 +217,7 @@ export function useBulkImageUploader() {
     );
 
     let nextIndex = 0;
+    let successfulUploads = 0;
     const worker = async () => {
       while (nextIndex < pendingItems.length) {
         const item = pendingItems[nextIndex];
@@ -224,7 +225,13 @@ export function useBulkImageUploader() {
 
         try {
           const path = createCloudinaryImagePath(folder, item.relativePath);
-          await uploadImageToFolder(item.file, path.assetFolder, path.publicId);
+          await uploadImageToFolder(
+            item.file,
+            path.assetFolder,
+            path.publicId,
+            overwriteExisting
+          );
+          successfulUploads += 1;
           setItems((currentItems) =>
             currentItems.map((currentItem) =>
               currentItem.id === item.id
@@ -256,6 +263,9 @@ export function useBulkImageUploader() {
           worker
         )
       );
+      if (successfulUploads > 0) {
+        window.dispatchEvent(new Event("cloudinary-assets-updated"));
+      }
     } finally {
       uploadActiveRef.current = false;
       setIsUploading(false);

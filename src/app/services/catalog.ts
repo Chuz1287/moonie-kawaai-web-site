@@ -1,112 +1,8 @@
 import type { Product } from "@/types/store";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { getProductCoverUrl } from "@/lib/cloudinary";
 
-const fallbackProducts: Product[] = [
-  {
-    id: "prod-001",
-    slug: "matcha-latte",
-    name: "Matcha Latte",
-    description:
-      "Bebida artesanal de matcha con leche cremosa, sabor suave y un perfil equilibrado para cualquier momento del día.",
-    shortDescription: "Matcha premium con leche cremosa.",
-    price: 18,
-    cost: 12.6,
-    compareAtPrice: 22,
-    stock: 24,
-    featured: true,
-    category: "Beverages",
-    image:
-      "https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=900&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
-    ],
-    tags: ["matcha", "milk", "featured"],
-  },
-  {
-    id: "prod-002",
-    slug: "berry-cheesecake",
-    name: "Berry Cheesecake",
-    description:
-      "Cheesecake con base crujiente y mezcla de bayas, ideal para un postre intensamente sabroso y visualmente irresistible.",
-    shortDescription: "Cheesecake con bayas frescas.",
-    price: 22,
-    cost: 15.4,
-    compareAtPrice: 28,
-    stock: 12,
-    featured: true,
-    category: "Desserts",
-    image:
-      "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=900&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1559622210-78dbeacecbf0?auto=format&fit=crop&w=900&q=80",
-    ],
-    tags: ["dessert", "berry"],
-  },
-  {
-    id: "prod-003",
-    slug: "cinnamon-bun",
-    name: "Cinnamon Bun",
-    description:
-      "Panecillo esponjoso con canela y crema de vainilla, perfecto para acompañar el café o para regalar un momento dulce.",
-    shortDescription: "Panecillo esponjoso con canela.",
-    price: 16,
-    cost: 11.2,
-    stock: 18,
-    featured: false,
-    category: "Bakery",
-    image:
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?auto=format&fit=crop&w=900&q=80",
-    ],
-    tags: ["bakery", "cinnamon"],
-  },
-  {
-    id: "prod-004",
-    slug: "iced-mocha",
-    name: "Iced Mocha",
-    description:
-      "Café helado con cacao y leche, un sabor intenso y refrescante para quienes buscan energía y placer a la vez.",
-    shortDescription: "Café helado con cacao.",
-    price: 20,
-    cost: 14,
-    stock: 20,
-    featured: true,
-    category: "Beverages",
-    image:
-      "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1497636577773-f1231844a667?auto=format&fit=crop&w=900&q=80",
-    ],
-    tags: ["coffee", "iced"],
-  },
-  {
-    id: "prod-005",
-    slug: "strawberry-parfait",
-    name: "Strawberry Parfait",
-    description:
-      "Preparación liviana con fresas, crema y textura crujiente para una experiencia dulce y refrescante.",
-    shortDescription: "Parfait de fresa y crema.",
-    price: 26,
-    cost: 18.2,
-    compareAtPrice: 32,
-    stock: 9,
-    featured: true,
-    category: "Desserts",
-    image:
-      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=80",
-    ],
-    tags: ["strawberry", "parfait"],
-  },
-];
+const productPageSize = 100;
 
 const defaultImage =
   "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=900&q=80";
@@ -242,50 +138,55 @@ export function mapSupabaseProduct(row: Record<string, unknown>): Product {
   };
 }
 
-export async function fetchProductsFromSupabase(
-  options: { fallbackOnError?: boolean } = {}
-): Promise<Product[]> {
-  const fallbackOnError = options.fallbackOnError !== false;
+/**
+ * Read every inventory row, even when Supabase/PostgREST is configured with a
+ * maximum response size smaller than the requested range.
+ */
+export async function fetchAllProductRows(
+  client: SupabaseClient
+): Promise<Record<string, unknown>[]> {
+  const rows: Record<string, unknown>[] = [];
+  let offset = 0;
+
+  while (true) {
+    const { data, error } = await client
+      .from("products")
+      .select("*")
+      .order("id", { ascending: true })
+      .range(offset, offset + productPageSize - 1);
+
+    if (error) {
+      throw new Error(`No se pudo consultar el inventario: ${error.message}`);
+    }
+
+    const page = (data ?? []) as Record<string, unknown>[];
+    if (page.length === 0) break;
+
+    rows.push(...page);
+    // Advance by the number actually returned, not the requested page size:
+    // PostgREST may cap a 100-row request at 99 (or another configured value).
+    offset += page.length;
+  }
+
+  return rows;
+}
+
+export async function fetchProductsFromSupabase(): Promise<Product[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !anonKey) {
-    if (!fallbackOnError) {
-      throw new Error("Supabase no está configurado; no se puede generar el catálogo del inventario.");
-    }
-    return fallbackProducts;
+    throw new Error("Supabase no está configurado; no se puede consultar el inventario.");
   }
 
-  try {
-    const client = createClient(url, anonKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    });
-
-    const { data, error } = await client.from("products").select("*");
-
-    if (error) {
-      if (!fallbackOnError) {
-        throw new Error(`No se pudo consultar el inventario: ${error.message}`);
-      }
-      return fallbackProducts;
-    }
-    if (!data) {
-      if (!fallbackOnError) {
-        throw new Error("Supabase no devolvió los productos del inventario.");
-      }
-      return fallbackProducts;
-    }
-
-    return data.map((row) => mapSupabaseProduct(row as Record<string, unknown>));
-  } catch (error) {
-    if (!fallbackOnError) {
-      throw error;
-    }
-    return fallbackProducts;
-  }
+  const client = createClient(url, anonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+  const rows = await fetchAllProductRows(client);
+  return rows.map(mapSupabaseProduct);
 }
 
 export async function getProducts(): Promise<Product[]> {

@@ -139,8 +139,8 @@
 /* ─── GRID CONTAINER (Desktop) ─────────────────────────────── */
 .gridContainer {
   display: none;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
 
   @media (min-width: $tablet) {
     display: grid;

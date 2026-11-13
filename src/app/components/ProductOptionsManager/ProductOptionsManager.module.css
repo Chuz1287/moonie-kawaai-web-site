@@ -1,0 +1,166 @@
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  background: var(--surface);
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.modal {
+  width: min(100%, 34rem);
+  max-height: 85vh;
+  overflow: auto;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1em;
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.header h2 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.iconButton,
+.optionActions button,
+.editForm button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.tabs button {
+  padding: 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.tabs .activeTab {
+  border-color: var(--accent-primary);
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.addForm,
+.editForm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.addForm input,
+.editForm input {
+  min-width: 0;
+  flex: 1;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+  background: var(--background);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 0.9rem;
+  border: 0;
+  border-radius: 0.75em;
+  background: var(--accent-primary);
+  color: var(--background);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 0.75rem 0 0;
+  color: var(--accent-error, #b42318);
+  font-size: 0.875em;
+}
+
+.emptyState {
+  margin: 1rem 0 0;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.optionItem {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.5rem 0.4rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75em;
+}
+
+.optionActions {
+  display: flex;
+  gap: 0.4rem;
+}
+.optionActions button:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+.optionActions .deleteButton:hover {
+  border-color: var(--accent-error);
+  color: var(--accent-error);
+}
+
+.editForm {
+  width: 100%;
+}/*# sourceMappingURL=ProductOptionsManager.module.css.map */

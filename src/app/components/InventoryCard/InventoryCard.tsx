@@ -56,6 +56,7 @@ export default function InventoryCard({ item, onAddStock, onDelete, onEdit }: In
           <div className={styles.field}>
             <span className={styles.label}>Precio</span>
             <p className={styles.value}>MXN ${item.price.toFixed(2)}</p>
+            <p className={styles.costValue}>C: MXN ${(item.cost ?? item.price * 0.7).toFixed(2)}</p>
           </div>
         </div>
       </div>

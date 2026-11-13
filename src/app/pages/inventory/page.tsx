@@ -9,14 +9,12 @@ import InventoryCard from "@/components/InventoryCard/InventoryCard";
 import InventoryAccordionItem from "@/components/InventoryAccordionItem/InventoryAccordionItem";
 import AddInventoryModal from "@/components/AddInventoryModal/AddInventoryModal";
 import { useInventoryDashboard } from "@/components/InventoryDashboard.logic";
-import BulkImageUploader from "@/components/BulkImageUploader/BulkImageUploader";
 import BulkProductImporter from "@/components/BulkProductImporter/BulkProductImporter";
 import ProductOptionsManager from "@/components/ProductOptionsManager/ProductOptionsManager";
 import styles from "./inventory.module.scss";
 
 export default function InventoryPage() {
   const model = useInventoryDashboard();
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [managedOptions, setManagedOptions] = useState({ categories: [] as string[], series: [] as string[] });
@@ -51,18 +49,6 @@ export default function InventoryPage() {
   const openEditModal = (productId: string) => {
     setEditingItemId(productId);
     setShowAddModal(true);
-  };
-
-  const toggleExpanded = (id: string) => {
-    setExpandedItems((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
   };
 
   if (model.loading) {
@@ -122,7 +108,6 @@ export default function InventoryPage() {
             Agregar Artículo
           </button>
           <BulkProductImporter />
-          <BulkImageUploader />
           <ProductOptionsManager onOptionsChanged={refreshProductOptions} />
           <button
             onClick={() => void model.refreshInventory()}
@@ -164,8 +149,6 @@ export default function InventoryPage() {
               <InventoryAccordionItem
                 key={item.id}
                 item={item}
-                isExpanded={expandedItems.has(item.id)}
-                onToggle={() => toggleExpanded(item.id)}
                 onAddStock={model.handleAddStock}
                 onDelete={model.handleRemoveItem}
                 onEdit={() => openEditModal(item.id)}
@@ -191,6 +174,7 @@ export default function InventoryPage() {
             } else {
               await model.handleAddItem(item);
             }
+            await model.refreshInventory();
             await refreshProductOptions();
           }}
         />

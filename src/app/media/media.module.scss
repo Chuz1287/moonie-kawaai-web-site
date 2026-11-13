@@ -1,0 +1,623 @@
+@use '../../design-system/_variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 1600px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
+  color: var(--text-primary);
+}
+
+.header,
+.headerActions,
+.assetToolbar,
+.assetActions,
+.dialogActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.header {
+  align-items: flex-start;
+
+  h1 {
+    margin: 0.15rem 0 0;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  p:not(.eyebrow) {
+    max-width: 680px;
+    margin: 0.5rem 0 0;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--accent-primary);
+  font-size: $text-xs;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.headerActions {
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+
+.secondaryButton,
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.7rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  font: inherit;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.secondaryButton {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.primaryButton {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+  color: var(--background);
+}
+
+.warning,
+.error,
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+
+  svg {
+    flex: 0 0 auto;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    line-height: 1.5;
+  }
+}
+
+.warning {
+  border-color: color-mix(in srgb, var(--accent-error) 35%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-error) 7%, var(--surface));
+  color: var(--text-primary);
+
+  > svg {
+    color: var(--accent-error);
+  }
+}
+
+.error {
+  border-color: var(--accent-error);
+  color: var(--accent-error);
+}
+
+.notice {
+  border-color: color-mix(in srgb, var(--accent-primary) 40%, var(--border-color));
+  color: var(--text-primary);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 550px;
+}
+
+.folderPanel,
+.assetPanel {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  background: var(--surface);
+}
+
+.folderPanel {
+  align-self: start;
+  max-height: 75vh;
+  overflow: auto;
+}
+
+.folderPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+
+  h2 {
+    margin: 0;
+    font-size: $text-md;
+  }
+
+  button {
+    padding: 0.35rem 0.45rem;
+    border: 0;
+    border-radius: $radius-sm;
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: $text-xs;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+      color: var(--text-primary);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+  }
+}
+
+.folderTree,
+.folderChildren {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.folderChildren {
+  margin-left: 0.8rem;
+  padding-left: 0.45rem;
+  border-left: 1px solid var(--border-color);
+}
+
+.folderSearch {
+  width: 100%;
+  margin-bottom: 0.65rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  background: var(--background);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: $text-sm;
+}
+
+.folderButton {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 0.5rem;
+  padding: 0.55rem 0.45rem;
+  border: 0;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  svg {
+    flex: 0 0 auto;
+    color: var(--accent-primary);
+  }
+
+  span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    color: var(--text-tertiary);
+  }
+
+  &:hover,
+  &.selectedFolder {
+    background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+    color: var(--text-primary);
+  }
+}
+
+.folderRow {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.selectionCheckbox {
+  flex: 0 0 auto;
+  margin: 0 0.2rem;
+  accent-color: var(--accent-primary);
+}
+
+.folderToggle {
+  display: grid;
+  flex: 0 0 1.6rem;
+  width: 1.6rem;
+  height: 2.15rem;
+  place-items: center;
+  border: 0;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+    color: var(--accent-primary);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0;
+  }
+}
+
+.folderDeleteButton {
+  display: grid;
+  flex: 0 0 1.8rem;
+  width: 1.8rem;
+  height: 2rem;
+  place-items: center;
+  border: 0;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent-error) 10%, transparent);
+    color: var(--accent-error);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+.muted {
+  color: var(--text-tertiary);
+  font-size: $text-sm;
+}
+
+.assetPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  color: var(--text-tertiary);
+  font-size: $text-xs;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &:disabled {
+      color: var(--text-primary);
+      font-weight: $font-weight-bold;
+      cursor: default;
+    }
+  }
+}
+
+.assetToolbar {
+  h2 {
+    margin: 0;
+    font-size: $text-lg;
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: var(--text-tertiary);
+    font-size: $text-xs;
+  }
+
+}
+
+.assetToolbarActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+
+  input {
+    width: min(100%, 250px);
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    background: var(--background);
+    color: var(--text-primary);
+    font: inherit;
+  }
+}
+
+.deleteSelectedButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.45rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--accent-error) 55%, var(--border-color));
+  border-radius: $radius-md;
+  background: color-mix(in srgb, var(--accent-error) 8%, var(--surface));
+  color: var(--accent-error);
+  font: inherit;
+  font-size: $text-xs;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.selectAllAssets,
+.assetSelection {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-secondary);
+  font-size: $text-xs;
+
+  input {
+    accent-color: var(--accent-primary);
+  }
+}
+
+.selectAllAssets {
+  align-self: flex-start;
+}
+
+.assetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 0.85rem;
+}
+
+.assetCard {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  background: var(--background);
+}
+
+.preview {
+  display: grid;
+  aspect-ratio: 1;
+  place-items: center;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--text-primary) 5%, var(--surface));
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.assetInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.65rem 0.7rem 0.35rem;
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: $text-sm;
+  }
+
+  .assetSelection {
+    padding: 0.45rem 0.7rem 0;
+  }
+
+  small {
+    color: var(--text-tertiary);
+    font-size: $text-xs;
+  }
+}
+
+.assetActions {
+  justify-content: flex-start;
+  padding: 0.5rem 0.7rem 0.7rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.4rem;
+    border: 0;
+    border-radius: $radius-sm;
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: $text-xs;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+      color: var(--text-primary);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+  }
+
+  .deleteButton:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent-error) 10%, transparent);
+    color: var(--accent-error);
+  }
+}
+
+.working {
+  display: block;
+  padding: 0 0.7rem 0.65rem;
+  color: var(--text-tertiary);
+}
+
+.emptyState {
+  display: flex;
+  flex: 1;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  color: var(--text-tertiary);
+  text-align: center;
+
+  strong {
+    color: var(--text-primary);
+  }
+
+  span {
+    max-width: 360px;
+    font-size: $text-sm;
+  }
+}
+
+.modalOverlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.renameDialog {
+  display: flex;
+  width: min(100%, 450px);
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  background: var(--surface);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: $text-sm;
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: $text-sm;
+    font-weight: $font-weight-semibold;
+  }
+
+  input {
+    padding: 0.7rem;
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    background: var(--background);
+    color: var(--text-primary);
+    font: inherit;
+  }
+}
+
+.dialogActions {
+  justify-content: flex-end;
+  margin-top: 0.3rem;
+}
+
+@media (max-width: 800px) {
+  .header {
+    flex-direction: column;
+  }
+
+  .headerActions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .folderPanel {
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 540px) {
+  .page {
+    padding: 0.85rem;
+  }
+
+  .assetToolbar {
+    align-items: stretch;
+    flex-direction: column;
+
+    .assetToolbarActions,
+    .assetToolbarActions input {
+      width: 100%;
+    }
+  }
+
+  .assetGrid {
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  }
+}

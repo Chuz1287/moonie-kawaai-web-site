@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, TrendingUp, Package, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ShoppingCart, TrendingUp, Package, Images, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import styles from "./SideMenu.module.scss";
 
 const SIDEBAR_STORAGE_KEY = "moonie_kawaai_sidebar_open";
@@ -12,6 +12,7 @@ const menuItems = [
   { href: "/", label: "POS", match: "/pos", icon: ShoppingCart },
   { href: "/sales", label: "Ventas", match: "/sales", icon: TrendingUp },
   { href: "/pages/inventory", label: "Inventario", match: "/inventory", icon: Package },
+  { href: "/media", label: "Imágenes", match: "/media", icon: Images },
 ];
 
 export default function SideMenu() {

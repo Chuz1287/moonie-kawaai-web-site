@@ -1,12 +1,11 @@
 import ExcelJS from "exceljs";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { fetchAllProductRows } from "@/services/catalog";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-const pageSize = 1000;
-
 function toCellValue(value: unknown): string | number | boolean | Date | null {
   if (value === null || value === undefined) {
     return null;
@@ -39,26 +38,7 @@ export async function GET() {
         autoRefreshToken: false,
       },
     });
-    const products: Record<string, unknown>[] = [];
-
-    for (let offset = 0; ; offset += pageSize) {
-      const { data, error } = await client
-        .from("products")
-        .select("*")
-        .order("id", { ascending: true })
-        .range(offset, offset + pageSize - 1);
-
-      if (error) {
-        return NextResponse.json({ message: error.message }, { status: 500 });
-      }
-
-      const page = (data ?? []) as Record<string, unknown>[];
-      products.push(...page);
-
-      if (page.length < pageSize) {
-        break;
-      }
-    }
+    const products = await fetchAllProductRows(client);
 
     if (products.length === 0) {
       return NextResponse.json(

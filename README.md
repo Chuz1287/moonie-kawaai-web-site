@@ -47,8 +47,23 @@ SUPABASE_SERVICE_ROLE_KEY=<tu-clave-de-servidor>
 
 Solicita esos valores al administrador del proyecto. Mantén `.env.local` privado:
 no lo subas a Git ni compartas la clave de servidor. Las funciones de carga de
-imágenes también pueden requerir las variables públicas de Cloudinary definidas
-en `src/lib/cloudinary.ts`.
+imágenes y administración de medios requieren configurar Cloudinary:
+
+```dotenv
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=<nombre-del-cloud>
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=<preset-unsigned>
+CLOUDINARY_CLOUD_NAME=<nombre-del-cloud>
+CLOUDINARY_API_KEY=<api-key>
+CLOUDINARY_API_SECRET=<api-secret>
+```
+
+La administración de medios está disponible en `/media` y permite navegar por
+las carpetas de productos, cargar imágenes, reemplazar archivos existentes,
+renombrarlas y eliminarlas. El inventario, el POS y el catálogo usan la versión
+vigente de cada portada de Cloudinary para evitar mostrar una copia anterior al
+reemplazarla. Mientras no se integre el inicio de sesión global, estas
+operaciones no tienen control de acceso por usuario; confirma los cambios con
+cuidado. El API Secret debe permanecer solo en el servidor.
 
 ## Migraciones de Supabase
 
