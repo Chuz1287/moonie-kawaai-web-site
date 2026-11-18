@@ -630,6 +630,9 @@ export default function CatalogPage() {
                 </div>
                 <Sparkles className={styles.headerSparkle} size={25} aria-hidden="true" />
                 <h1 className={styles.productName}>{product.name}</h1>
+                {product.series ? (
+                  <p className={styles.productSeries}>{product.series}</p>
+                ) : null}
               </header>
 
               <section className={styles.productSection} aria-label={`Fotos de ${product.name}`}>
