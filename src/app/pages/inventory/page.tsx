@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Plus, RefreshCw } from "lucide-react";
+import { BookOpen, ChevronDown, Plus, RefreshCw } from "lucide-react";
 import InventoryHeader from "@/components/InventoryHeader/InventoryHeader";
 import InventorySummary from "@/components/InventorySummary";
 import InventoryCard from "@/components/InventoryCard/InventoryCard";
@@ -89,14 +89,40 @@ export default function InventoryPage() {
               ? `Ver con stock (${model.inStockCount})`
               : `Ver sin stock (${model.outOfStockCount})`}
           </button>
-          <Link href="/catalog?export=web" className={styles.buttonPrimary}>
-            <BookOpen size={20} aria-hidden="true" />
-            Descargar PDF web
-          </Link>
-          <Link href="/catalog" className={styles.button}>
-            <BookOpen size={20} aria-hidden="true" />
-            Ver catálogo interactivo
-          </Link>
+          <details
+            className={styles.catalogDropdown}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) {
+                event.currentTarget.open = false;
+              }
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && event.currentTarget.open) {
+                event.preventDefault();
+                event.currentTarget.open = false;
+                event.currentTarget.querySelector("summary")?.focus();
+              }
+            }}
+            onClick={(event) => {
+              if ((event.target as HTMLElement).closest("a")) {
+                event.currentTarget.open = false;
+              }
+            }}
+          >
+            <summary className={styles.button}>
+              <BookOpen size={20} aria-hidden="true" />
+              Catálogo
+              <ChevronDown size={16} aria-hidden="true" />
+            </summary>
+            <div className={styles.catalogOptions}>
+              <Link href="/catalog#precios" className={styles.button}>
+                Preparar PDF web
+              </Link>
+              <Link href="/catalog" className={styles.button}>
+                Ver catálogo interactivo
+              </Link>
+            </div>
+          </details>
           <button
             onClick={() => {
               setEditingItemId(null);
