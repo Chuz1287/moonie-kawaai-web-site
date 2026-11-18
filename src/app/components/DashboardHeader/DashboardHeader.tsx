@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import type { ReactNode } from "react";
 import type { PosDashboardModel } from "@/pages/pos/pos.logic";
 import styles from "./DashboardHeader.module.scss";
-import { PenLine } from "lucide-react";
+import { PenLine, Plus } from "lucide-react";
 
-export default function DashboardHeader({ model }: { model: PosDashboardModel }) {
+export default function DashboardHeader({ model, children }: { model: PosDashboardModel; children?: ReactNode }) {
   return (
     <>
       <div className={styles.topSection}>
@@ -46,23 +46,25 @@ export default function DashboardHeader({ model }: { model: PosDashboardModel })
           </select>
           <button
             type="button"
-            onClick={() => model.setIsEventModalOpen(true)}
-            className={styles.createEventButton}
-          >
-            +
-          </button>
-
-          <button
-            type="button"
             onClick={() => model.setIsEventsAndExpensesModalOpen(true)}
             className={styles.manageEventsLink}
+            aria-label="Administrar eventos"
           >
-            <PenLine />
+            <PenLine size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={() => model.setIsEventModalOpen(true)}
+            className={styles.createEventButton}
+            aria-label="Crear evento"
+          >
+            <Plus size={16} />
           </button>
 
           {model.selectedEvent && (
             <span className={styles.activeBadge}>Evento Activo</span>
           )}
+          {children}
         </div>
       </div>
 

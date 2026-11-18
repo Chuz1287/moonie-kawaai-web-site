@@ -17,8 +17,9 @@ export default function PosDashboard() {
     <main className={`${styles.scope} min-h-screen px-4 pb-32 pt-6 text-[var(--foreground)]`}>
       <div className="mx-auto max-w-7xl">
         <header className={styles.header}>
-          <DashboardHeader model={model} />
-          <EventPerformancePanel model={model} />
+          <DashboardHeader model={model}>
+            <EventPerformancePanel model={model} />
+          </DashboardHeader>
         </header>
 
         <EventManagementDialog model={model} />

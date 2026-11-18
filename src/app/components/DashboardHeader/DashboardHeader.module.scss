@@ -20,8 +20,8 @@
     }
 
     .title {
-      margin-top: 0.5rem;
-      font-size: $title-mobile;
+      margin-top: 0.25rem;
+      font-size: $text-sm;
       font-weight: 900;
       color: var(--text-primary);
       transition: $transition-theme;
@@ -102,12 +102,10 @@
 }
 
 .eventSection {
-    display: flex;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
     gap: 0.5rem;
-    border-radius: 1.5rem;
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    padding: $padding-mobile;
     transition: $transition-theme;
 
     .eventLabel {
@@ -120,16 +118,20 @@
     }
 
     .createEventButton {
-      width: 3em;
+      width: 2.5rem;
+      height: 2.5rem;
       border-radius: $radius-md;
       border: 1px solid var(--accent-primary);
       background: rgba(168, 85, 247, 0.1);
-      padding: 0.5rem 0.75rem;
+      padding: 0;
       font-size: 0.875rem;
       font-weight: 700;
       color: var(--accent-primary);
       cursor: pointer;
       transition: $transition-theme;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
         background: rgba(168, 85, 247, 0.2);
@@ -137,6 +139,8 @@
     }
 
     .eventSelect {
+      flex: 1 1 8rem;
+      min-width: 0;
       border-radius: $radius-md;
       border: 1px solid var(--border-color);
       background: var(--surface);
@@ -144,7 +148,6 @@
       font-size: 0.875rem;
       color: var(--text-primary);
       transition: $transition-theme;
-      width: 80%;
 
       &:focus {
         border-color: var(--accent-primary);
@@ -184,11 +187,12 @@
     }
 
     .manageEventsLink {
-      width: 3em;
+      width: 2.5rem;
+      height: 2.5rem;
       border-radius: $radius-md;
       border: 1px solid var(--accent-primary);
       background: transparent;
-      padding: 0.5rem 0.75rem;
+      padding: 0;
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--accent-primary);
@@ -219,7 +223,7 @@
       }
 
       .title {
-        font-size: $title-tablet;
+        font-size: $text-md;
       }
     }
 
@@ -239,8 +243,6 @@
   }
 
   .eventSection {
-    padding: $padding-tablet;
-
     .eventLabel {
       font-size: $badge-tablet;
     }
@@ -258,7 +260,7 @@
       }
 
       .title {
-        font-size: $title-desktop;
+        font-size: $text-md;
       }
     }
 
@@ -277,8 +279,6 @@
   }
 
   .eventSection {
-    padding: $padding-desktop;
-
     .eventLabel {
       font-size: $badge-desktop;
     }
