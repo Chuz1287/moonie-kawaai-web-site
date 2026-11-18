@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { BookOpen, ChevronDown, FileSpreadsheet, Plus, RefreshCw } from "lucide-react";
+import { BookOpen, ChevronDown, FileSpreadsheet, Plus } from "lucide-react";
 import InventoryHeader from "@/components/InventoryHeader/InventoryHeader";
 import InventorySummary from "@/components/InventorySummary";
 import InventoryCard from "@/components/InventoryCard/InventoryCard";
@@ -177,13 +177,6 @@ export default function InventoryPage() {
             showTrigger={false}
           />
           <ProductOptionsManager onOptionsChanged={refreshProductOptions} />
-          <button
-            onClick={() => void model.refreshInventory()}
-            className={styles.button}
-          >
-            <RefreshCw size={18} />
-            Actualizar
-          </button>
         </div>
       </div>
 
