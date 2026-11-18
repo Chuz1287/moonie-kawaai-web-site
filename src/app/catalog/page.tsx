@@ -66,6 +66,7 @@ export default function CatalogPage() {
   const [templateBusy, setTemplateBusy] = useState(false);
   const [templateDirty, setTemplateDirty] = useState(false);
   const [templateStatus, setTemplateStatus] = useState<string | null>(null);
+  const [appliedTemplate, setAppliedTemplate] = useState<CatalogTemplate | null>(null);
   const [newTemplateName, setNewTemplateName] = useState("");
   const priceForm = useRef<HTMLFormElement>(null);
   const autoExportStarted = useRef(false);
@@ -86,6 +87,7 @@ export default function CatalogPage() {
         const initial = loaded.find((template) => template.name === "Público") ?? loaded[0];
         if (initial) {
           setSelectedTemplateId(initial.id);
+          setAppliedTemplate(initial);
           setPricePercentage(toDraftPercentage(initial.percentageAdjustment));
           setProductPrices(toDraftPrices(initial.prices));
         }
@@ -313,6 +315,7 @@ export default function CatalogPage() {
     if (!template || template.id === selectedTemplateId) return;
     if (templateDirty && !window.confirm("Hay cambios sin guardar. ¿Cambiar de catálogo y descartarlos?")) return;
     setSelectedTemplateId(template.id);
+    setAppliedTemplate(template);
     setPricePercentage(toDraftPercentage(template.percentageAdjustment));
     setProductPrices(toDraftPrices(template.prices));
     setTemplateDirty(false);
@@ -339,6 +342,7 @@ export default function CatalogPage() {
       }
       const saved = result.template;
       setTemplates((current) => current.map((item) => (item.id === saved.id ? saved : item)));
+      setAppliedTemplate(saved);
       setPricePercentage(toDraftPercentage(saved.percentageAdjustment));
       setProductPrices(toDraftPrices(saved.prices));
       setTemplateDirty(false);
@@ -375,6 +379,7 @@ export default function CatalogPage() {
         [...current, created].sort((first, second) => first.name.localeCompare(second.name, "es-MX"))
       );
       setSelectedTemplateId(created.id);
+      setAppliedTemplate(created);
       setPricePercentage(toDraftPercentage(created.percentageAdjustment));
       setProductPrices(toDraftPrices(created.prices));
       setTemplateDirty(false);
@@ -403,6 +408,7 @@ export default function CatalogPage() {
       setTemplates(remaining);
       const next = remaining[0] ?? null;
       setSelectedTemplateId(next?.id ?? null);
+      setAppliedTemplate(next);
       setPricePercentage(toDraftPercentage(next?.percentageAdjustment ?? null));
       setProductPrices(toDraftPrices(next?.prices ?? {}));
       setTemplateDirty(false);
@@ -414,7 +420,7 @@ export default function CatalogPage() {
     }
   };
 
-  const adjustment = Number(pricePercentage);
+  const adjustment = appliedTemplate?.percentageAdjustment ?? 0;
   const priceMultiplier = Number.isFinite(adjustment) && adjustment >= -100
     ? 1 + adjustment / 100
     : 1;
@@ -422,7 +428,7 @@ export default function CatalogPage() {
     (Number.isFinite(product.price) ? product.price : 0) * priceMultiplier
   );
   const catalogPrice = (product: Product) => {
-    const override = product.code ? productPrices[product.code] : undefined;
+    const override = product.code ? appliedTemplate?.prices[product.code] : undefined;
     if (override && Number.isFinite(Number(override)) && Number(override) >= 0) {
       return Number(override);
     }
@@ -694,6 +700,11 @@ export default function CatalogPage() {
                   <span className={styles.detailIcon} aria-hidden="true">♡</span>
                   <span className={styles.detailLabel}>Existencias</span>
                   <strong>{product.stock} {product.stock === 1 ? "pieza" : "piezas"}</strong>
+                </div>
+                <div className={styles.detailCard}>
+                  <span className={styles.detailIcon} aria-hidden="true">▣</span>
+                  <span className={styles.detailLabel}>Caja</span>
+                  <strong>{product.boxIncluded === undefined ? (product.boxLabel ?? "No registrada") : product.boxIncluded ? "Sí" : "No"}</strong>
                 </div>
               </section>
 

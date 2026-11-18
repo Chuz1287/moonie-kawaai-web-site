@@ -15,6 +15,7 @@ export type Product = {
   series?: string;
   height?: string;
   boxIncluded?: boolean;
+  boxLabel?: string;
   image: string;
   coverImage?: string;
   gallery: string[];

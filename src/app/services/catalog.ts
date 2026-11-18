@@ -129,6 +129,7 @@ export function mapSupabaseProduct(row: Record<string, unknown>): Product {
     series,
     height: String(row.Altura ?? row.altura ?? row.height ?? "").trim() || undefined,
     boxIncluded: getBoxIncluded(row),
+    boxLabel: String(row.caja ?? "").trim() || undefined,
     image: images[0] ?? defaultImage,
     coverImage: coverImage ?? undefined,
     gallery: images,
