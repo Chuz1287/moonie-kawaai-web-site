@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { BookOpen, ChevronDown, Plus, RefreshCw } from "lucide-react";
+import { BookOpen, ChevronDown, FileSpreadsheet, Plus } from "lucide-react";
 import InventoryHeader from "@/components/InventoryHeader/InventoryHeader";
 import InventorySummary from "@/components/InventorySummary";
 import InventoryCard from "@/components/InventoryCard/InventoryCard";
@@ -16,6 +16,7 @@ import styles from "./inventory.module.scss";
 export default function InventoryPage() {
   const model = useInventoryDashboard();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showImporter, setShowImporter] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [managedOptions, setManagedOptions] = useState({ categories: [] as string[], series: [] as string[] });
   const editingItem = model.items.find((item) => item.id === editingItemId);
@@ -123,25 +124,59 @@ export default function InventoryPage() {
               </Link>
             </div>
           </details>
-          <button
-            onClick={() => {
-              setEditingItemId(null);
-              setShowAddModal(true);
+          <details
+            className={styles.catalogDropdown}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) {
+                event.currentTarget.open = false;
+              }
             }}
-            className={styles.buttonPrimary}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && event.currentTarget.open) {
+                event.preventDefault();
+                event.currentTarget.open = false;
+                event.currentTarget.querySelector("summary")?.focus();
+              }
+            }}
+            onClick={(event) => {
+              if ((event.target as HTMLElement).closest("button")) {
+                event.currentTarget.open = false;
+              }
+            }}
           >
-            <Plus size={20} />
-            Agregar Artículo
-          </button>
-          <BulkProductImporter />
+            <summary className={styles.buttonPrimary}>
+              <Plus size={20} aria-hidden="true" />
+              Agregar
+              <ChevronDown size={16} aria-hidden="true" />
+            </summary>
+            <div className={styles.catalogOptions}>
+              <button
+                type="button"
+                className={styles.button}
+                onClick={() => {
+                  setEditingItemId(null);
+                  setShowAddModal(true);
+                }}
+              >
+                <Plus size={18} aria-hidden="true" />
+                Agregar artículo
+              </button>
+              <button
+                type="button"
+                className={styles.button}
+                onClick={() => setShowImporter(true)}
+              >
+                <FileSpreadsheet size={18} aria-hidden="true" />
+                Importar productos por Excel
+              </button>
+            </div>
+          </details>
+          <BulkProductImporter
+            open={showImporter}
+            onOpenChange={setShowImporter}
+            showTrigger={false}
+          />
           <ProductOptionsManager onOptionsChanged={refreshProductOptions} />
-          <button
-            onClick={() => void model.refreshInventory()}
-            className={styles.button}
-          >
-            <RefreshCw size={18} />
-            Actualizar
-          </button>
         </div>
       </div>
 

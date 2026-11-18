@@ -9,8 +9,23 @@ import {
   type ProductImportResponse,
 } from "./BulkProductImporter.logic";
 
-export default function BulkProductImporter() {
-  const [isOpen, setIsOpen] = useState(false);
+type BulkProductImporterProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
+};
+
+export default function BulkProductImporter({
+  open,
+  onOpenChange,
+  showTrigger = true,
+}: BulkProductImporterProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = open ?? internalOpen;
+  const setIsOpen = (next: boolean) => {
+    if (onOpenChange) onOpenChange(next);
+    else setInternalOpen(next);
+  };
   const [file, setFile] = useState<File | null>(null);
   const [mode, setMode] = useState<ProductImportMode>("update");
   const [includeStock, setIncludeStock] = useState(false);
@@ -130,14 +145,16 @@ export default function BulkProductImporter() {
 
   return (
     <>
-      <button
-        type="button"
-        className={styles.trigger}
-        onClick={() => setIsOpen(true)}
-      >
-        <FileSpreadsheet size={18} />
-        Importar productos por Excel
-      </button>
+      {showTrigger && (
+        <button
+          type="button"
+          className={styles.trigger}
+          onClick={() => setIsOpen(true)}
+        >
+          <FileSpreadsheet size={18} />
+          Importar productos por Excel
+        </button>
+      )}
 
       <dialog
         ref={dialogRef}

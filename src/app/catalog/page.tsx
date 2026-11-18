@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ImageOff, LoaderCircle, Printer, Share2, Sparkles } from "lucide-react";
+import { ArrowLeft, ImageOff, LoaderCircle, Printer, Save, Share2, Sparkles, Trash2 } from "lucide-react";
 import type { Product } from "@/types/store";
+import type { CatalogTemplate } from "@/services/catalogTemplates";
 import styles from "./catalog.module.scss";
 
 type CatalogResponse = {
@@ -12,6 +13,20 @@ type CatalogResponse = {
   imagesByProduct?: Record<string, string[]>;
   message?: string;
 };
+
+type CatalogTemplatesResponse = {
+  templates?: CatalogTemplate[];
+  template?: CatalogTemplate;
+  message?: string;
+};
+
+function toDraftPercentage(percentage: number | null): string {
+  return percentage === null ? "" : String(percentage);
+}
+
+function toDraftPrices(prices: Record<string, number>): Record<string, string> {
+  return Object.fromEntries(Object.entries(prices).map(([code, price]) => [code, String(price)]));
+}
 
 const money = new Intl.NumberFormat("es-MX", {
   style: "currency",
@@ -45,8 +60,51 @@ export default function CatalogPage() {
   const [exportProgress, setExportProgress] = useState("");
   const [pricePercentage, setPricePercentage] = useState("");
   const [productPrices, setProductPrices] = useState<Record<string, string>>({});
+  const [templates, setTemplates] = useState<CatalogTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
+  const [templateBusy, setTemplateBusy] = useState(false);
+  const [templateDirty, setTemplateDirty] = useState(false);
+  const [templateStatus, setTemplateStatus] = useState<string | null>(null);
+  const [appliedTemplate, setAppliedTemplate] = useState<CatalogTemplate | null>(null);
+  const [newTemplateName, setNewTemplateName] = useState("");
   const priceForm = useRef<HTMLFormElement>(null);
   const autoExportStarted = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTemplates() {
+      try {
+        const response = await fetch("/api/catalog-templates", { cache: "no-store" });
+        const result = (await response.json()) as CatalogTemplatesResponse;
+        if (!response.ok) {
+          throw new Error(result.message ?? "No se pudieron cargar los catálogos.");
+        }
+        const loaded = result.templates ?? [];
+        if (cancelled) return;
+        setTemplates(loaded);
+        const initial = loaded.find((template) => template.name === "Público") ?? loaded[0];
+        if (initial) {
+          setSelectedTemplateId(initial.id);
+          setAppliedTemplate(initial);
+          setPricePercentage(toDraftPercentage(initial.percentageAdjustment));
+          setProductPrices(toDraftPrices(initial.prices));
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          setTemplateStatus(loadError instanceof Error ? loadError.message : "No se pudieron cargar los catálogos.");
+        }
+      } finally {
+        if (!cancelled) setTemplatesLoading(false);
+      }
+    }
+
+    void loadTemplates();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -218,6 +276,7 @@ export default function CatalogPage() {
   useEffect(() => {
     if (
       loading ||
+      templatesLoading ||
       error ||
       catalogProducts.length === 0 ||
       autoExportStarted.current ||
@@ -236,13 +295,132 @@ export default function CatalogPage() {
       cancelled = true;
       window.clearTimeout(exportTimer);
     };
-  }, [catalogProducts, error, exportCatalog, loading]);
+  }, [catalogProducts, error, exportCatalog, loading, templatesLoading]);
 
   const markImageFailed = (src: string) => {
     setFailedImages((current) => new Set(current).add(src));
   };
 
-  const adjustment = Number(pricePercentage);
+  const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) ?? null;
+  const currentPrices = () => Object.fromEntries(
+    Object.entries(productPrices).map(([code, value]) => [
+      code,
+      value.trim() === "" ? null : Number(value),
+    ])
+  );
+  const currentPercentage = () => (pricePercentage.trim() === "" ? null : Number(pricePercentage));
+
+  const selectTemplate = (templateId: string) => {
+    const template = templates.find((item) => item.id === templateId);
+    if (!template || template.id === selectedTemplateId) return;
+    if (templateDirty && !window.confirm("Hay cambios sin guardar. ¿Cambiar de catálogo y descartarlos?")) return;
+    setSelectedTemplateId(template.id);
+    setAppliedTemplate(template);
+    setPricePercentage(toDraftPercentage(template.percentageAdjustment));
+    setProductPrices(toDraftPrices(template.prices));
+    setTemplateDirty(false);
+    setTemplateStatus(null);
+  };
+
+  const saveTemplate = async () => {
+    if (!selectedTemplate || templateBusy || !priceForm.current?.reportValidity()) return;
+
+    setTemplateBusy(true);
+    setTemplateStatus(null);
+    try {
+      const response = await fetch(`/api/catalog-templates/${selectedTemplate.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          percentageAdjustment: currentPercentage(),
+          prices: currentPrices(),
+        }),
+      });
+      const result = (await response.json()) as CatalogTemplatesResponse;
+      if (!response.ok || !result.template) {
+        throw new Error(result.message ?? "No se pudo guardar el catálogo.");
+      }
+      const saved = result.template;
+      setTemplates((current) => current.map((item) => (item.id === saved.id ? saved : item)));
+      setAppliedTemplate(saved);
+      setPricePercentage(toDraftPercentage(saved.percentageAdjustment));
+      setProductPrices(toDraftPrices(saved.prices));
+      setTemplateDirty(false);
+      setTemplateStatus(`Catálogo "${saved.name}" guardado.`);
+    } catch (saveError) {
+      setTemplateStatus(saveError instanceof Error ? saveError.message : "No se pudo guardar el catálogo.");
+    } finally {
+      setTemplateBusy(false);
+    }
+  };
+
+  const createTemplate = async () => {
+    const name = newTemplateName.trim();
+    if (!name || templateBusy || !priceForm.current?.reportValidity()) return;
+
+    setTemplateBusy(true);
+    setTemplateStatus(null);
+    try {
+      const response = await fetch("/api/catalog-templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          percentageAdjustment: currentPercentage(),
+          prices: currentPrices(),
+        }),
+      });
+      const result = (await response.json()) as CatalogTemplatesResponse;
+      if (!response.ok || !result.template) {
+        throw new Error(result.message ?? "No se pudo crear el catálogo.");
+      }
+      const created = result.template;
+      setTemplates((current) =>
+        [...current, created].sort((first, second) => first.name.localeCompare(second.name, "es-MX"))
+      );
+      setSelectedTemplateId(created.id);
+      setAppliedTemplate(created);
+      setPricePercentage(toDraftPercentage(created.percentageAdjustment));
+      setProductPrices(toDraftPrices(created.prices));
+      setTemplateDirty(false);
+      setNewTemplateName("");
+      setTemplateStatus(`Catálogo "${created.name}" creado con los precios actuales.`);
+    } catch (createError) {
+      setTemplateStatus(createError instanceof Error ? createError.message : "No se pudo crear el catálogo.");
+    } finally {
+      setTemplateBusy(false);
+    }
+  };
+
+  const deleteTemplate = async () => {
+    if (!selectedTemplate || templateBusy) return;
+    if (!window.confirm(`¿Eliminar el catálogo "${selectedTemplate.name}"? Esta acción no se puede deshacer.`)) return;
+
+    setTemplateBusy(true);
+    setTemplateStatus(null);
+    try {
+      const response = await fetch(`/api/catalog-templates/${selectedTemplate.id}`, { method: "DELETE" });
+      const result = (await response.json()) as CatalogTemplatesResponse;
+      if (!response.ok) {
+        throw new Error(result.message ?? "No se pudo eliminar el catálogo.");
+      }
+      const remaining = templates.filter((item) => item.id !== selectedTemplate.id);
+      setTemplates(remaining);
+      const next = remaining[0] ?? null;
+      setSelectedTemplateId(next?.id ?? null);
+      setAppliedTemplate(next);
+      setPricePercentage(toDraftPercentage(next?.percentageAdjustment ?? null));
+      setProductPrices(toDraftPrices(next?.prices ?? {}));
+      setTemplateDirty(false);
+      setTemplateStatus(`Catálogo "${selectedTemplate.name}" eliminado.`);
+    } catch (deleteError) {
+      setTemplateStatus(deleteError instanceof Error ? deleteError.message : "No se pudo eliminar el catálogo.");
+    } finally {
+      setTemplateBusy(false);
+    }
+  };
+
+  const adjustment = appliedTemplate?.percentageAdjustment ?? 0;
   const priceMultiplier = Number.isFinite(adjustment) && adjustment >= -100
     ? 1 + adjustment / 100
     : 1;
@@ -250,7 +428,7 @@ export default function CatalogPage() {
     (Number.isFinite(product.price) ? product.price : 0) * priceMultiplier
   );
   const catalogPrice = (product: Product) => {
-    const override = productPrices[product.id];
+    const override = product.code ? appliedTemplate?.prices[product.code] : undefined;
     if (override && Number.isFinite(Number(override)) && Number(override) >= 0) {
       return Number(override);
     }
@@ -327,6 +505,58 @@ export default function CatalogPage() {
       >
         <fieldset disabled={exporting}>
           <legend>Precios del catálogo</legend>
+          <div className={styles.templateBar}>
+            <label>
+              Catálogo
+              <select
+                value={selectedTemplateId ?? ""}
+                disabled={templatesLoading || templateBusy || templates.length === 0}
+                onChange={(event) => selectTemplate(event.target.value)}
+              >
+                {templates.length === 0 && <option value="">Sin catálogos guardados</option>}
+                {templates.map((template) => (
+                  <option key={template.id} value={template.id}>{template.name}</option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              className={styles.templateButton}
+              onClick={() => void saveTemplate()}
+              disabled={!selectedTemplate || !templateDirty || templateBusy}
+            >
+              <Save size={16} aria-hidden="true" />
+              Guardar cambios
+            </button>
+            <button
+              type="button"
+              className={styles.templateButton}
+              onClick={() => void deleteTemplate()}
+              disabled={!selectedTemplate || templateBusy}
+            >
+              <Trash2 size={16} aria-hidden="true" />
+              Eliminar
+            </button>
+            <div className={styles.newTemplate}>
+              <input
+                type="text"
+                placeholder="Nombre del nuevo catálogo"
+                maxLength={80}
+                value={newTemplateName}
+                onChange={(event) => setNewTemplateName(event.target.value)}
+              />
+              <button
+                type="button"
+                className={styles.templateButton}
+                onClick={() => void createTemplate()}
+                disabled={!newTemplateName.trim() || templateBusy}
+              >
+                Crear desde los precios actuales
+              </button>
+            </div>
+          </div>
+          {templateDirty && <p role="status">Hay cambios sin guardar en este catálogo.</p>}
+          {templateStatus && <p role="status">{templateStatus}</p>}
           <p>Los cambios se ven en la vista previa y en ambos PDF. No modifican el inventario ni el POS.</p>
           <label className={styles.percentageField}>
             Ajuste general (%)
@@ -336,15 +566,18 @@ export default function CatalogPage() {
               step="0.01"
               placeholder="0"
               value={pricePercentage}
-              onChange={(event) => setPricePercentage(event.target.value)}
+              onChange={(event) => {
+                setPricePercentage(event.target.value);
+                setTemplateDirty(true);
+              }}
             />
           </label>
-          <p>Usa un valor negativo para descontar o uno positivo para aumentar.</p>
+          <p>Usa un valor negativo para descontar o uno positivo para aumentar. Se aplica a los productos sin precio especial.</p>
           <details>
             <summary>Editar precios por producto (MXN)</summary>
-            <p>El precio manual tiene prioridad. Deja el campo vacío para usar el precio con el ajuste general.</p>
+            <p>El precio manual tiene prioridad. Deja el campo vacío para usar el ajuste general del catálogo.</p>
             <div className={styles.productPrices}>
-              {catalogProducts.map(({ product }) => (
+              {catalogProducts.filter(({ product }) => Boolean(product.code)).map(({ product }) => (
                 <label key={product.id}>
                   <span>{product.name}</span>
                   <input
@@ -352,10 +585,12 @@ export default function CatalogPage() {
                     min="0"
                     step="0.01"
                     placeholder={money.format(adjustedPrice(product))}
-                    value={productPrices[product.id] ?? ""}
+                    value={productPrices[product.code ?? ""] ?? ""}
                     onChange={(event) => {
                       const value = event.target.value;
-                      setProductPrices((current) => ({ ...current, [product.id]: value }));
+                      const code = product.code ?? "";
+                      setProductPrices((current) => ({ ...current, [code]: value }));
+                      setTemplateDirty(true);
                     }}
                   />
                 </label>
@@ -395,6 +630,9 @@ export default function CatalogPage() {
                 </div>
                 <Sparkles className={styles.headerSparkle} size={25} aria-hidden="true" />
                 <h1 className={styles.productName}>{product.name}</h1>
+                {product.series ? (
+                  <p className={styles.productSeries}>{product.series}</p>
+                ) : null}
               </header>
 
               <section className={styles.productSection} aria-label={`Fotos de ${product.name}`}>
@@ -465,6 +703,11 @@ export default function CatalogPage() {
                   <span className={styles.detailIcon} aria-hidden="true">♡</span>
                   <span className={styles.detailLabel}>Existencias</span>
                   <strong>{product.stock} {product.stock === 1 ? "pieza" : "piezas"}</strong>
+                </div>
+                <div className={styles.detailCard}>
+                  <span className={styles.detailIcon} aria-hidden="true">▣</span>
+                  <span className={styles.detailLabel}>Caja</span>
+                  <strong>{product.boxIncluded === undefined ? (product.boxLabel ?? "No registrada") : product.boxIncluded ? "Sí" : "No"}</strong>
                 </div>
               </section>
 

@@ -57,6 +57,57 @@
   }
 }
 
+.templateBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+
+  label {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  select {
+    min-width: 12rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid #e7a4be;
+    border-radius: 0.5rem;
+    background: white;
+    color: #573344;
+    font-size: 1rem;
+  }
+}
+
+.newTemplate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  input {
+    width: 14rem;
+  }
+}
+
+.templateButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #e7a4be;
+  border-radius: 0.5rem;
+  background: #fff0f6;
+  color: #80415f;
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .percentageField,
 .productPrices label {
   display: flex;
@@ -186,7 +237,7 @@
   border-radius: 50%;
   background: #f7c1d5;
   color: #9c4e71;
-  font-family: Georgia, serif;
+  font-family: var(--font-outfit), sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
 }
@@ -213,6 +264,19 @@
   font-size: clamp(1.8rem, 5vw, 3rem);
   font-weight: 900;
   line-height: 1.05;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.productSeries {
+  max-width: 90%;
+  margin: 0.25rem 0 0;
+  color: #a27a8b;
+  font-family: var(--font-outfit), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
   overflow-wrap: anywhere;
   text-transform: uppercase;
 }
@@ -256,7 +320,7 @@
   justify-content: center;
   gap: 0.75rem;
   color: #bd7795;
-  font-family: Georgia, serif;
+  font-family: var(--font-outfit), sans-serif;
 }
 
 .thumbnailRail {
@@ -292,18 +356,20 @@
 
 .details {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
 .detailCard {
   display: flex;
+  min-width: 0;
   min-height: 120px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
-  padding: 0.8rem;
+  padding: 0.8rem 0.5rem;
+  overflow: hidden;
   border: 1px solid #f1d2de;
   border-radius: 17px;
   background: rgba(255, 255, 255, 0.78);
@@ -330,9 +396,14 @@
 }
 
 .detailCard strong {
+  min-width: 0;
+  max-width: 100%;
   color: #74445a;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(0.9rem, 2vw, 1.3rem);
+  font-family: var(--font-outfit), sans-serif;
+  font-size: clamp(0.7rem, 1.3vw, 0.95rem);
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .socialFooter {
@@ -344,7 +415,7 @@
   padding-top: 0.75rem;
   border-top: 1px solid #f1d8e2;
   color: #a06d83;
-  font-family: Georgia, serif;
+  font-family: var(--font-outfit), sans-serif;
   font-size: 0.75rem;
   font-style: italic;
 }
@@ -498,6 +569,11 @@
     font-size: 22pt;
   }
 
+  .productSeries {
+    margin-top: 1mm;
+    font-size: 7pt;
+  }
+
   .productSection {
     padding: 4mm 0;
   }
@@ -535,7 +611,7 @@
   }
 
   .detailCard strong {
-    font-size: 14pt;
+    font-size: 10pt;
   }
 
   .socialFooter {
