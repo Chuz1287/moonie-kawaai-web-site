@@ -5,13 +5,27 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: $radius-md;
   background: var(--surface);
   color: var(--text-primary);
   font: inherit;
+  font-size: $text-sm;
+  font-weight: $font-weight-semibold;
   cursor: pointer;
+
+  @media (min-width: $tablet) {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+.triggerLabel {
+  display: none;
+
+  @media (min-width: $tablet) {
+    display: inline;
+  }
 }
 
 .overlay {

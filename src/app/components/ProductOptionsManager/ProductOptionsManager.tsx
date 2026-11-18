@@ -86,9 +86,15 @@ export default function ProductOptionsManager({
 
   return (
     <>
-      <button type="button" className={styles.trigger} onClick={() => void openManager()}>
-        <Tags size={18} />
-        Administrar categorías y series
+      <button
+        type="button"
+        className={styles.trigger}
+        onClick={() => void openManager()}
+        aria-label="Administrar categorías y series"
+        title="Administrar categorías y series"
+      >
+        <Tags size={18} aria-hidden="true" />
+        <span className={styles.triggerLabel}>Categorías</span>
       </button>
 
       {isOpen && (

@@ -58,7 +58,7 @@ export default function InventoryPage() {
 
   return (
     <div className={styles.scope}>
-      <InventoryHeader />
+      <InventoryHeader totalCount={model.totalProductCount} />
 
       {model.error && (
         <div className={styles.error}>{model.error}</div>
@@ -66,19 +66,7 @@ export default function InventoryPage() {
 
       <InventorySummary summary={model.inventorySummary} />
 
-      <p className={styles.inventoryCount} role="status">
-        Productos registrados en inventario: <strong>{model.totalProductCount}</strong>
-      </p>
-
       <div className={styles.controls}>
-        <input
-          type="text"
-          placeholder="Buscar por nombre, serie, categoría..."
-          value={model.searchQuery}
-          onChange={(e) => model.setSearchQuery(e.target.value)}
-          className={styles.searchInput}
-        />
-
         <div className={styles.actionButtons}>
           <button
             type="button"
@@ -110,9 +98,9 @@ export default function InventoryPage() {
               }
             }}
           >
-            <summary className={styles.button}>
+            <summary className={styles.iconButton} aria-label="Catálogo" title="Catálogo">
               <BookOpen size={20} aria-hidden="true" />
-              Catálogo
+              <span className={styles.buttonLabel}>Catálogo</span>
               <ChevronDown size={16} aria-hidden="true" />
             </summary>
             <div className={styles.catalogOptions}>
@@ -144,9 +132,9 @@ export default function InventoryPage() {
               }
             }}
           >
-            <summary className={styles.buttonPrimary}>
+            <summary className={styles.iconButtonPrimary} aria-label="Agregar" title="Agregar">
               <Plus size={20} aria-hidden="true" />
-              Agregar
+              <span className={styles.buttonLabel}>Agregar</span>
               <ChevronDown size={16} aria-hidden="true" />
             </summary>
             <div className={styles.catalogOptions}>
@@ -178,6 +166,14 @@ export default function InventoryPage() {
           />
           <ProductOptionsManager onOptionsChanged={refreshProductOptions} />
         </div>
+
+        <input
+          type="text"
+          placeholder="Buscar por nombre, serie, categoría..."
+          value={model.searchQuery}
+          onChange={(e) => model.setSearchQuery(e.target.value)}
+          className={styles.searchInput}
+        />
       </div>
 
       {/* Desktop Grid */}

@@ -22,32 +22,16 @@
   font-size: $text-sm;
 }
 
-.inventoryCount {
-  margin: -0.75rem 0 0;
-  color: var(--text-secondary);
-  font-size: $text-sm;
-
-  strong {
-    color: var(--text-primary);
-  }
-}
-
 /* ─── CONTROLS ───────────────────────────────────────────────── */
 .controls {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 1rem;
-
-  @media (min-width: $tablet) {
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-  }
 }
 
 .searchInput {
-  flex: 1;
+  width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: $radius-md;
@@ -69,8 +53,17 @@
 
 .actionButtons {
   display: flex;
+  align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.buttonLabel {
+  display: none;
+
+  @media (min-width: $tablet) {
+    display: inline;
+  }
 }
 
 .catalogDropdown {
@@ -191,4 +184,22 @@
   border-radius: $radius-md;
   color: var(--text-secondary);
   text-align: center;
+}
+
+/* Botones solo icono en móvil; con etiqueta en escritorio. Va al final para ganar sobre .button y .buttonPrimary. */
+.iconButton,
+.iconButtonPrimary {
+  padding: 0.75rem;
+
+  @media (min-width: $tablet) {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+.iconButton {
+  @extend .button;
+}
+
+.iconButtonPrimary {
+  @extend .buttonPrimary;
 }
