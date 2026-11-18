@@ -65,6 +65,13 @@ reemplazarla. Mientras no se integre el inicio de sesión global, estas
 operaciones no tienen control de acceso por usuario; confirma los cambios con
 cuidado. El API Secret debe permanecer solo en el servidor.
 
+En Inventario, el menú **Catálogo** abre la vista interactiva o la preparación
+del PDF web. Antes de descargar el PDF web o de impresión, puedes aplicar un
+porcentaje general o fijar precios por producto. El precio manual tiene
+prioridad y los ajustes solo se aplican al catálogo, no al inventario ni al POS.
+En el POS, toca o haz clic en la foto para ampliarla; selecciona el resto de
+la tarjeta para agregar el producto al carrito.
+
 ## Migraciones de Supabase
 
 Antes de desplegar cambios de esquema, ejecuta en el SQL Editor de Supabase las

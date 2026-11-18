@@ -43,6 +43,9 @@ export default function CatalogPage() {
   const [exportMode, setExportMode] = useState<ExportMode>("web");
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState("");
+  const [pricePercentage, setPricePercentage] = useState("");
+  const [productPrices, setProductPrices] = useState<Record<string, string>>({});
+  const priceForm = useRef<HTMLFormElement>(null);
   const autoExportStarted = useRef(false);
 
   useEffect(() => {
@@ -116,7 +119,7 @@ export default function CatalogPage() {
   );
 
   const exportCatalog = useCallback(async (mode: ExportMode) => {
-    if (exporting) return;
+    if (exporting || !priceForm.current?.reportValidity()) return;
 
     setExporting(true);
     setExportProgress("Preparando las páginas…");
@@ -239,6 +242,24 @@ export default function CatalogPage() {
     setFailedImages((current) => new Set(current).add(src));
   };
 
+  const adjustment = Number(pricePercentage);
+  const priceMultiplier = Number.isFinite(adjustment) && adjustment >= -100
+    ? 1 + adjustment / 100
+    : 1;
+  const adjustedPrice = (product: Product) => (
+    (Number.isFinite(product.price) ? product.price : 0) * priceMultiplier
+  );
+  const catalogPrice = (product: Product) => {
+    const override = productPrices[product.id];
+    if (override && Number.isFinite(Number(override)) && Number(override) >= 0) {
+      return Number(override);
+    }
+    return adjustedPrice(product);
+  };
+  const hasInvalidCatalogPrice = catalogProducts.some(({ product }) => (
+    !Number.isFinite(catalogPrice(product))
+  ));
+
   if (loading) {
     return <main className={styles.state}>Preparando el catálogo de inventario…</main>;
   }
@@ -272,7 +293,7 @@ export default function CatalogPage() {
           type="button"
           className={styles.webButton}
           onClick={() => void exportCatalog("web")}
-          disabled={exporting}
+          disabled={exporting || hasInvalidCatalogPrice}
         >
           {exporting && exportMode === "web"
             ? <LoaderCircle size={17} className={styles.spinner} aria-hidden="true" />
@@ -283,7 +304,7 @@ export default function CatalogPage() {
           type="button"
           className={styles.printButton}
           onClick={() => void exportCatalog("print")}
-          disabled={exporting}
+          disabled={exporting || hasInvalidCatalogPrice}
         >
           {exporting && exportMode === "print"
             ? <LoaderCircle size={17} className={styles.spinner} aria-hidden="true" />
@@ -291,6 +312,61 @@ export default function CatalogPage() {
           PDF para impresión
         </button>
       </div>
+      <form
+        ref={priceForm}
+        id="precios"
+        className={styles.priceSettings}
+        onSubmit={(event) => event.preventDefault()}
+        onInvalid={(event) => {
+          const target = event.target;
+          if (target instanceof HTMLInputElement) {
+            const details = target.closest("details");
+            if (details) details.open = true;
+          }
+        }}
+      >
+        <fieldset disabled={exporting}>
+          <legend>Precios del catálogo</legend>
+          <p>Los cambios se ven en la vista previa y en ambos PDF. No modifican el inventario ni el POS.</p>
+          <label className={styles.percentageField}>
+            Ajuste general (%)
+            <input
+              type="number"
+              min="-100"
+              step="0.01"
+              placeholder="0"
+              value={pricePercentage}
+              onChange={(event) => setPricePercentage(event.target.value)}
+            />
+          </label>
+          <p>Usa un valor negativo para descontar o uno positivo para aumentar.</p>
+          <details>
+            <summary>Editar precios por producto (MXN)</summary>
+            <p>El precio manual tiene prioridad. Deja el campo vacío para usar el precio con el ajuste general.</p>
+            <div className={styles.productPrices}>
+              {catalogProducts.map(({ product }) => (
+                <label key={product.id}>
+                  <span>{product.name}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder={money.format(adjustedPrice(product))}
+                    value={productPrices[product.id] ?? ""}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setProductPrices((current) => ({ ...current, [product.id]: value }));
+                    }}
+                  />
+                </label>
+              ))}
+            </div>
+          </details>
+          {hasInvalidCatalogPrice && (
+            <p role="alert">El ajuste genera un precio demasiado alto. Introduce un porcentaje menor.</p>
+          )}
+        </fieldset>
+      </form>
       {exportProgress ? (
         <p className={styles.exportProgress} role="status" aria-live="polite">
           {exportProgress}
@@ -351,11 +427,8 @@ export default function CatalogPage() {
                           type="button"
                           key={image}
                           className={`${styles.thumbnail} ${mainImage === image ? styles.thumbnailActive : ""}`}
-                          onClick={(event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            setSelectedImages((current) => ({ ...current, [product.id]: image }))
-                          }}
+                          onClick={() => setSelectedImages((current) => ({ ...current, [product.id]: image }))}
+                          disabled={exporting}
                           aria-label={`Mostrar foto adicional ${index + 1} de ${product.name}`}
                           aria-pressed={mainImage === image}
                         >
@@ -386,7 +459,7 @@ export default function CatalogPage() {
                 <div className={`${styles.detailCard} ${styles.priceCard}`}>
                   <span className={styles.detailIcon} aria-hidden="true">✦</span>
                   <span className={styles.detailLabel}>Precio</span>
-                  <strong>{money.format(Number.isFinite(product.price) ? product.price : 0)}</strong>
+                  <strong>{money.format(catalogPrice(product))}</strong>
                 </div>
                 <div className={styles.detailCard}>
                   <span className={styles.detailIcon} aria-hidden="true">♡</span>

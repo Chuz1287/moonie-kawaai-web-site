@@ -104,7 +104,7 @@ export function getOptimizedImageUrl(
       ? `v${options.version}/`
       : "";
 
-  return `${getCloudinaryBaseUrl()}/${versionPath}${transformationPath}${publicId}`;
+  return `${getCloudinaryBaseUrl()}/${transformationPath}${versionPath}${publicId}`;
 }
 
 export type ProductCoverPath = {

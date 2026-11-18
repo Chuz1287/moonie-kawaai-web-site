@@ -16,7 +16,8 @@
 
 .productCard {
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
   border-radius: 1rem;
   border: 1px solid var(--border-color);
   background: var(--surface);
@@ -24,7 +25,11 @@
   text-align: left;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: all 200ms ease;
-  cursor: pointer;
+
+  @media (min-width: $tablet) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
   &:hover {
     transform: translateY(-2px);
@@ -34,7 +39,8 @@
 }
 
 .cardButton {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -72,6 +78,73 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.imageButton {
+  border: 0;
+  padding: 0;
+  cursor: zoom-in;
+}
+
+.zoomIcon {
+  position: absolute;
+  right: 0.25rem;
+  bottom: 0.25rem;
+  padding: 0.15rem;
+  border-radius: 0.25rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+.previewDialog {
+  width: min(94vw, 50rem);
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  background: var(--surface);
+  color: var(--text-primary);
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.75);
+  }
+}
+
+.previewContent {
+  padding: 1rem;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+
+  button {
+    display: grid;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--background);
+    color: inherit;
+    cursor: pointer;
+  }
+}
+
+.previewImage {
+  position: relative;
+  display: grid;
+  height: min(68dvh, 42rem);
+  place-items: center;
+
+  img {
+    object-fit: contain;
+  }
 }
 
 .cardStock {
