@@ -1,0 +1,69 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 22rem;
+  padding: 1.25rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+.message {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.actions {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.cancelBtn,
+.confirmBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.cancelBtn {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+
+  &:hover {
+    border-color: var(--accent-primary);
+  }
+}
+
+.confirmBtn {
+  border: 1px solid var(--accent-error);
+  background: var(--accent-error);
+  color: white;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

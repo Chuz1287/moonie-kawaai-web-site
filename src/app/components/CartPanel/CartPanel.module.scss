@@ -172,6 +172,51 @@
   }
 }
 
+.previewActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.previewClearBtn,
+.previewConfirmBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.previewClearBtn {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+}
+
+.previewConfirmBtn {
+  border: none;
+  background: white;
+  color: #6d28d9;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+}
+
 .panelFooter {
   margin-top: 1rem;
   padding-top: 1rem;

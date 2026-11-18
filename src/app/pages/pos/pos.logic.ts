@@ -9,6 +9,7 @@ import {
   updateCartItemQuantity,
 } from "@/services/pos";
 import type { CartItem, Product } from "@/types/store";
+import { useToast } from "@/components/Toast";
 
 // Catalog utilities
 function normalizeCatalogSearchText(value: string): string {
@@ -336,6 +337,7 @@ export function usePosDashboard() {
     [cart, productCatalog]
   );
   const hasCartItems = cart.length > 0;
+  const { showToast } = useToast();
   const totalEventExpenses = useMemo(
     () => eventExpenses.reduce((sum, expense) => sum + Number(expense.amount ?? 0), 0),
     [eventExpenses]
@@ -416,12 +418,13 @@ export function usePosDashboard() {
 
       setEventPerformanceRefresh((current) => current + 1);
       setStatus(payload.message ?? "Venta registrada y stock actualizado en vivo.");
-    } catch (error) {
-      console.error("Checkout sync failed", error);
-      setStatus("No se pudo registrar la venta en la API en vivo.");
-    } finally {
+      showToast("Venta confirmada", "success");
       setCart([]);
       setIsCartOpen(false);
+    } catch (error) {
+      console.error("Checkout sync failed", error);
+      setStatus("No se pudo registrar la venta. El carrito se conservó para reintentar.");
+      showToast("No se pudo registrar la venta", "error");
     }
   };
 
