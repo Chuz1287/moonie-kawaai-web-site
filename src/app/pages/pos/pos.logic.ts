@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   addProductToCart,
   calculateCartTotals,
@@ -138,6 +138,8 @@ export function usePosDashboard() {
   const [editingExpenseCategory, setEditingExpenseCategory] = useState(expenseCategories[0]);
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const checkoutInFlight = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -382,7 +384,10 @@ export function usePosDashboard() {
       setStatus("El carrito estÃ¡ vacÃ­o");
       return;
     }
+    if (checkoutInFlight.current) return;
 
+    checkoutInFlight.current = true;
+    setIsCheckingOut(true);
     try {
       const response = await fetch("/api/sales", {
         method: "POST",
@@ -425,6 +430,9 @@ export function usePosDashboard() {
       console.error("Checkout sync failed", error);
       setStatus("No se pudo registrar la venta. El carrito se conservó para reintentar.");
       showToast("No se pudo registrar la venta", "error");
+    } finally {
+      checkoutInFlight.current = false;
+      setIsCheckingOut(false);
     }
   };
 
@@ -749,6 +757,7 @@ export function usePosDashboard() {
     setEditingExpenseCategory,
     productCatalog,
     isCartOpen,
+    isCheckingOut,
     setIsCartOpen,
     filteredProducts,
     inventorySummary,

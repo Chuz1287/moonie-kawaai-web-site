@@ -13,6 +13,7 @@ export default function CartPanel({
   onChangePrice,
   onRemove,
   onCheckout,
+  isCheckingOut = false,
   onClose,
   onOpen,
   total,
@@ -78,13 +79,18 @@ export default function CartPanel({
           <button
             type="button"
             onClick={onCheckout}
-            disabled={cart.length === 0}
+            disabled={cart.length === 0 || isCheckingOut}
             className={styles.previewConfirmBtn}
             aria-label="Confirmar venta"
+            aria-busy={isCheckingOut}
           >
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            {isCheckingOut ? (
+              <span className={styles.spinner} aria-hidden="true" />
+            ) : (
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
@@ -208,10 +214,18 @@ export default function CartPanel({
           <button
             type="button"
             onClick={onCheckout}
-            disabled={cart.length === 0}
+            disabled={cart.length === 0 || isCheckingOut}
+            aria-busy={isCheckingOut}
             className={styles.checkoutBtn}
           >
-            Confirmar Venta
+            {isCheckingOut ? (
+              <span className={styles.spinnerRow}>
+                <span className={styles.spinner} aria-hidden="true" />
+                Confirmando...
+              </span>
+            ) : (
+              "Confirmar Venta"
+            )}
           </button>
         </div>
       </div>

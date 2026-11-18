@@ -60,6 +60,7 @@ export default function PosDashboard() {
               onChangePrice={model.handleChangePrice}
               onRemove={model.handleRemove}
               onCheckout={model.handleCheckout}
+              isCheckingOut={model.isCheckingOut}
               subtotal={model.totals.subtotal}
               tax={model.totals.tax}
               total={model.totals.total}
@@ -75,6 +76,7 @@ export default function PosDashboard() {
               onChangePrice={model.handleChangePrice}
               onRemove={model.handleRemove}
               onCheckout={model.handleCheckout}
+              isCheckingOut={model.isCheckingOut}
               onOpen={() => model.setIsCartOpen(true)}
               subtotal={model.totals.subtotal}
               tax={model.totals.tax}
@@ -94,6 +96,7 @@ export default function PosDashboard() {
                 onChangePrice={model.handleChangePrice}
                 onRemove={model.handleRemove}
                 onCheckout={model.handleCheckout}
+                isCheckingOut={model.isCheckingOut}
                 onClose={() => model.setIsCartOpen(false)}
                 subtotal={model.totals.subtotal}
                 tax={model.totals.tax}
