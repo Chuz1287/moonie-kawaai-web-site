@@ -164,6 +164,12 @@
         background: var(--background);
         color: var(--text-primary);
       }
+
+      // En mobile el ancho no depende del nombre del evento: el texto largo se corta
+      // y ningún otro elemento de la fila salta de línea.
+      @media (max-width: $tablet - 1px) {
+        flex: 1 1 0;
+      }
     }
 
     .activeBadge {
