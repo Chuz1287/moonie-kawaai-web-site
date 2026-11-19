@@ -78,8 +78,10 @@ $transition-theme: all $transition-fast;
 }
 
 .loading {
-  font-size: $text-sm;
-  color: var(--text-tertiary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
 }
 
 .metricsContainer {

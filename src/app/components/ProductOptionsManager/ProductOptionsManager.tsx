@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Pencil, Plus, Tags, Trash2, X } from "lucide-react";
 import styles from "./ProductOptionsManager.module.scss";
+import { SkeletonRowList } from "@/components/Skeleton";
 
 type OptionType = "category" | "series";
 
@@ -172,7 +173,7 @@ export default function ProductOptionsManager({
 
             {error && <p className={styles.error} role="alert">{error}</p>}
             {loading && currentOptions.length === 0 ? (
-              <p className={styles.emptyState}>Cargando opciones...</p>
+              <SkeletonRowList count={3} />
             ) : currentOptions.length > 0 ? (
               <ul className={styles.optionList}>
                 {currentOptions.map((option) => (

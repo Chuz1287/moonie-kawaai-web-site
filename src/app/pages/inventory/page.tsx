@@ -12,6 +12,7 @@ import { useInventoryDashboard } from "@/components/InventoryDashboard.logic";
 import BulkProductImporter from "@/components/BulkProductImporter/BulkProductImporter";
 import ProductOptionsManager from "@/components/ProductOptionsManager/ProductOptionsManager";
 import styles from "./inventory.module.scss";
+import { SkeletonCardGrid } from "@/components/Skeleton";
 
 export default function InventoryPage() {
   const model = useInventoryDashboard();
@@ -53,7 +54,11 @@ export default function InventoryPage() {
   };
 
   if (model.loading) {
-    return <div className={styles.scope}><p>Cargando inventario...</p></div>;
+    return (
+      <div className={styles.scope} aria-busy="true">
+        <SkeletonCardGrid count={8} />
+      </div>
+    );
   }
 
   return (

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./events.module.scss";
+import Spinner from "@/components/Spinner";
 
 type EventRecord = {
   id: string;
@@ -439,6 +440,7 @@ export default function EventsPage() {
               </label>
             </div>
             <button disabled={isSavingEvent || !eventName.trim() || !eventStartDate || !eventEndDate} className={styles.submitButton}>
+              {isSavingEvent ? <Spinner size="sm" /> : null}
               {isSavingEvent ? "Guardando..." : "Crear y activar evento"}
             </button>
           </form>
@@ -564,6 +566,7 @@ export default function EventsPage() {
             {category === "__custom__" && <label className={styles.label}>Nombre de categoría<input required value={customCategory} onChange={(event) => setCustomCategory(event.target.value)} placeholder="Ej. hospedaje" className={styles.input} /></label>}
             <label className={styles.label}>Importe<input required min="0.01" step="0.01" type="number" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" className={styles.input} /></label>
             <button disabled={!selectedEventId || isSavingExpense} className={styles.addExpenseButton}>
+              {isSavingExpense ? <Spinner size="sm" /> : null}
               {isSavingExpense ? "Guardando..." : "Guardar gasto"}
             </button>
           </form>

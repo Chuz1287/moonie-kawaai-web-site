@@ -2,6 +2,7 @@
 
 import { formatPosCurrency, type PosDashboardModel } from "@/pages/pos/pos.logic";
 import styles from "./EventManagementDialog.module.scss";
+import Spinner from "@/components/Spinner";
 
 const expenseCategories = ["Stand / piso", "Comida", "Sueldos", "Caseta", "Gasolina"];
 
@@ -107,6 +108,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
             }
             className={styles.submitButton}
           >
+            {model.isSavingEvent ? <Spinner size="sm" /> : null}
             {model.isSavingEvent ? "Guardando..." : "Crear y activar evento"}
           </button>
         </form>
@@ -348,6 +350,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                     transition: "all 200ms ease",
                   }}
                 >
+                  {model.isSavingExpense ? <Spinner size="sm" /> : null}
                   {model.isSavingExpense ? "Guardando..." : "Agregar gasto"}
                 </button>
               </form>

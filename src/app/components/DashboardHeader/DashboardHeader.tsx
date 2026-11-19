@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { PosDashboardModel } from "@/pages/pos/pos.logic";
 import styles from "./DashboardHeader.module.scss";
 import { PenLine, Plus } from "lucide-react";
+import { SkeletonLine } from "@/components/Skeleton";
 
 export default function DashboardHeader({ model, children }: { model: PosDashboardModel; children?: ReactNode }) {
   return (
@@ -30,20 +31,26 @@ export default function DashboardHeader({ model, children }: { model: PosDashboa
         </div> */}
         <div className={styles.eventSection}>
           {/* <label className={styles.eventLabel}>Evento de venta</label> */}
-          <select
-            value={model.selectedEvent}
-            onChange={(event) => {
-              model.setSelectedEvent(event.target.value);
-              localStorage.setItem("moonie_kawaai_selected_event", event.target.value);
-            }}
-            className={styles.eventSelect}
-          >
-            {model.salesChannels.map((channel) => (
-              <option key={channel.id} value={channel.id}>
-                {channel.name}
-              </option>
-            ))}
-          </select>
+          {model.isLoadingEvents ? (
+            <div className={styles.eventSelectSkeleton}>
+              <SkeletonLine height="2.25rem" />
+            </div>
+          ) : (
+            <select
+              value={model.selectedEvent}
+              onChange={(event) => {
+                model.setSelectedEvent(event.target.value);
+                localStorage.setItem("moonie_kawaai_selected_event", event.target.value);
+              }}
+              className={styles.eventSelect}
+            >
+              {model.salesChannels.map((channel) => (
+                <option key={channel.id} value={channel.id}>
+                  {channel.name}
+                </option>
+              ))}
+            </select>
+          )}
           <button
             type="button"
             onClick={() => model.setIsEventsAndExpensesModalOpen(true)}

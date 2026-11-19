@@ -5,6 +5,7 @@ import SalesFilters from "@/components/SalesFilters";
 import SalesHeader from "@/components/SalesHeader";
 import SalesList from "@/components/SalesList";
 import SalesSummaryCards from "@/components/SalesSummaryCards";
+import { SkeletonRowList } from "@/components/Skeleton";
 import styles from "./sales.module.scss";
 import { useSalesHistory } from "./sales.logic";
 
@@ -52,7 +53,11 @@ export default function SalesHistoryPage() {
         />
 
 
-        <SalesList model={model} />
+        {model.loading ? (
+          <SkeletonRowList count={5} />
+        ) : (
+          <SalesList model={model} />
+        )}
       </div>
 
       <SaleEditDialog model={model} />

@@ -137,9 +137,16 @@
       }
     }
 
-    .eventSelect {
-      flex: 1 1 8rem;
+    .eventSelectSkeleton {
+      flex: 1 1 0;
       min-width: 0;
+    }
+
+    .eventSelect {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       border-radius: var(--component-border-radius);
       border: 1px solid var(--border-color);
       background: var(--surface);

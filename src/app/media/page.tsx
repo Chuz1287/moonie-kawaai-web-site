@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import BulkImageUploader from "@/components/BulkImageUploader/BulkImageUploader";
 import styles from "./media.module.scss";
+import Spinner from "@/components/Spinner";
+import { SkeletonCardGrid, SkeletonRowList } from "@/components/Skeleton";
 
 const productRoot = "moonie-kawaii/products";
 
@@ -586,7 +588,7 @@ export default function MediaPage() {
             aria-label="Buscar solo por nombre de carpeta"
           />
           {loading && assets.length === 0 ? (
-            <p className={styles.muted}>Cargando estructura...</p>
+            <SkeletonRowList count={5} />
           ) : filteredFolderTree && filteredFolderTree.children.length > 0 ? (
             <ul className={styles.folderTree}>
               {filteredFolderTree.children.map((node) => (
@@ -664,6 +666,7 @@ export default function MediaPage() {
                   disabled={isDeleting}
                 >
                   <Trash2 size={16} aria-hidden="true" />
+                  {isDeleting ? <Spinner size="sm" /> : null}
                   {isDeleting
                     ? "Eliminando..."
                     : `Eliminar seleccionados (${selectedAssets.size + selectedFolders.size})`}
@@ -673,7 +676,7 @@ export default function MediaPage() {
           </div>
 
           {loading ? (
-            <p className={styles.emptyState}>Cargando imágenes...</p>
+            <SkeletonCardGrid count={8} />
           ) : visibleAssets.length > 0 ? (
             <>
               <label className={styles.selectAllAssets}>
