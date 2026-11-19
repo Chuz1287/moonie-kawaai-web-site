@@ -2,6 +2,7 @@
 
 import CartPanel from "@/components/CartPanel";
 import ProductGrid from "@/components/ProductGrid";
+import { SkeletonCardGrid } from "@/components/Skeleton";
 import DashboardHeader from "@/components/DashboardHeader";
 import EventManagementDialog from "@/components/EventManagementDialog";
 import EventPerformancePanel from "@/components/EventPerformancePanel";
@@ -46,10 +47,16 @@ export default function PosDashboard() {
                   : "Vista rápida"}
               </span>
             </div>
-            <ProductGrid
-              products={model.filteredProducts}
-              onAdd={model.handleAddToCart}
-            />
+            {model.isLoadingProducts ? (
+              <SkeletonCardGrid count={6} />
+            ) : (
+              <div className="app-enter">
+                <ProductGrid
+                  products={model.filteredProducts}
+                  onAdd={model.handleAddToCart}
+                />
+              </div>
+            )}
           </section>
 
           <aside className={styles.cartColumn}>

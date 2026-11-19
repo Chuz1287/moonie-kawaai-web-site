@@ -4,6 +4,7 @@ import { useId, useMemo, useState } from "react";
 import { Check, ChevronDown, Plus, Search, X } from "lucide-react";
 import type { AddInventoryModalProps } from "./AddInventoryModal.logic";
 import styles from "./AddInventoryModal.module.scss";
+import Spinner from "@/components/Spinner";
 
 type SearchableDropdownProps = {
   options: string[];
@@ -495,6 +496,7 @@ export default function AddInventoryModal({
               Cancelar
             </button>
             <button type="submit" className={styles.buttonPrimary} disabled={loading}>
+              {loading ? <Spinner size="sm" /> : null}
               {loading ? "Guardando..." : editingItem ? "Guardar cambios" : "Agregar"}
             </button>
           </div>

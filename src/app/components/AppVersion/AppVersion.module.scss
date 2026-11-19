@@ -1,0 +1,12 @@
+@use '../../../design-system/_variables' as *;
+
+.version {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: $text-xs;
+  color: var(--text-tertiary);
+  opacity: 0.6;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+}

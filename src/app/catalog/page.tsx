@@ -7,6 +7,7 @@ import { ArrowLeft, ImageOff, LoaderCircle, Printer, Save, Share2, Sparkles, Tra
 import type { Product } from "@/types/store";
 import type { CatalogTemplate } from "@/services/catalogTemplates";
 import styles from "./catalog.module.scss";
+import { SkeletonRowList } from "@/components/Skeleton";
 
 type CatalogResponse = {
   products?: Product[];
@@ -439,7 +440,11 @@ export default function CatalogPage() {
   ));
 
   if (loading) {
-    return <main className={styles.state}>Preparando el catálogo de inventario…</main>;
+    return (
+      <main className={styles.state} aria-busy="true">
+        <SkeletonRowList count={4} />
+      </main>
+    );
   }
 
   if (error) {
@@ -461,7 +466,7 @@ export default function CatalogPage() {
   }
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} app-enter`}>
       <div className={styles.toolbar}>
         <Link href="/pages/inventory" className={styles.backLink}>
           <ArrowLeft size={17} aria-hidden="true" />

@@ -135,6 +135,12 @@ $transition-base: 300ms ease-in-out;
 $transition-slow: 500ms ease-in-out;
 $transition-theme: all 200ms ease;
 
+// ─── ANIMACIÓN DE ENTRADA (contenido al terminar de cargar) ──────
+// Clase global `.app-enter` (src/app/animations.scss)
+$motion-enter-duration: 400ms;
+$motion-enter-easing: cubic-bezier(0.16, 1, 0.3, 1);
+$motion-enter-distance: 0.5rem;
+
 // ═══════════════════════════════════════════════════════════════
 // RESPONSIVE SIZING - COMPONENTES
 // ═══════════════════════════════════════════════════════════════

@@ -137,6 +137,8 @@ export function usePosDashboard() {
   const [deletingEventId, setDeletingEventId] = useState("");
   const [editingExpenseCategory, setEditingExpenseCategory] = useState(expenseCategories[0]);
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const checkoutInFlight = useRef(false);
@@ -208,8 +210,12 @@ export function usePosDashboard() {
       }
     }
 
-    void loadProducts();
-    void loadEvents();
+    void loadProducts().finally(() => {
+      if (!cancelled) setIsLoadingProducts(false);
+    });
+    void loadEvents().finally(() => {
+      if (!cancelled) setIsLoadingEvents(false);
+    });
 
     return () => {
       cancelled = true;
@@ -756,6 +762,8 @@ export function usePosDashboard() {
     editingExpenseCategory,
     setEditingExpenseCategory,
     productCatalog,
+    isLoadingProducts,
+    isLoadingEvents,
     isCartOpen,
     isCheckingOut,
     setIsCartOpen,

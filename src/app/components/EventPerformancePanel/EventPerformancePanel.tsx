@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { formatPosCurrency, type PosDashboardModel } from "@/pages/pos/pos.logic";
+import { SkeletonLine } from "@/components/Skeleton";
 import styles from "./EventPerformancePanel.module.scss";
 
 export default function EventPerformancePanel({ model }: { model: PosDashboardModel }) {
@@ -54,10 +55,13 @@ export default function EventPerformancePanel({ model }: { model: PosDashboardMo
               {model.eventPerformanceError}
             </p>
           ) : !eventPerformance ? (
-            <p className={styles.loading}>Calculando retorno del evento...</p>
+            <div className={styles.loading}>
+              <SkeletonLine height="2.5rem" />
+              <SkeletonLine height="2.5rem" />
+            </div>
           ) : (
             <>
-              <div className={styles.metricsContainer}>
+              <div className={`${styles.metricsContainer} app-enter`}>
                 <div className={styles.metricBox}>
                   <p className={styles.metricLabel}>Ventas del evento</p>
                   <p className={styles.metricValueSuccess}>
@@ -84,7 +88,7 @@ export default function EventPerformancePanel({ model }: { model: PosDashboardMo
                 </div>
               </div>
 
-              <div className={styles.progressSection}>
+              <div className={`${styles.progressSection} app-enter`}>
                 <div
                   className={styles.progressBar}
                   role="progressbar"
