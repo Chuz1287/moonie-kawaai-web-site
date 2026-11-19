@@ -175,7 +175,7 @@ export default function ProductOptionsManager({
             {loading && currentOptions.length === 0 ? (
               <SkeletonRowList count={3} />
             ) : currentOptions.length > 0 ? (
-              <ul className={styles.optionList}>
+              <ul className={`${styles.optionList} app-enter`}>
                 {currentOptions.map((option) => (
                   <li key={option} className={styles.optionItem}>
                     {editingName === option ? (

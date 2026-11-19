@@ -56,7 +56,9 @@ export default function SalesHistoryPage() {
         {model.loading ? (
           <SkeletonRowList count={5} />
         ) : (
-          <SalesList model={model} />
+          <div className="app-enter">
+            <SalesList model={model} />
+          </div>
         )}
       </div>
 

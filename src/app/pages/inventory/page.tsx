@@ -62,7 +62,7 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className={styles.scope}>
+    <div className={`${styles.scope} app-enter`}>
       <InventoryHeader totalCount={model.totalProductCount} />
 
       {model.error && (

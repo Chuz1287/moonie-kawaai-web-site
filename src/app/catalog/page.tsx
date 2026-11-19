@@ -466,7 +466,7 @@ export default function CatalogPage() {
   }
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} app-enter`}>
       <div className={styles.toolbar}>
         <Link href="/pages/inventory" className={styles.backLink}>
           <ArrowLeft size={17} aria-hidden="true" />

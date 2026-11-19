@@ -50,10 +50,12 @@ export default function PosDashboard() {
             {model.isLoadingProducts ? (
               <SkeletonCardGrid count={6} />
             ) : (
-              <ProductGrid
-                products={model.filteredProducts}
-                onAdd={model.handleAddToCart}
-              />
+              <div className="app-enter">
+                <ProductGrid
+                  products={model.filteredProducts}
+                  onAdd={model.handleAddToCart}
+                />
+              </div>
             )}
           </section>
 

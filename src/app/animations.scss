@@ -1,0 +1,25 @@
+@use "../design-system/variables" as *;
+
+// Entrada global: se aplica al montar el contenido real, tras el skeleton.
+// Ajusta la duración, easing y distancia en design-system/_variables.scss.
+@keyframes app-enter {
+  from {
+    opacity: 0;
+    transform: translateY($motion-enter-distance);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.app-enter {
+  animation: app-enter $motion-enter-duration $motion-enter-easing both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-enter {
+    animation: none;
+  }
+}

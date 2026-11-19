@@ -590,7 +590,7 @@ export default function MediaPage() {
           {loading && assets.length === 0 ? (
             <SkeletonRowList count={5} />
           ) : filteredFolderTree && filteredFolderTree.children.length > 0 ? (
-            <ul className={styles.folderTree}>
+            <ul className={`${styles.folderTree} app-enter`}>
               {filteredFolderTree.children.map((node) => (
                 <FolderBranch
                   key={node.path}
@@ -703,7 +703,7 @@ export default function MediaPage() {
                 />
                 Seleccionar todas las imágenes visibles
               </label>
-              <div className={styles.assetGrid}>
+              <div className={`${styles.assetGrid} app-enter`}>
                 {visibleAssets.map((asset) => {
                 const name = asset.public_id.split("/").at(-1) ?? asset.public_id;
                 const isCover = name.toLocaleLowerCase() === "cover";

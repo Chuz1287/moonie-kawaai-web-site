@@ -42,7 +42,7 @@ export default function DashboardHeader({ model, children }: { model: PosDashboa
                 model.setSelectedEvent(event.target.value);
                 localStorage.setItem("moonie_kawaai_selected_event", event.target.value);
               }}
-              className={styles.eventSelect}
+              className={`${styles.eventSelect} app-enter`}
             >
               {model.salesChannels.map((channel) => (
                 <option key={channel.id} value={channel.id}>

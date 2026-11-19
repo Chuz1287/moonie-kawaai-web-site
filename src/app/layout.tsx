@@ -6,6 +6,7 @@ import VersionLogger from "@/components/VersionLogger";
 import Navigation from "@/components/Navigation";
 import SideMenu from "@/components/SideMenu";
 import "./globals.css";
+import "./animations.scss";
 
 const outfit = Outfit({
   variable: "--font-outfit",
