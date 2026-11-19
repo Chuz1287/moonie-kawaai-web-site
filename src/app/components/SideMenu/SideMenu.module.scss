@@ -85,6 +85,14 @@
   gap: 0.5rem;
 }
 
+.version {
+  margin-top: auto;
+}
+
+.sidebar:not(.open) .version {
+  display: none;
+}
+
 .navItem {
   display: flex;
   align-items: center;

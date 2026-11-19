@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ShoppingCart, TrendingUp, Package, Images, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import AppVersion from "../AppVersion";
+import packageJson from "../../../../package.json";
 import styles from "./SideMenu.module.scss";
 
 const SIDEBAR_STORAGE_KEY = "moonie_kawaai_sidebar_open";
@@ -70,6 +72,8 @@ export default function SideMenu() {
               );
             })}
           </nav>
+
+          <AppVersion version={packageJson.version} className={styles.version} />
         </div>
       </aside>
 

@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/Toast";
 import VersionLogger from "@/components/VersionLogger";
 import Navigation from "@/components/Navigation";
 import SideMenu from "@/components/SideMenu";
+import AppVersion from "@/components/AppVersion";
 import "./globals.css";
 import "./animations.scss";
 
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
         </ToastProvider>
         <Navigation />
+        <AppVersion version={packageJson.version} className="md:hidden" />
       </body>
     </html>
   );
