@@ -2,7 +2,7 @@
 
 .scope {
   min-height: 100vh;
-  padding: 2rem 1rem;
+  padding: var(--scope-padding);
   color: var(--foreground);
 }
 

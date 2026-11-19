@@ -1,8 +1,10 @@
 @use '../../../design-system/_variables' as *;
 
+
 .scope {
   background: var(--background);
   color: var(--text-primary);
+  padding: var(--scope-padding);
   transition: background 200ms ease, color 200ms ease;
 }
 

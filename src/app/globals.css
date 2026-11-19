@@ -2,6 +2,8 @@
 
 /* DARK MODE (DEFAULT) */
 :root {
+  --scope-padding: 1em;
+
   /* Primary Colors */
   --background: #0f1419;
   --foreground: #ffffff;

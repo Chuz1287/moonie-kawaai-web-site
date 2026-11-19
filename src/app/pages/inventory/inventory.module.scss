@@ -2,14 +2,10 @@
 
 .scope {
   width: 100%;
-  padding: $padding-mobile;
+  padding: var(--scope-padding);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-
-  @media (min-width: $tablet) {
-    padding: $padding-desktop;
-  }
 }
 
 /* ─── ERROR ──────────────────────────────────────────────────── */

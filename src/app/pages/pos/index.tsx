@@ -14,7 +14,7 @@ export default function PosDashboard() {
   const model = usePosDashboard();
 
   return (
-    <main className={`${styles.scope} min-h-screen px-4 pb-32 pt-6 text-[var(--foreground)]`}>
+    <main className={`${styles.scope} min-h-screen text-[var(--foreground)]`}>
       <div className="mx-auto max-w-7xl">
         <header className={styles.header}>
           <DashboardHeader model={model}>
