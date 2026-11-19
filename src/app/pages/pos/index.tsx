@@ -14,11 +14,12 @@ export default function PosDashboard() {
   const model = usePosDashboard();
 
   return (
-    <main className={`${styles.scope} min-h-screen px-4 pb-32 pt-6 text-[var(--foreground)]`}>
+    <main className={`${styles.scope} min-h-screen text-[var(--foreground)]`}>
       <div className="mx-auto max-w-7xl">
         <header className={styles.header}>
-          <DashboardHeader model={model} />
-          <EventPerformancePanel model={model} />
+          <DashboardHeader model={model}>
+            <EventPerformancePanel model={model} />
+          </DashboardHeader>
         </header>
 
         <EventManagementDialog model={model} />
@@ -59,6 +60,7 @@ export default function PosDashboard() {
               onChangePrice={model.handleChangePrice}
               onRemove={model.handleRemove}
               onCheckout={model.handleCheckout}
+              isCheckingOut={model.isCheckingOut}
               subtotal={model.totals.subtotal}
               tax={model.totals.tax}
               total={model.totals.total}
@@ -74,6 +76,7 @@ export default function PosDashboard() {
               onChangePrice={model.handleChangePrice}
               onRemove={model.handleRemove}
               onCheckout={model.handleCheckout}
+              isCheckingOut={model.isCheckingOut}
               onOpen={() => model.setIsCartOpen(true)}
               subtotal={model.totals.subtotal}
               tax={model.totals.tax}
@@ -93,6 +96,7 @@ export default function PosDashboard() {
                 onChangePrice={model.handleChangePrice}
                 onRemove={model.handleRemove}
                 onCheckout={model.handleCheckout}
+                isCheckingOut={model.isCheckingOut}
                 onClose={() => model.setIsCartOpen(false)}
                 subtotal={model.totals.subtotal}
                 tax={model.totals.tax}

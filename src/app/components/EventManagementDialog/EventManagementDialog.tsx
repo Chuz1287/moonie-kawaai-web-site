@@ -150,7 +150,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                           disabled={!model.editingEventName.trim() || model.editingEventName.trim() === event.name}
                           style={{
                             padding: "0.25rem 0.5rem",
-                            borderRadius: "0.5rem",
+                            borderRadius: "var(--component-border-radius)",
                             border: "1px solid var(--accent-success)",
                             background: "rgba(16, 185, 129, 0.1)",
                             color: "var(--accent-success)",
@@ -167,7 +167,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                           onClick={() => model.setEditingEventId("")}
                           style={{
                             padding: "0.25rem 0.5rem",
-                            borderRadius: "0.5rem",
+                            borderRadius: "var(--component-border-radius)",
                             border: "1px solid var(--border-color)",
                             background: "transparent",
                             color: "var(--text-secondary)",
@@ -200,7 +200,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                         }}
                         style={{
                           padding: "0.375rem 0.75rem",
-                          borderRadius: "0.5rem",
+                          borderRadius: "var(--component-border-radius)",
                           border: "1px solid rgba(59, 130, 246, 0.4)",
                           background: "transparent",
                           color: "rgba(191, 219, 254, 1)",
@@ -218,7 +218,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                       onClick={() => model.setManagedEventId(event.id)}
                       style={{
                         padding: "0.375rem 0.75rem",
-                        borderRadius: "0.5rem",
+                        borderRadius: "var(--component-border-radius)",
                         border: model.managedEventId === event.id ? "1px solid var(--accent-primary)" : "1px solid var(--border-color)",
                         background: model.managedEventId === event.id ? "rgba(139, 92, 246, 0.15)" : "transparent",
                         color: model.managedEventId === event.id ? "var(--accent-primary)" : "var(--text-secondary)",
@@ -236,7 +236,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                       disabled={Boolean(model.deletingEventId)}
                       style={{
                         padding: "0.375rem 0.75rem",
-                        borderRadius: "0.5rem",
+                        borderRadius: "var(--component-border-radius)",
                         border: "1px solid rgba(239, 68, 68, 0.4)",
                         background: "transparent",
                         color: "var(--accent-error)",
@@ -337,7 +337,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                   style={{
                     alignSelf: "flex-end",
                     padding: "0.5rem 1rem",
-                    borderRadius: "0.75rem",
+                    borderRadius: "var(--component-border-radius)",
                     border: "none",
                     background: "var(--accent-error)",
                     color: "white",
@@ -357,7 +357,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                   marginTop: "1rem",
                   maxHeight: "12rem",
                   overflowY: "auto",
-                  borderRadius: "0.75rem",
+                  borderRadius: "var(--component-border-radius)",
                   border: "1px solid var(--border-color)",
                   borderTop: "none",
                 }}
@@ -414,7 +414,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                               disabled={!model.editingExpenseAmount || Number(model.editingExpenseAmount) <= 0}
                               style={{
                                 padding: "0.25rem 0.5rem",
-                                borderRadius: "0.375rem",
+                                borderRadius: "var(--component-border-radius)",
                                 border: "1px solid var(--accent-success)",
                                 background: "rgba(16, 185, 129, 0.1)",
                                 color: "var(--accent-success)",
@@ -435,7 +435,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                               }}
                               style={{
                                 padding: "0.25rem 0.5rem",
-                                borderRadius: "0.375rem",
+                                borderRadius: "var(--component-border-radius)",
                                 border: "1px solid var(--border-color)",
                                 background: "transparent",
                                 color: "var(--text-secondary)",
@@ -467,7 +467,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                             }}
                             style={{
                               padding: "0.25rem 0.5rem",
-                              borderRadius: "0.375rem",
+                              borderRadius: "var(--component-border-radius)",
                               border: "1px solid rgba(59, 130, 246, 0.4)",
                               background: "transparent",
                               color: "rgba(191, 219, 254, 1)",
@@ -488,7 +488,7 @@ export default function EventManagementDialog({ model }: { model: PosDashboardMo
                           disabled={Boolean(model.editingExpenseId)}
                           style={{
                             padding: "0.25rem 0.5rem",
-                            borderRadius: "0.375rem",
+                            borderRadius: "var(--component-border-radius)",
                             border: "1px solid rgba(239, 68, 68, 0.4)",
                             background: "transparent",
                             color: "var(--accent-error)",

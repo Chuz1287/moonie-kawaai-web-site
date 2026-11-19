@@ -1,12 +1,15 @@
 import styles from "./InventoryHeader.module.scss";
 
-export default function InventoryHeader() {
+type InventoryHeaderProps = {
+  totalCount: number;
+};
+
+export default function InventoryHeader({ totalCount }: InventoryHeaderProps) {
   return (
     <div className={styles.header}>
-      <div className={styles.titleBlock}>
-        <p className={styles.subtitle}>Control</p>
-        <h1 className={styles.title}>Inventario</h1>
-      </div>
+      <h1 className={styles.title}>
+        Inventario <span className={styles.count}>({totalCount})</span>
+      </h1>
     </div>
   );
 }

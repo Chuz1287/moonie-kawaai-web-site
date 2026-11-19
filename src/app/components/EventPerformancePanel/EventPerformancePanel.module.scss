@@ -1,5 +1,4 @@
 @use '../../../design-system/_variables' as *;
-@use '../../../design-system/_mixins' as *;
 
 // ═══════════════════════════════════════════════════════════════
 // VARIABLES LOCALES SCSS
@@ -9,211 +8,159 @@ $gap-mobile: $spacing-sm; // 0.75rem
 $gap-tablet: $spacing-md; // 1rem
 $gap-desktop: $spacing-lg; // 1.5rem
 
-$padding-mobile: $spacing-md; // 1rem
-$padding-tablet: $spacing-lg; // 1.25rem
-
-$title-mobile: $text-md; // 1.125rem
-$title-tablet: $text-lg; // 1.25rem
-
 $transition-theme: all $transition-fast;
 
 // ═══════════════════════════════════════════════════════════════
-// MOBILE FIRST STYLES (Base)
+// BOTÓN DE GANANCIA (en la misma fila del evento)
 // ═══════════════════════════════════════════════════════════════
 
-.scope {
-  margin-top: $spacing-md;
-  border-radius: $radius-2xl;
-  border: 1px solid var(--border-color);
-  padding: $padding-mobile;
-  background: var(--surface);
+.balanceButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  border-radius: var(--component-border-radius);
+  border: 1px solid transparent;
+  padding: $spacing-xs $spacing-md;
+  font-size: $text-sm;
+  font-weight: $font-weight-black;
+  white-space: nowrap;
+  cursor: pointer;
   transition: $transition-theme;
 
-  .header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: $gap-mobile;
-
-    .headerInfo {
-      display: flex;
-      flex-direction: column;
-      gap: $spacing-xs;
-      flex: 1;
-
-      .headerLabel {
-        font-size: $text-xs;
-        font-weight: $font-weight-bold;
-        text-transform: uppercase;
-        letter-spacing: 0.125em;
-        color: var(--accent-primary);
-      }
-
-      .headerTitle {
-        margin-top: $spacing-xs;
-        font-size: $title-mobile;
-        font-weight: $font-weight-black;
-        line-height: 1.2;
-        color: var(--text-primary);
-      }
-    }
-
-    .toggleButton {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      padding: 0;
-      background: var(--surface-hover);
-      border: 1px solid var(--border-color);
-      border-radius: $radius-sm;
-      color: var(--text-primary);
-      cursor: pointer;
-      transition: $transition-theme;
-
-      &:hover {
-        border-color: var(--accent-primary);
-        background: var(--accent-primary);
-        color: white;
-      }
-
-      &:focus {
-        outline: none;
-        border-color: var(--accent-primary);
-      }
-    }
+  svg {
+    transition: transform $transition-fast;
   }
 
-  .balance {
-    font-size: $title-mobile;
-    font-weight: $font-weight-black;
-    white-space: nowrap;
-    order: 2;
-  }
-
-  .balancePositive {
-    @extend .balance;
+  &.positive {
+    border-color: var(--accent-success);
+    background: rgba(34, 197, 94, 0.1);
     color: var(--accent-success);
+    height: stretch;
   }
 
-  .balanceNegative {
-    @extend .balance;
+  &.negative {
+    border-color: var(--accent-warning);
+    background: rgba(234, 179, 8, 0.1);
     color: var(--accent-warning);
-  }
-
-  .error {
-    margin-top: $spacing-lg;
-    padding: $spacing-sm;
-    border-radius: $radius-sm;
-    background: rgba(239, 68, 68, 0.1);
-    font-size: $text-sm;
-    color: var(--accent-error);
-  }
-
-  .loading {
-    margin-top: $spacing-lg;
-    font-size: $text-sm;
-    color: var(--text-tertiary);
-  }
-
-  .metricsContainer {
-    margin-top: $spacing-md;
-    display: flex;
-    flex-wrap: wrap;
-    gap: $gap-mobile;
-
-    .metricBox {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .25em;
-    justify-content: space-between;
-    width: 45%;
-
-      .metricLabel {
-        font-size: $text-xs;
-        color: var(--text-tertiary);
-        font-weight: $font-weight-semibold;
-      }
-
-      .metricValue {
-        font-size: $text-base;
-        font-weight: $font-weight-bold;
-        color: var(--text-primary);
-      }
-
-      .metricValueSuccess {
-        @extend .metricValue;
-        color: var(--accent-success);
-      }
-
-      .metricValueWarning {
-        @extend .metricValue;
-        color: var(--accent-warning);
-      }
-    }
-  }
-
-  .progressSection {
-    margin-top: $spacing-md;
-
-    .progressLabel {
-      display: flex;
-      justify-content: space-between;
-      gap: $spacing-sm;
-      font-size: $text-xs;
-      color: var(--text-tertiary);
-      margin-bottom: $spacing-sm;
-    }
-
-    .progressBar {
-      height: 0.5rem;
-      overflow: hidden;
-      border-radius: $radius-full;
-      background: var(--border-color);
-
-      .progressFill {
-        height: 100%;
-        border-radius: $radius-full;
-        background: var(--accent-success);
-        transition: width $transition-base;
-      }
-    }
   }
 }
 
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
 // ═══════════════════════════════════════════════════════════════
-// TABLET STYLES (min-width: 768px)
+// DESGLOSE (ocupa una línea completa debajo de la fila del evento)
+// ═══════════════════════════════════════════════════════════════
+
+.breakdown {
+  flex: 0 0 100%;
+  margin-top: $spacing-sm;
+  padding: $gap-mobile;
+  border-radius: var(--component-border-radius);
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+}
+
+.warning {
+  margin-top: $spacing-sm;
+  font-size: $text-xs;
+  color: var(--accent-warning);
+}
+
+.error {
+  padding: $spacing-sm;
+  border-radius: var(--component-border-radius);
+  background: rgba(239, 68, 68, 0.1);
+  font-size: $text-sm;
+  color: var(--accent-error);
+}
+
+.loading {
+  font-size: $text-sm;
+  color: var(--text-tertiary);
+}
+
+.metricsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $gap-mobile;
+}
+
+.metricBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  justify-content: space-between;
+  width: 45%;
+}
+
+.metricLabel {
+  font-size: $text-xs;
+  color: var(--text-tertiary);
+  font-weight: $font-weight-semibold;
+}
+
+.metricValue {
+  font-size: $text-base;
+  font-weight: $font-weight-bold;
+  color: var(--text-primary);
+}
+
+.metricValueSuccess {
+  @extend .metricValue;
+  color: var(--accent-success);
+}
+
+.metricValueWarning {
+  @extend .metricValue;
+  color: var(--accent-warning);
+}
+
+.progressSection {
+  margin-top: $spacing-md;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  font-size: $text-xs;
+  color: var(--text-tertiary);
+  margin-bottom: $spacing-sm;
+}
+
+.progressBar {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: var(--component-border-radius);
+  background: var(--border-color);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--component-border-radius);
+  background: var(--accent-success);
+  transition: width $transition-base;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TABLET (min-width: 768px)
 // ═══════════════════════════════════════════════════════════════
 
 @media (min-width: $tablet) {
-  .scope {
-    padding: $padding-tablet;
-
-    .header {
-      .headerInfo {
-        .headerTitle {
-          font-size: $title-tablet;
-        }
-      }
-    }
-
-    .metricsContainer {
-      gap: $gap-tablet;
-    }
+  .metricsContainer {
+    gap: $gap-tablet;
   }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// DESKTOP STYLES (min-width: 1024px)
+// DESKTOP (min-width: 1024px)
 // ═══════════════════════════════════════════════════════════════
 
 @media (min-width: $desktop) {
-  .scope {
-    .metricsContainer {
-      gap: $gap-desktop;
-    }
+  .metricsContainer {
+    gap: $gap-desktop;
   }
 }

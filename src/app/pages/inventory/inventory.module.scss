@@ -2,14 +2,10 @@
 
 .scope {
   width: 100%;
-  padding: $padding-mobile;
+  padding: var(--scope-padding);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-
-  @media (min-width: $tablet) {
-    padding: $padding-desktop;
-  }
+  gap: 1rem;
 }
 
 /* ─── ERROR ──────────────────────────────────────────────────── */
@@ -17,19 +13,9 @@
   padding: 1rem;
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid var(--accent-error);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   color: var(--accent-error);
   font-size: $text-sm;
-}
-
-.inventoryCount {
-  margin: -0.75rem 0 0;
-  color: var(--text-secondary);
-  font-size: $text-sm;
-
-  strong {
-    color: var(--text-primary);
-  }
 }
 
 /* ─── CONTROLS ───────────────────────────────────────────────── */
@@ -37,20 +23,13 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 1rem;
-
-  @media (min-width: $tablet) {
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-  }
 }
 
 .searchInput {
-  flex: 1;
+  width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   background: var(--surface);
   color: var(--text-primary);
   font-size: $text-sm;
@@ -69,8 +48,17 @@
 
 .actionButtons {
   display: flex;
+  align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.buttonLabel {
+  display: none;
+
+  @media (min-width: $tablet) {
+    display: inline;
+  }
 }
 
 .catalogDropdown {
@@ -89,7 +77,7 @@
   gap: 0.25rem;
   padding: 0.25rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   background: var(--surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
@@ -105,7 +93,7 @@
   padding: 0.75rem 1.5rem;
   background: transparent;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   color: var(--text-primary);
   font-size: $text-sm;
   font-weight: $font-weight-semibold;
@@ -134,10 +122,10 @@
 
 .buttonPrimary {
   padding: 0.75rem 1.5rem;
-  background: var(--accent-primary);
-  border: none;
-  border-radius: $radius-md;
-  color: var(--background);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--component-border-radius);
+  color: var(--text-primary);
   font-size: $text-sm;
   font-weight: $font-weight-bold;
   cursor: pointer;
@@ -188,7 +176,25 @@
 .emptyState {
   padding: 2rem;
   border: 1px dashed var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   color: var(--text-secondary);
   text-align: center;
+}
+
+/* Botones solo icono en móvil; con etiqueta en escritorio. Va al final para ganar sobre .button y .buttonPrimary. */
+.iconButton,
+.iconButtonPrimary {
+  padding: 0.75rem;
+
+  @media (min-width: $tablet) {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+.iconButton {
+  @extend .button;
+}
+
+.iconButtonPrimary {
+  @extend .buttonPrimary;
 }

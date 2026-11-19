@@ -3,7 +3,7 @@
 %card {
   background: var(--surface);
   border: 1px solid var(--border-color);
-  border-radius: 1rem;
+  border-radius: var(--component-border-radius);
   overflow: hidden;
 }
 
@@ -26,7 +26,7 @@
   display: inline-flex;
   gap: 0.25rem;
   padding: 0.25rem;
-  border-radius: 0.75rem;
+  border-radius: var(--component-border-radius);
   border: 1px solid var(--border-color);
   background: var(--surface-hover);
 }
@@ -36,7 +36,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--component-border-radius);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -183,7 +183,7 @@
 
 .linesWrap {
   border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
+  border-radius: var(--component-border-radius);
   overflow-x: auto;
 }
 
@@ -416,7 +416,7 @@
   color: var(--accent-warning);
   background: rgba(var(--accent-warning-rgb), 0.1);
   border-left: 2px solid var(--accent-warning);
-  border-radius: 0.25rem;
+  border-radius: var(--component-border-radius);
 }
 
 /* Vista por piezas */
@@ -434,7 +434,7 @@
   padding: 1rem;
   background: var(--surface);
   border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
+  border-radius: var(--component-border-radius);
   transition: all 200ms ease;
 
   &:hover {
@@ -485,7 +485,7 @@
   background: var(--accent-primary);
   color: white;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: var(--component-border-radius);
   font-weight: 600;
   cursor: pointer;
   transition: all 200ms ease;

@@ -5,13 +5,27 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   background: var(--surface);
   color: var(--text-primary);
   font: inherit;
+  font-size: $text-sm;
+  font-weight: $font-weight-semibold;
   cursor: pointer;
+
+  @media (min-width: $tablet) {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+.triggerLabel {
+  display: none;
+
+  @media (min-width: $tablet) {
+    display: inline;
+  }
 }
 
 .overlay {
@@ -31,7 +45,7 @@
   overflow: auto;
   padding: 1.5rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-lg;
+  border-radius: var(--component-border-radius);
   background: var(--surface);
   color: var(--text-primary);
 }
@@ -57,7 +71,7 @@
   height: 2.5rem;
   place-items: center;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
@@ -72,7 +86,7 @@
   button {
     padding: 0.7rem;
     border: 1px solid var(--border-color);
-    border-radius: $radius-md;
+    border-radius: var(--component-border-radius);
     background: transparent;
     color: var(--text-primary);
     cursor: pointer;
@@ -95,7 +109,7 @@
     flex: 1;
     padding: 0.7rem 0.8rem;
     border: 1px solid var(--border-color);
-    border-radius: $radius-md;
+    border-radius: var(--component-border-radius);
     background: var(--background);
     color: var(--text-primary);
     font: inherit;
@@ -109,7 +123,7 @@
   gap: 0.4rem;
   padding: 0.7rem 0.9rem;
   border: 0;
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   background: var(--accent-primary);
   color: var(--background);
   font: inherit;
@@ -151,7 +165,7 @@
   gap: 0.75rem;
   padding: 0.4rem 0.5rem 0.4rem 0.8rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
 }
 
 .optionActions {

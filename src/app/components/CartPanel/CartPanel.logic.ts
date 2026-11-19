@@ -8,6 +8,7 @@ export type CartPanelProps = {
   onChangePrice: (productId: string, unitPrice: number) => void;
   onRemove: (productId: string) => void;
   onCheckout: () => void;
+  isCheckingOut?: boolean;
   onClose?: () => void;
   onOpen?: () => void;
   subtotal: number;

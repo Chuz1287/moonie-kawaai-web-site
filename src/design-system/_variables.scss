@@ -52,11 +52,11 @@ $spacing-2xl: 3em; // 48px
 $spacing-3xl: 4em; // 64px
 
 // ─── RADIUS ──────────────────────────────────────────────────────
-$radius-sm: 0.375em; // 6px
-$radius-md: 0.75em; // 12px
-$radius-lg: 1em; // 16px
-$radius-xl: 1.5em; // 24px
-$radius-2xl: 2em; // 32px
+$radius-sm: var(--component-border-radius);
+$radius-md: var(--component-border-radius);
+$radius-lg: var(--component-border-radius);
+$radius-xl: var(--component-border-radius);
+$radius-2xl: var(--component-border-radius);
 $radius-full: 9999px;
 
 // ═══════════════════════════════════════════════════════════════

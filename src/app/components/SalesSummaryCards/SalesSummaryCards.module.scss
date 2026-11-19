@@ -17,7 +17,7 @@
   padding: 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border-color);
-  border-radius: 1.25rem;
+  border-radius: var(--component-border-radius);
   transition: border-color 200ms ease;
 
   &:hover {
@@ -42,7 +42,7 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 0.6rem;
+  border-radius: var(--component-border-radius);
 }
 
 .success {
@@ -95,7 +95,7 @@
   padding: .5em;
   background: white;
   border: 1px solid #ddd;
-  border-radius: 0.5rem;
+  border-radius: var(--component-border-radius);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex: 1 1 calc(250px - 1.5rem);
   min-width: 250px;

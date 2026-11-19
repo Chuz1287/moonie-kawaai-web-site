@@ -86,7 +86,7 @@
         right: 0;
         height: 4px;
         background: var(--accent-primary);
-        border-radius: 0 0 4px 4px;
+        border-radius: 0 0 var(--component-border-radius) var(--component-border-radius);
       }
     }
   }

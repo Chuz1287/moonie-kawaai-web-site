@@ -1,34 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Eye, EyeClosed } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { formatPosCurrency, type PosDashboardModel } from "@/pages/pos/pos.logic";
 import styles from "./EventPerformancePanel.module.scss";
 
-const ROI_VISIBILITY_KEY = "moonie_kawaai_roi_visible";
-
 export default function EventPerformancePanel({ model }: { model: PosDashboardModel }) {
-  const [isVisible, setIsVisibleState] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const { eventPerformance } = model;
-
-  // Cargar estado de localStorage al montar
-  useEffect(() => {
-    const stored = localStorage.getItem(ROI_VISIBILITY_KEY);
-    if (stored !== null) {
-      setIsVisibleState(stored === "true");
-    }
-    setMounted(true);
-  }, []);
-
-  // Guardar estado en localStorage cuando cambia
-  const setIsVisible = (value: boolean | ((prev: boolean) => boolean)) => {
-    setIsVisibleState((prev) => {
-      const newValue = typeof value === "function" ? value(prev) : value;
-      localStorage.setItem(ROI_VISIBILITY_KEY, String(newValue));
-      return newValue;
-    });
-  };
 
   const progressPercent = eventPerformance
     ? eventPerformance.totalInvestment > 0
@@ -41,43 +20,34 @@ export default function EventPerformancePanel({ model }: { model: PosDashboardMo
         : 0
     : 0;
 
+  const isPositive = (eventPerformance?.balance ?? 0) >= 0;
+
+  let amountLabel = "…";
+  if (eventPerformance) {
+    amountLabel = isPositive
+      ? `+${formatPosCurrency(eventPerformance.balance)}`
+      : `-${formatPosCurrency(eventPerformance.amountToBreakEven)}`;
+  }
+
   return (
-    <section aria-live="polite" className={styles.scope}>
-      <div className={styles.header}>
-        <div className={styles.headerInfo}>
-          <p className={styles.headerLabel}>Retorno de inversión</p>
-          <h2 className={styles.headerTitle}>
-            {model.salesChannels.find((event) => event.id === model.selectedEvent)?.name ??
-              "Default"}
-          </h2>
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsVisible(!isVisible)}
-          className={styles.toggleButton}
-          aria-label={isVisible ? "Ocultar detalles" : "Mostrar detalles"}
-          title={isVisible ? "Ocultar" : "Mostrar"}
-        >
-          {isVisible ? <Eye size={20} /> : <EyeClosed size={20} />}
-        </button>
-      </div>
+    <>
+      <button
+        type="button"
+        onClick={() => setIsBreakdownOpen((open) => !open)}
+        className={`${styles.balanceButton} ${isPositive ? styles.positive : styles.negative}`}
+        aria-expanded={isBreakdownOpen}
+        aria-controls="event-roi-breakdown"
+      >
+        <span>{amountLabel}</span>
+        <ChevronDown
+          size={16}
+          aria-hidden="true"
+          className={isBreakdownOpen ? styles.chevronOpen : undefined}
+        />
+      </button>
 
-      {eventPerformance && (
-        <strong
-          className={
-            eventPerformance.balance >= 0
-              ? styles.balancePositive
-              : styles.balanceNegative
-          }
-        >
-          {eventPerformance.balance >= 0
-            ? `Ganancia ${formatPosCurrency(eventPerformance.balance)}`
-            : `Faltan ${formatPosCurrency(eventPerformance.amountToBreakEven)}`}
-        </strong>
-      )}
-
-      {isVisible && (
-        <>
+      {isBreakdownOpen && (
+        <div id="event-roi-breakdown" aria-live="polite" className={styles.breakdown}>
 
           {model.eventPerformanceError ? (
             <p role="alert" className={styles.error}>
@@ -138,15 +108,15 @@ export default function EventPerformancePanel({ model }: { model: PosDashboardMo
               </div>
 
               {eventPerformance.incompleteSaleCount > 0 && (
-                <p role="status" style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "var(--accent-warning)" }}>
+                <p role="status" className={styles.warning}>
                   Hay {eventPerformance.incompleteSaleCount} venta(s) sin desglose completo de
                   productos; el costo de mercancía puede estar incompleto.
                 </p>
               )}
             </>
           )}
-        </>
+        </div>
       )}
-    </section>
+    </>
   );
 }

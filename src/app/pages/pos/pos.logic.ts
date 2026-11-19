@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   addProductToCart,
   calculateCartTotals,
@@ -9,6 +9,7 @@ import {
   updateCartItemQuantity,
 } from "@/services/pos";
 import type { CartItem, Product } from "@/types/store";
+import { useToast } from "@/components/Toast";
 
 // Catalog utilities
 function normalizeCatalogSearchText(value: string): string {
@@ -137,6 +138,8 @@ export function usePosDashboard() {
   const [editingExpenseCategory, setEditingExpenseCategory] = useState(expenseCategories[0]);
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const checkoutInFlight = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -336,6 +339,7 @@ export function usePosDashboard() {
     [cart, productCatalog]
   );
   const hasCartItems = cart.length > 0;
+  const { showToast } = useToast();
   const totalEventExpenses = useMemo(
     () => eventExpenses.reduce((sum, expense) => sum + Number(expense.amount ?? 0), 0),
     [eventExpenses]
@@ -380,7 +384,10 @@ export function usePosDashboard() {
       setStatus("El carrito estÃ¡ vacÃ­o");
       return;
     }
+    if (checkoutInFlight.current) return;
 
+    checkoutInFlight.current = true;
+    setIsCheckingOut(true);
     try {
       const response = await fetch("/api/sales", {
         method: "POST",
@@ -416,12 +423,16 @@ export function usePosDashboard() {
 
       setEventPerformanceRefresh((current) => current + 1);
       setStatus(payload.message ?? "Venta registrada y stock actualizado en vivo.");
-    } catch (error) {
-      console.error("Checkout sync failed", error);
-      setStatus("No se pudo registrar la venta en la API en vivo.");
-    } finally {
+      showToast("Venta confirmada", "success");
       setCart([]);
       setIsCartOpen(false);
+    } catch (error) {
+      console.error("Checkout sync failed", error);
+      setStatus("No se pudo registrar la venta. El carrito se conservó para reintentar.");
+      showToast("No se pudo registrar la venta", "error");
+    } finally {
+      checkoutInFlight.current = false;
+      setIsCheckingOut(false);
     }
   };
 
@@ -746,6 +757,7 @@ export function usePosDashboard() {
     setEditingExpenseCategory,
     productCatalog,
     isCartOpen,
+    isCheckingOut,
     setIsCartOpen,
     filteredProducts,
     inventorySummary,
