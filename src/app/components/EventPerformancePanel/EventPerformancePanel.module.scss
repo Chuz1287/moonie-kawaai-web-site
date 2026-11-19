@@ -36,6 +36,7 @@ $transition-theme: all $transition-fast;
     border-color: var(--accent-success);
     background: rgba(34, 197, 94, 0.1);
     color: var(--accent-success);
+    height: stretch;
   }
 
   &.negative {
