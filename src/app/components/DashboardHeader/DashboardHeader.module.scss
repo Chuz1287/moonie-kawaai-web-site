@@ -35,7 +35,7 @@
     gap: $gap-mobile;
 
     .syncBadge {
-      border-radius: $radius-full;
+      border-radius: var(--component-border-radius);
       border: 1px solid var(--accent-success);
       background: rgba(34, 197, 94, 0.1);
       padding: 0.25rem 0.75rem;
@@ -46,7 +46,7 @@
     }
 
     .exportButton {
-      border-radius: $radius-full;
+      border-radius: var(--component-border-radius);
       border: 1px solid var(--accent-success);
       background: rgba(34, 197, 94, 0.1);
       padding: 0.5rem 1rem;
@@ -67,7 +67,7 @@
     }
 
     .salesLink {
-      border-radius: $radius-full;
+      border-radius: var(--component-border-radius);
       border: 1px solid var(--accent-primary);
       background: rgba(168, 85, 247, 0.1);
       padding: 0.5rem 1rem;
@@ -85,13 +85,12 @@
 }
 
 .contentGrid {
-  margin-top: 1.25rem;
   display: flex;
   flex-wrap: wrap;
   gap: $gap-mobile;
 
   .statusBox {
-    border-radius: 1.5rem;
+    border-radius: var(--component-border-radius);
     border: 1px solid var(--border-color);
     padding: $padding-mobile;
     font-size: 0.875rem;
@@ -120,7 +119,7 @@
     .createEventButton {
       width: 2.5rem;
       height: 2.5rem;
-      border-radius: $radius-md;
+      border-radius: var(--component-border-radius);
       border: 1px solid var(--accent-primary);
       background: rgba(168, 85, 247, 0.1);
       padding: 0;
@@ -141,7 +140,7 @@
     .eventSelect {
       flex: 1 1 8rem;
       min-width: 0;
-      border-radius: $radius-md;
+      border-radius: var(--component-border-radius);
       border: 1px solid var(--border-color);
       background: var(--surface);
       padding: 0.5rem;
@@ -164,7 +163,7 @@
       display: none;
       align-items: center;
       gap: 0.5rem;
-      border-radius: $radius-full;
+      border-radius: var(--component-border-radius);
       border: 1px solid var(--accent-success);
       background: rgba(34, 197, 94, 0.1);
       padding: 0.5rem 0.75rem;
@@ -177,7 +176,7 @@
         content: "";
         width: 0.5rem;
         height: 0.5rem;
-        border-radius: $radius-full;
+        border-radius: var(--component-border-radius);
         background: var(--accent-success);
       }
 
@@ -189,7 +188,7 @@
     .manageEventsLink {
       width: 2.5rem;
       height: 2.5rem;
-      border-radius: $radius-md;
+      border-radius: var(--component-border-radius);
       border: 1px solid var(--accent-primary);
       background: transparent;
       padding: 0;

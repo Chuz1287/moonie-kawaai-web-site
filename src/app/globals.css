@@ -3,6 +3,7 @@
 /* DARK MODE (DEFAULT) */
 :root {
   --scope-padding: 1em;
+  --component-border-radius: 0.5rem;
 
   /* Primary Colors */
   --background: #0f1419;
@@ -34,6 +35,14 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
+  --radius-xs: var(--component-border-radius);
+  --radius-sm: var(--component-border-radius);
+  --radius-md: var(--component-border-radius);
+  --radius-lg: var(--component-border-radius);
+  --radius-xl: var(--component-border-radius);
+  --radius-2xl: var(--component-border-radius);
+  --radius-3xl: var(--component-border-radius);
+  --radius-4xl: var(--component-border-radius);
 }
 
 /* LIGHT MODE - via media query */

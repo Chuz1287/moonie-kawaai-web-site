@@ -75,8 +75,8 @@ export default function InventoryPage() {
             aria-pressed={model.showOutOfStock}
           >
             {model.showOutOfStock
-              ? `Ver con stock (${model.inStockCount})`
-              : `Ver sin stock (${model.outOfStockCount})`}
+              ? `Con stock (${model.inStockCount})`
+              : `Sin stock (${model.outOfStockCount})`}
           </button>
           <details
             className={styles.catalogDropdown}

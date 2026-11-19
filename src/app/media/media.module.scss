@@ -61,7 +61,7 @@
   min-height: 2.7rem;
   padding: 0.65rem 0.9rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   font: inherit;
   font-weight: $font-weight-semibold;
   text-decoration: none;
@@ -92,7 +92,7 @@
   gap: 0.75rem;
   padding: 0.9rem 1rem;
   border: 1px solid;
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   font-size: $text-sm;
 
   svg {
@@ -137,7 +137,7 @@
   min-width: 0;
   padding: 1rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-lg;
+  border-radius: var(--component-border-radius);
   background: var(--surface);
 }
 
@@ -162,7 +162,7 @@
   button {
     padding: 0.35rem 0.45rem;
     border: 0;
-    border-radius: $radius-sm;
+    border-radius: var(--component-border-radius);
     background: transparent;
     color: var(--text-secondary);
     font: inherit;
@@ -199,7 +199,7 @@
   margin-bottom: 0.65rem;
   padding: 0.6rem 0.7rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   background: var(--background);
   color: var(--text-primary);
   font: inherit;
@@ -214,7 +214,7 @@
   gap: 0.5rem;
   padding: 0.55rem 0.45rem;
   border: 0;
-  border-radius: $radius-sm;
+  border-radius: var(--component-border-radius);
   background: transparent;
   color: var(--text-secondary);
   text-align: left;
@@ -267,7 +267,7 @@
   height: 2.15rem;
   place-items: center;
   border: 0;
-  border-radius: $radius-sm;
+  border-radius: var(--component-border-radius);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -290,7 +290,7 @@
   height: 2rem;
   place-items: center;
   border: 0;
-  border-radius: $radius-sm;
+  border-radius: var(--component-border-radius);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -371,7 +371,7 @@
     width: min(100%, 250px);
     padding: 0.6rem 0.7rem;
     border: 1px solid var(--border-color);
-    border-radius: $radius-md;
+    border-radius: var(--component-border-radius);
     background: var(--background);
     color: var(--text-primary);
     font: inherit;
@@ -386,7 +386,7 @@
   min-height: 2.45rem;
   padding: 0.55rem 0.7rem;
   border: 1px solid color-mix(in srgb, var(--accent-error) 55%, var(--border-color));
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   background: color-mix(in srgb, var(--accent-error) 8%, var(--surface));
   color: var(--accent-error);
   font: inherit;
@@ -427,7 +427,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   background: var(--background);
 }
 
@@ -479,7 +479,7 @@
     gap: 0.3rem;
     padding: 0.35rem 0.4rem;
     border: 0;
-    border-radius: $radius-sm;
+    border-radius: var(--component-border-radius);
     background: transparent;
     color: var(--text-secondary);
     font: inherit;
@@ -547,7 +547,7 @@
   gap: 0.8rem;
   padding: 1.25rem;
   border: 1px solid var(--border-color);
-  border-radius: $radius-lg;
+  border-radius: var(--component-border-radius);
   background: var(--surface);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
 
@@ -570,7 +570,7 @@
   input {
     padding: 0.7rem;
     border: 1px solid var(--border-color);
-    border-radius: $radius-md;
+    border-radius: var(--component-border-radius);
     background: var(--background);
     color: var(--text-primary);
     font: inherit;

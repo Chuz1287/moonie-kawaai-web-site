@@ -19,7 +19,7 @@ $transition-theme: all $transition-fast;
   display: inline-flex;
   align-items: center;
   gap: $spacing-xs;
-  border-radius: $radius-full;
+  border-radius: var(--component-border-radius);
   border: 1px solid transparent;
   padding: $spacing-xs $spacing-md;
   font-size: $text-sm;
@@ -57,7 +57,7 @@ $transition-theme: all $transition-fast;
   flex: 0 0 100%;
   margin-top: $spacing-sm;
   padding: $gap-mobile;
-  border-radius: $radius-md;
+  border-radius: var(--component-border-radius);
   border: 1px solid var(--border-color);
   background: var(--surface);
 }
@@ -70,7 +70,7 @@ $transition-theme: all $transition-fast;
 
 .error {
   padding: $spacing-sm;
-  border-radius: $radius-sm;
+  border-radius: var(--component-border-radius);
   background: rgba(239, 68, 68, 0.1);
   font-size: $text-sm;
   color: var(--accent-error);
@@ -133,13 +133,13 @@ $transition-theme: all $transition-fast;
 .progressBar {
   height: 0.5rem;
   overflow: hidden;
-  border-radius: $radius-full;
+  border-radius: var(--component-border-radius);
   background: var(--border-color);
 }
 
 .progressFill {
   height: 100%;
-  border-radius: $radius-full;
+  border-radius: var(--component-border-radius);
   background: var(--accent-success);
   transition: width $transition-base;
 }

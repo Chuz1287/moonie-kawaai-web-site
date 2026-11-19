@@ -37,8 +37,8 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="rounded-[32px] bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-400 p-6 shadow-xl">
-            <div className="rounded-[24px] bg-white/10 p-6 text-white backdrop-blur-sm">
+          <div className="rounded-[var(--component-border-radius)] bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-400 p-6 shadow-xl">
+            <div className="rounded-[var(--component-border-radius)] bg-white/10 p-6 text-white backdrop-blur-sm">
               <p className="text-sm uppercase tracking-[0.2em] text-violet-100">Dashboard</p>
               <div className="mt-6 grid gap-3">
                 <div className="rounded-2xl bg-white/10 p-4">

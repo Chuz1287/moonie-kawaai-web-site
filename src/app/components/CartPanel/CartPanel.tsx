@@ -163,7 +163,7 @@ export default function CartPanel({
                     </div>
 
                     <div className={styles.itemActions}>
-                      <div style={{ display: "inline-flex", alignItems: "center", borderRadius: "0.375rem", border: `1px solid var(--border-color)` }}>
+                      <div style={{ display: "inline-flex", alignItems: "center", borderRadius: "var(--component-border-radius)", border: `1px solid var(--border-color)` }}>
                         <button
                           type="button"
                           className={styles.quantityBtn}

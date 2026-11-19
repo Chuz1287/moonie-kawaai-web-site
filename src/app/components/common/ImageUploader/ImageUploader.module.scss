@@ -19,7 +19,7 @@
   justify-content: center;
   min-height: 220px;
   border: 2px dashed #d1d5db;
-  border-radius: 18px;
+  border-radius: var(--component-border-radius);
   background: #f9fafb;
   cursor: pointer;
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
@@ -68,14 +68,14 @@
   gap: 12px;
   padding: 12px;
   border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  border-radius: var(--component-border-radius);
   background: white;
 }
 
 .uploadedImage {
   width: 84px;
   height: 84px;
-  border-radius: 12px;
+  border-radius: var(--component-border-radius);
   flex-shrink: 0;
 }
 
@@ -104,7 +104,7 @@
   border: none;
   background: #f3f4f6;
   color: #374151;
-  border-radius: 10px;
+  border-radius: var(--component-border-radius);
   padding: 8px 10px;
   font-weight: 700;
   cursor: pointer;

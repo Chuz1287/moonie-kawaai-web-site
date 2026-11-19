@@ -14,7 +14,7 @@
   width: 100%;
   max-width: 22rem;
   padding: 1.25rem;
-  border-radius: 1.25rem;
+  border-radius: var(--component-border-radius);
   border: 1px solid var(--border-color);
   background: var(--surface);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
@@ -42,7 +42,7 @@
 .cancelBtn,
 .confirmBtn {
   padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: var(--component-border-radius);
   font-weight: 700;
   cursor: pointer;
   transition: all 200ms ease;

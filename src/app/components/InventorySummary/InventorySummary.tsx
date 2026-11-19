@@ -43,7 +43,8 @@ export default function InventorySummary({ summary }: { summary: InventorySummar
             <div className={styles.metric}>
               <dt>Exceso</dt>
               <dd>
-                {summary.markupExcessPercent.toFixed(1)}% {formatCurrency(summary.markupExcessValue)}
+                {/* {summary.markupExcessPercent.toFixed(1)}% */}
+                 {formatCurrency(summary.markupExcessValue)}
               </dd>
             </div>
           )}

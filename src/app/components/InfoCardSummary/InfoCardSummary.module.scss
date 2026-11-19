@@ -9,7 +9,7 @@
   /* DYNAMIC COLORS - CHANGE WITH THEME */
   border: 1px solid var(--border-color);
   background: var(--surface);
-  border-radius: .5em;
+  border-radius: var(--component-border-radius);
   padding: .8em;
   
   /* Smooth transition when theme changes */
