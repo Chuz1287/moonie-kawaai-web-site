@@ -46,7 +46,7 @@ export default function SalesFilters({
               type="search"
               value={searchText}
               onChange={(event) => onSearch(event.target.value)}
-              placeholder="Buscar por ticket o producto..."
+              placeholder="Buscar artículo vendido..."
               className={styles.searchInput}
             />
           </label>

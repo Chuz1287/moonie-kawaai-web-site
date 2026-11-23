@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import type { SaleEditDialogProps } from "./SaleEditDialog.logic";
 import { isDraftLinesValid, getDraftLinesTotal } from "./SaleEditDialog.logic";
 import styles from "./SaleEditDialog.module.scss";
 
 export default function SaleEditDialog({ model }: SaleEditDialogProps) {
+  // Raw input text is kept so partial values such as "12." or "0.5" are not rewritten while typing.
+  const [priceTexts, setPriceTexts] = useState<Record<string, string>>({});
+
   if (!model.editingSale) return null;
 
   const canSave =
@@ -19,17 +23,23 @@ export default function SaleEditDialog({ model }: SaleEditDialogProps) {
     return isNaN(num) ? 0 : num;
   };
 
+  const priceKey = (productId: string) => `${model.editingSale?.id ?? ""}:${productId}`;
+
   const updateLine = (index: number, field: "quantity" | "unitPrice", value: string) => {
     const num = parseNumberInput(value);
     if (num < 0) return;
 
-    const updated = [...model.draftLines];
-    if (field === "quantity") {
-      updated[index].quantity = Math.floor(num);
-    } else {
-      updated[index].unitPrice = num;
+    const line = model.draftLines[index];
+    if (field === "unitPrice") {
+      setPriceTexts((current) => ({ ...current, [priceKey(line.productId)]: value }));
     }
-    model.setDraftLines(updated);
+
+    model.setDraftLines(model.draftLines.map((entry, i) => {
+      if (i !== index) return entry;
+      return field === "quantity"
+        ? { ...entry, quantity: Math.floor(num) }
+        : { ...entry, unitPrice: num };
+    }));
   };
 
   const removeLine = (index: number) => {
@@ -41,6 +51,7 @@ export default function SaleEditDialog({ model }: SaleEditDialogProps) {
   const close = () => {
     model.setEditingSale(null);
     model.setDraftLines([]);
+    setPriceTexts({});
   };
 
   const total = getDraftLinesTotal(model.draftLines);
@@ -106,7 +117,7 @@ export default function SaleEditDialog({ model }: SaleEditDialogProps) {
                       type="number"
                       min="0"
                       step="0.01"
-                      value={line.unitPrice || ""}
+                      value={priceTexts[priceKey(line.productId)] ?? (line.unitPrice || "")}
                       onChange={(e) => updateLine(idx, "unitPrice", e.target.value)}
                       disabled={model.savingEdit}
                     />

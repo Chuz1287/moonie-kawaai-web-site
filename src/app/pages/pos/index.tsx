@@ -65,6 +65,7 @@ export default function PosDashboard() {
               products={model.productCatalog}
               onChangeQuantity={model.handleChangeQuantity}
               onChangePrice={model.handleChangePrice}
+              onChangeNote={model.handleChangeNote}
               onRemove={model.handleRemove}
               onCheckout={model.handleCheckout}
               isCheckingOut={model.isCheckingOut}
@@ -81,6 +82,7 @@ export default function PosDashboard() {
               products={model.productCatalog}
               onChangeQuantity={model.handleChangeQuantity}
               onChangePrice={model.handleChangePrice}
+              onChangeNote={model.handleChangeNote}
               onRemove={model.handleRemove}
               onCheckout={model.handleCheckout}
               isCheckingOut={model.isCheckingOut}
@@ -101,6 +103,7 @@ export default function PosDashboard() {
                 products={model.productCatalog}
                 onChangeQuantity={model.handleChangeQuantity}
                 onChangePrice={model.handleChangePrice}
+                onChangeNote={model.handleChangeNote}
                 onRemove={model.handleRemove}
                 onCheckout={model.handleCheckout}
                 isCheckingOut={model.isCheckingOut}

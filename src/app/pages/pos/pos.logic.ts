@@ -5,6 +5,7 @@ import {
   addProductToCart,
   calculateCartTotals,
   removeProductFromCart,
+  updateCartItemNote,
   updateCartItemPrice,
   updateCartItemQuantity,
 } from "@/services/pos";
@@ -28,16 +29,9 @@ export function filterCatalogProducts(products: Product[], search: string): Prod
 
   const term = normalizeCatalogSearchText(search.trim());
   return availableProducts.filter((product) => {
-    const searchableText = normalizeCatalogSearchText(
-      [
-        product.name,
-        product.category,
-        product.description,
-        product.shortDescription,
-        ...product.tags,
-      ].join(" ")
+    return [product.name, product.series, product.code].some((field) =>
+      normalizeCatalogSearchText(field ?? "").includes(term)
     );
-    return searchableText.includes(term);
   });
 }
 
@@ -379,6 +373,10 @@ export function usePosDashboard() {
 
   const handleChangePrice = (productId: string, unitPrice: number) => {
     setCart((current) => updateCartItemPrice(current, productId, unitPrice));
+  };
+
+  const handleChangeNote = (productId: string, note: string) => {
+    setCart((current) => updateCartItemNote(current, productId, note));
   };
 
   const handleRemove = (productId: string) => {
@@ -775,6 +773,7 @@ export function usePosDashboard() {
     handleAddToCart,
     handleChangeQuantity,
     handleChangePrice,
+    handleChangeNote,
     handleRemove,
     handleCheckout,
     handleSaveChannel,

@@ -13,6 +13,7 @@ export type SaleRecord = {
     unitPrice?: number | null;
     precio_venta_unitario?: number | null;
     costo_unitario?: number | null;
+    note?: string | null;
   }>;
   total: number;
   payment_method?: string | null;
@@ -284,7 +285,8 @@ function getMutationErrorMessage(error: unknown): string {
 
 export async function updateSaleInSupabase(
   id: string,
-  items: Array<{ productId: string; quantity: number; unitPrice: number }>
+  items: Array<{ productId: string; quantity: number; unitPrice: number; note?: string }>,
+  legacyItems: Array<{ productId: string; quantity: number }> | null = null
 ): Promise<SaleMutationResult> {
   const { url, key } = getSupabaseCredentials();
   if (!url || !key || !id) {
@@ -300,6 +302,7 @@ export async function updateSaleInSupabase(
     const { error } = await client.rpc("update_sale_with_inventory", {
       sale_id: id,
       new_items: items,
+      legacy_items: legacyItems,
     });
     if (error) {
       console.error("Update sale error:", error);

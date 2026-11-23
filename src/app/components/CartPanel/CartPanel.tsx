@@ -3,6 +3,7 @@
 import type { CartPanelProps } from "./CartPanel.logic";
 import { useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { isRemateProduct } from "@/services/pos";
 import { formatCartCurrency, formatCartPriceInput, useCartPriceDrafts } from "./CartPanel.logic";
 import styles from "./CartPanel.module.scss";
 
@@ -11,6 +12,7 @@ export default function CartPanel({
   products,
   onChangeQuantity,
   onChangePrice,
+  onChangeNote,
   onRemove,
   onCheckout,
   isCheckingOut = false,
@@ -160,6 +162,18 @@ export default function CartPanel({
                         onBlur={() => commitDraft(item.productId)}
                         className={styles.priceInput}
                       />
+
+                      {isRemateProduct(product) && onChangeNote && (
+                        <input
+                          type="text"
+                          value={item.note ?? ""}
+                          maxLength={200}
+                          placeholder="Nota: ¿qué se vendió?"
+                          aria-label={`Nota para ${product.name}`}
+                          onChange={(event) => onChangeNote(item.productId, event.target.value)}
+                          className={styles.noteInput}
+                        />
+                      )}
                     </div>
 
                     <div className={styles.itemActions}>

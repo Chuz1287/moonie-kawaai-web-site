@@ -20,7 +20,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
-      cart?: Array<{ productId: string; quantity: number; unitPrice?: number; price?: number }>;
+      cart?: Array<{ productId: string; quantity: number; unitPrice?: number; price?: number; note?: string }>;
       eventId?: string;
     };
 
@@ -132,6 +132,7 @@ export async function POST(request: Request) {
       const parsedPrice = Number(requestedPrice ?? productPrice);
       const unitPrice = Number.isFinite(parsedPrice) ? parsedPrice : productPrice;
       const productCost = Number(product?.costo ?? product?.precio ?? unitPrice * 0.7);
+      const note = typeof item.note === "string" ? item.note.trim().slice(0, 200) : "";
 
       return {
         productId: String(item.productId ?? ""),
@@ -139,6 +140,7 @@ export async function POST(request: Request) {
         quantity,
         unitPrice,
         costo_unitario: productCost,
+        ...(note ? { note } : {}),
       };
     });
 

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SaleRecord } from "@/services/sales";
 import {
-  compareSalesNewestFirst,
   fetchSalesFromApi,
   getSaleProfit,
   groupSalesByEventOrDate,
@@ -46,6 +45,10 @@ export function saleHasStableProductIds(sale: SaleRecord) {
   return lines.length > 0 && lines.every((line) =>
     String(line.productId ?? line.product_id ?? "").trim().length > 0
   );
+}
+
+export function isLegacySale(sale: SaleRecord) {
+  return !sale.items?.length;
 }
 
 export function useSalesHistory() {
@@ -126,11 +129,7 @@ export function useSalesHistory() {
     if (!query) return filteredSales;
     return filteredSales.filter((sale) =>
       getSaleLines(sale).some((line) =>
-        normalizeSaleSearch([
-          getSaleLineName(line),
-          line.productId ?? line.product_id,
-          line.name,
-        ].join(" ")).includes(query)
+        normalizeSaleSearch(getSaleLineName(line)).includes(query)
       )
     );
   }, [filteredSales, searchText]);
@@ -168,11 +167,7 @@ export function useSalesHistory() {
       getSaleLines(sale)
         .map((line, index) => ({ sale, line, index }))
         .filter(({ line }) =>
-          !query || normalizeSaleSearch([
-            getSaleLineName(line),
-            line.productId ?? line.product_id,
-            line.name,
-          ].join(" ")).includes(query)
+          !query || normalizeSaleSearch(getSaleLineName(line)).includes(query)
         )
     );
   }, [filteredSales, searchText]);
@@ -194,18 +189,11 @@ export function useSalesHistory() {
 
   function startEditing(sale: SaleRecord) {
     const lines = getSaleLines(sale);
-    if (!saleHasStableProductIds(sale)) {
-      setMutationError(
-        `No se abrió la edición del ticket ${sale.sale_number ?? sale.id}: esta venta antigua no contiene IDs de producto en todas sus piezas. Solicita recuperar/asociar esos IDs en Supabase antes de editarla; no se modificó ningún dato ni inventario.`
-      );
-      return;
-    }
-
     setMutationError("");
     setEditError("");
     setEditingSale(sale);
     setDraftLines(lines.map((line) => ({
-      productId: String(line.productId ?? line.product_id),
+      productId: String(line.productId ?? line.product_id ?? ""),
       productName: getSaleLineName(line),
       quantity: Number(line.quantity ?? line.cantidad ?? 0),
       unitPrice: Number(line.unitPrice ?? line.precio_venta_unitario ?? 0),
@@ -229,13 +217,11 @@ export function useSalesHistory() {
           })),
         }),
       });
-      const payload = await response.json() as { message?: string; sale?: SaleRecord };
-      if (!response.ok || !payload.sale) {
+      const payload = await response.json() as { message?: string };
+      if (!response.ok) {
         throw new Error(payload.message ?? "No se pudo guardar la edición.");
       }
-      setSales((current) => current
-        .map((sale) => sale.id === editingSale.id ? { ...sale, ...payload.sale } : sale)
-        .sort(compareSalesNewestFirst));
+      await reloadSales();
       setEditingSale(null);
     } catch (error) {
       const message = error instanceof Error
