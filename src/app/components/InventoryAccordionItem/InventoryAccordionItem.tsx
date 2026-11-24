@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Pencil, Trash2 } from "lucide-react";
+import { Copy, Pencil, Trash2 } from "lucide-react";
 import type { InventoryAccordionItemProps } from "./InventoryAccordionItem.logic";
 import styles from "./InventoryAccordionItem.module.scss";
 
@@ -8,6 +8,7 @@ export default function InventoryAccordionItem({
   onAddStock,
   onDelete,
   onEdit,
+  onCopy,
 }: InventoryAccordionItemProps) {
   const cost = item.cost ?? item.price * 0.7;
 
@@ -68,6 +69,14 @@ export default function InventoryAccordionItem({
           title="Editar artículo"
         >
           <Pencil size={16} />
+        </button>
+        <button
+          onClick={onCopy}
+          className={styles.editButton}
+          aria-label="Copiar artículo"
+          title="Copiar artículo"
+        >
+          <Copy size={16} />
         </button>
         <button
           onClick={() => onDelete(item.id)}

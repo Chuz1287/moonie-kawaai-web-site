@@ -14,6 +14,7 @@ export interface AddInventoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   editingItem?: InventoryItem;
+  copyingItem?: InventoryItem;
   categoryOptions: string[];
   seriesOptions: string[];
   onSubmit: (item: InventoryFormValues, productId?: string) => Promise<void>;

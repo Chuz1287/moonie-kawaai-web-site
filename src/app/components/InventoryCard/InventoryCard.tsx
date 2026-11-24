@@ -1,9 +1,9 @@
 import Image from "next/image";
-import { Pencil, Trash2 } from "lucide-react";
+import { Copy, Pencil, Trash2 } from "lucide-react";
 import type { InventoryCardProps } from "./InventoryCard.logic";
 import styles from "./InventoryCard.module.scss";
 
-export default function InventoryCard({ item, onAddStock, onDelete, onEdit }: InventoryCardProps) {
+export default function InventoryCard({ item, onAddStock, onDelete, onEdit, onCopy }: InventoryCardProps) {
   return (
     <div className={styles.card}>
       {item.coverImage ? (
@@ -25,6 +25,14 @@ export default function InventoryCard({ item, onAddStock, onDelete, onEdit }: In
         <div className={styles.headerActions}>
           <button onClick={onEdit} className={styles.editButton} aria-label="Editar artículo">
             <Pencil size={18} />
+          </button>
+          <button
+            onClick={onCopy}
+            className={styles.editButton}
+            aria-label="Copiar artículo"
+            title="Copiar artículo"
+          >
+            <Copy size={18} />
           </button>
           <button
             onClick={() => onDelete(item.id)}
