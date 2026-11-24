@@ -194,6 +194,57 @@
   border-left: 1px solid var(--border-color);
 }
 
+.folderPanelActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.folderCreateForm {
+  margin-bottom: 0.65rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--component-border-radius);
+  background: var(--background);
+
+  p {
+    margin: 0 0 0.45rem;
+  }
+}
+
+.folderCreateRow {
+  display: flex;
+  gap: 0.4rem;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--component-border-radius);
+    background: var(--surface);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: $text-sm;
+  }
+
+  button {
+    padding: 0.45rem 0.7rem;
+    border: 0;
+    border-radius: var(--component-border-radius);
+    background: var(--accent-primary);
+    color: #fff;
+    font: inherit;
+    font-size: $text-sm;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+  }
+}
+
 .folderSearch {
   width: 100%;
   margin-bottom: 0.65rem;

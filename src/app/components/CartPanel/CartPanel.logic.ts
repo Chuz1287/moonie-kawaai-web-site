@@ -6,6 +6,7 @@ export type CartPanelProps = {
   products: Product[];
   onChangeQuantity: (productId: string, quantity: number) => void;
   onChangePrice: (productId: string, unitPrice: number) => void;
+  onChangeNote?: (productId: string, note: string) => void;
   onRemove: (productId: string) => void;
   onCheckout: () => void;
   isCheckingOut?: boolean;

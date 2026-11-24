@@ -226,25 +226,27 @@ export default function AddInventoryModal({
   onClose,
   onSubmit,
   editingItem,
+  copyingItem,
   categoryOptions,
   seriesOptions,
 }: AddInventoryModalProps) {
-  const [formData, setFormData] = useState(() => editingItem
+  const sourceItem = editingItem ?? copyingItem;
+  const [formData, setFormData] = useState(() => sourceItem
     ? {
         ...emptyForm,
-        code: editingItem.code ?? "",
-        name: editingItem.name,
-        shortDescription: editingItem.shortDescription === "Artículo disponible"
+        code: editingItem?.code ?? "",
+        name: sourceItem.name,
+        shortDescription: sourceItem.shortDescription === "Artículo disponible"
           ? ""
-          : editingItem.shortDescription.split(" • ")[0] ?? "",
-        categories: editingItem.categories?.length
-          ? [...editingItem.categories]
-          : [editingItem.category],
-        series: editingItem.series ?? "",
-        stock: editingItem.stock,
-        price: editingItem.price,
-        cost: editingItem.cost ?? 0,
-        image: editingItem.image,
+          : sourceItem.shortDescription.split(" • ")[0] ?? "",
+        categories: sourceItem.categories?.length
+          ? [...sourceItem.categories]
+          : [sourceItem.category],
+        series: sourceItem.series ?? "",
+        stock: sourceItem.stock,
+        price: sourceItem.price,
+        cost: sourceItem.cost ?? 0,
+        image: sourceItem.image,
       }
     : emptyForm);
   const [loading, setLoading] = useState(false);

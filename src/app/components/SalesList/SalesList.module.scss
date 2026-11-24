@@ -331,6 +331,14 @@
   color: var(--text-secondary);
 }
 
+.lineNote {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
 .itemList {
   display: flex;
   flex-direction: column;

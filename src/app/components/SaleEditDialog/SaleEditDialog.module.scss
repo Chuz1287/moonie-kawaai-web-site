@@ -16,7 +16,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background: var(--background);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-color);
   border-radius: var(--component-border-radius);
   z-index: 1000;
   max-height: 80vh;
@@ -32,7 +32,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color);
 
   h2 {
     margin: 0;
@@ -45,7 +45,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: var(--foreground);
+  color: var(--text-primary);
   padding: 0;
   width: 2rem;
   height: 2rem;
@@ -55,7 +55,7 @@
   border-radius: var(--component-border-radius);
 
   &:hover:not(:disabled) {
-    background: var(--muted);
+    background: var(--surface-hover);
   }
 
   &:disabled {
@@ -88,10 +88,10 @@
 }
 
 .lineItem {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-color);
   border-radius: var(--component-border-radius);
   padding: 1rem;
-  background: var(--muted);
+  background: var(--surface-hover);
 }
 
 .lineHeader {
@@ -103,7 +103,7 @@
 
 .productName {
   font-weight: 600;
-  color: var(--foreground);
+  color: var(--text-primary);
 }
 
 .removeBtn {
@@ -135,20 +135,20 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    color: var(--muted-foreground);
+    color: var(--text-secondary);
 
     input {
       flex: 1;
       padding: 0.5rem;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-color);
       border-radius: var(--component-border-radius);
       background: var(--background);
-      color: var(--foreground);
+      color: var(--text-primary);
       font-size: 0.875rem;
 
       &:focus {
         outline: none;
-        border-color: var(--ring);
+        border-color: var(--accent-primary);
       }
 
       &:disabled {
@@ -162,12 +162,12 @@
 .lineTotal {
   text-align: right;
   font-weight: 600;
-  color: var(--foreground);
+  color: var(--text-primary);
   padding: 0.5rem 0;
 }
 
 .totals {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-color);
   padding-top: 1rem;
   margin-top: 1rem;
 }
@@ -177,7 +177,7 @@
   justify-content: space-between;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--foreground);
+  color: var(--text-primary);
 }
 
 .footer {
@@ -185,7 +185,7 @@
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-color);
 }
 
 .cancelBtn,
@@ -205,11 +205,11 @@
 }
 
 .cancelBtn {
-  background: var(--muted);
-  color: var(--foreground);
+  background: var(--surface-hover);
+  color: var(--text-primary);
 
   &:hover:not(:disabled) {
-    background: var(--muted-foreground);
+    background: var(--text-tertiary);
   }
 }
 

@@ -50,7 +50,7 @@ async function fetchCloudinaryAssets(): Promise<CloudinaryAsset[]> {
   return result.assets;
 }
 
-function buildFolderTree(assets: CloudinaryAsset[]): FolderNode {
+function buildFolderTree(assets: CloudinaryAsset[], folders: string[]): FolderNode {
   const root: FolderNode = {
     path: productRoot,
     name: "Productos",
@@ -59,11 +59,9 @@ function buildFolderTree(assets: CloudinaryAsset[]): FolderNode {
   };
   const nodes = new Map([[productRoot, root]]);
 
-  for (const asset of assets) {
-    const folder =
-      asset.asset_folder ??
-      asset.public_id.split("/").slice(0, -1).join("/");
-    if (!folder.startsWith(`${productRoot}/`)) continue;
+  const getFolderChain = (folder: string): FolderNode[] => {
+    const chain: FolderNode[] = [];
+    if (!folder.startsWith(`${productRoot}/`)) return chain;
 
     const segments = folder.slice(productRoot.length + 1).split("/");
     let currentPath = productRoot;
@@ -76,9 +74,19 @@ function buildFolderTree(assets: CloudinaryAsset[]): FolderNode {
         nodes.set(currentPath, node);
         parent.children.push(node);
       }
-      node.assetCount += 1;
+      chain.push(node);
       parent = node;
     }
+    return chain;
+  };
+
+  for (const folder of folders) getFolderChain(folder);
+
+  for (const asset of assets) {
+    const folder =
+      asset.asset_folder ??
+      asset.public_id.split("/").slice(0, -1).join("/");
+    for (const node of getFolderChain(folder)) node.assetCount += 1;
   }
 
   const sortNodes = (node: FolderNode) => {
@@ -225,11 +233,15 @@ function FolderBranch({
 
 export default function MediaPage() {
   const [assets, setAssets] = useState<CloudinaryAsset[]>([]);
+  const [folders, setFolders] = useState<string[]>([]);
   const [selectedFolder, setSelectedFolder] = useState(productRoot);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
     () => new Set()
   );
   const [folderSearch, setFolderSearch] = useState("");
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [creatingFolder, setCreatingFolder] = useState(false);
   const [imageSearch, setImageSearch] = useState("");
   const [selectedFolders, setSelectedFolders] = useState<Set<string>>(
     () => new Set()
@@ -285,7 +297,10 @@ export default function MediaPage() {
     };
   }, []);
 
-  const folderTree = useMemo(() => buildFolderTree(assets), [assets]);
+  const folderTree = useMemo(
+    () => buildFolderTree(assets, folders),
+    [assets, folders]
+  );
   const normalizedFolderSearch = normalizeSearchText(folderSearch.trim());
   const filteredFolderTree = useMemo(
     () =>
@@ -329,6 +344,48 @@ export default function MediaPage() {
         ),
     [assets, imageSearch, selectedFolder]
   );
+
+  const submitCreateFolder = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const name = newFolderName.trim();
+    if (!name) return;
+
+    setCreatingFolder(true);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch("/api/cloudinary/assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parentFolder: selectedFolder, name }),
+      });
+      const result = (await response.json()) as {
+        folder?: string;
+        message?: string;
+      };
+      if (!response.ok || !result.folder) {
+        throw new Error(result.message ?? "Cloudinary rechazó la carpeta.");
+      }
+      const createdFolder = result.folder;
+      setNotice(result.message ?? "Carpeta creada correctamente.");
+      setNewFolderName("");
+      setShowCreateFolder(false);
+      setFolders((current) =>
+        current.includes(createdFolder) ? current : [...current, createdFolder]
+      );
+      setExpandedFolders((current) => new Set(current).add(selectedFolder));
+      setSelectedFolder(createdFolder);
+      await loadAssets();
+    } catch (createError) {
+      setError(
+        createError instanceof Error
+          ? createError.message
+          : "No se pudo crear la carpeta."
+      );
+    } finally {
+      setCreatingFolder(false);
+    }
+  };
 
   const updateAsset = async (asset: CloudinaryAsset, body: Record<string, string>) => {
     setWorkingAsset(asset.public_id);
@@ -571,14 +628,48 @@ export default function MediaPage() {
         <aside className={styles.folderPanel} aria-label="Carpetas de productos">
           <div className={styles.folderPanelHeader}>
             <h2>Carpetas</h2>
-            <button
-              type="button"
-              onClick={() => setExpandedFolders(new Set())}
-              disabled={expandedFolders.size === 0}
-            >
-              Contraer todo
-            </button>
+            <div className={styles.folderPanelActions}>
+              <button
+                type="button"
+                onClick={() => setShowCreateFolder((current) => !current)}
+                disabled={creatingFolder}
+                aria-expanded={showCreateFolder}
+              >
+                Nueva carpeta
+              </button>
+              <button
+                type="button"
+                onClick={() => setExpandedFolders(new Set())}
+                disabled={expandedFolders.size === 0}
+              >
+                Contraer todo
+              </button>
+            </div>
           </div>
+          {showCreateFolder ? (
+            <form className={styles.folderCreateForm} onSubmit={submitCreateFolder}>
+              <p className={styles.muted}>
+                Se creará dentro de:{" "}
+                {selectedFolder === productRoot
+                  ? "Productos"
+                  : selectedFolder.split("/").at(-1)}
+              </p>
+              <div className={styles.folderCreateRow}>
+                <input
+                  type="text"
+                  value={newFolderName}
+                  onChange={(event) => setNewFolderName(event.target.value)}
+                  placeholder="Nombre de la carpeta"
+                  aria-label="Nombre de la nueva carpeta"
+                  disabled={creatingFolder}
+                  autoFocus
+                />
+                <button type="submit" disabled={creatingFolder || !newFolderName.trim()}>
+                  {creatingFolder ? "Creando..." : "Crear"}
+                </button>
+              </div>
+            </form>
+          ) : null}
           <input
             type="search"
             className={styles.folderSearch}

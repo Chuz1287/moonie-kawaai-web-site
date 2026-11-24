@@ -7,6 +7,7 @@ import SaleActions from "@/components/SaleActions";
 import {
   getSaleLineName,
   getSaleLines,
+  isLegacySale,
   saleHasStableProductIds,
 } from "@/pages/sales/sales.logic";
 import { getSaleProfit, type SaleRecord } from "@/services/sales";
@@ -29,6 +30,17 @@ function formatMoney(value: number) {
 
 function getTicketLabel(sale: SaleRecord) {
   return sale.sale_number || sale.id.slice(0, 14);
+}
+
+function getSaleTitle(sale: SaleRecord) {
+  const names = Array.from(
+    new Set(getSaleLines(sale).map((line) => getSaleLineName(line)).filter(Boolean))
+  );
+  return names.length > 0 ? names.join(", ") : `Ticket ${getTicketLabel(sale)}`;
+}
+
+function getLineNote(line: ReturnType<typeof getSaleLines>[number]) {
+  return typeof line.note === "string" ? line.note.trim() : "";
 }
 
 function getLineView(line: ReturnType<typeof getSaleLines>[number]) {
@@ -60,6 +72,7 @@ export default function SalesList({ model }: SalesListProps) {
             <div key={`${sale.id}-${index}`} className={styles.pieceRow}>
               <div className={styles.pieceInfo}>
                 <div className={styles.productName}>{getSaleLineName(line)}</div>
+                {getLineNote(line) && <div className={styles.lineNote}>{getLineNote(line)}</div>}
                 <div className={styles.saleDetails}>
                   <span>Cantidad: {line.quantity}</span>
                   <span>Precio: {formatMoney(Number(line.unitPrice ?? 0))}</span>
@@ -102,9 +115,9 @@ export default function SalesList({ model }: SalesListProps) {
   );
 
   const renderEditWarning = (sale: SaleRecord) =>
-    saleHasStableProductIds(sale) ? null : (
+    isLegacySale(sale) || saleHasStableProductIds(sale) ? null : (
       <div className={styles.warningMessage}>
-        No editable: fallan IDs de producto para ajustar el inventario con seguridad.
+        No editable: faltan IDs de producto en alguna pieza; no se modifica el inventario.
       </div>
     );
 
@@ -124,7 +137,10 @@ export default function SalesList({ model }: SalesListProps) {
             const view = getLineView(line);
             return (
               <tr key={index}>
-                <td>{view.name}</td>
+                <td>
+                  {view.name}
+                  {getLineNote(line) && <span className={styles.lineNote}>{getLineNote(line)}</span>}
+                </td>
                 <td className={styles.numeric}>{view.quantity}</td>
                 <td className={styles.numeric}>{formatMoney(view.unitPrice)}</td>
                 <td className={styles.numeric}>{formatMoney(view.total)}</td>
@@ -155,10 +171,10 @@ export default function SalesList({ model }: SalesListProps) {
                 className={styles.masterItem}
               >
                 <span className={styles.masterMain}>
-                  <span className={styles.masterTitle}>Ticket {getTicketLabel(sale)}</span>
+                  <span className={styles.masterTitle}>{getSaleTitle(sale)}</span>
                   <span className={styles.masterMeta}>
-                    {sale.hora ? `${sale.hora} • ` : ""}
-                    {getSaleLines(sale).map((line) => `${getLineView(line).quantity}x ${getSaleLineName(line)}`).join(", ")}
+                    Ticket {getTicketLabel(sale)}
+                    {sale.hora ? ` • ${sale.hora}` : ""}
                   </span>
                 </span>
                 <span className={styles.masterTotal}>{formatMoney(Number(sale.total ?? 0))}</span>
@@ -170,9 +186,9 @@ export default function SalesList({ model }: SalesListProps) {
 
       <div className={styles.detailPane}>
         <div>
-          <h3 className={styles.detailTitle}>Ticket {getTicketLabel(current)}</h3>
+          <h3 className={styles.detailTitle}>{getSaleTitle(current)}</h3>
           <p className={styles.detailMeta}>
-            {current.fecha}
+            Ticket {getTicketLabel(current)} • {current.fecha}
             {current.hora ? ` a las ${current.hora}` : ""} • Evento:{" "}
             <strong>{model.getEventName(current.event_id)}</strong>
           </p>
@@ -214,13 +230,11 @@ export default function SalesList({ model }: SalesListProps) {
                 <ChevronRight size={16} aria-hidden="true" />
               </span>
               <span className={styles.accordionInfo}>
-                <span className={styles.masterTitle}>
-                  Ticket {getTicketLabel(sale)}
-                  {sale.hora ? ` • ${sale.hora}` : ""}
-                </span>
+                <span className={styles.masterTitle}>{getSaleTitle(sale)}</span>
                 <span className={styles.masterMeta}>
-                  {lines.length} {lines.length === 1 ? "pieza" : "piezas"} (
-                  {lines.map((line) => getSaleLineName(line)).join(", ")})
+                  Ticket {getTicketLabel(sale)}
+                  {sale.hora ? ` • ${sale.hora}` : ""} • {lines.length}{" "}
+                  {lines.length === 1 ? "pieza" : "piezas"}
                 </span>
               </span>
               <span className={styles.masterTotal}>{formatMoney(Number(sale.total ?? 0))}</span>
@@ -240,6 +254,7 @@ export default function SalesList({ model }: SalesListProps) {
                       <li key={index}>
                         <span>
                           {view.quantity}x {view.name}
+                          {getLineNote(line) && <span className={styles.lineNote}>{getLineNote(line)}</span>}
                         </span>
                         <span>{formatMoney(view.total)}</span>
                       </li>

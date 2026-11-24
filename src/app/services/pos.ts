@@ -80,6 +80,30 @@ export function updateCartItemPrice(
   );
 }
 
+export function updateCartItemNote(
+  cart: CartItem[],
+  productId: string,
+  note: string
+): CartItem[] {
+  const trimmed = note.trim();
+
+  return cart.map((item) => {
+    if (item.productId !== productId) {
+      return item;
+    }
+
+    return trimmed ? { ...item, note: trimmed } : { ...item, note: undefined };
+  });
+}
+
+// Remate products are identified by their REMATE-01 code or by the "Remate" name.
+export function isRemateProduct(product: Pick<Product, "name" | "code">): boolean {
+  const normalizedCode = String(product.code ?? "").trim().toUpperCase();
+  const normalizedName = String(product.name ?? "").trim().toUpperCase();
+
+  return normalizedCode === "REMATE-01" || normalizedName === "REMATE";
+}
+
 export function buildCartLines(cart: CartItem[], products: Product[]): PosCartLine[] {
   return cart
     .map((item) => {

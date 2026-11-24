@@ -132,6 +132,12 @@
   gap: 0.25rem;
 }
 
+.noteInput {
+  composes: priceInput;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 .quantityBtn {
   width: 1.75rem;
   height: 1.75rem;

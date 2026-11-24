@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Pencil, Plus, Tags, Trash2, X } from "lucide-react";
 import styles from "./ProductOptionsManager.module.scss";
 import { SkeletonRowList } from "@/components/Skeleton";
+import Portal from "@/components/Portal";
 
 type OptionType = "category" | "series";
 
@@ -99,7 +100,9 @@ export default function ProductOptionsManager({
       </button>
 
       {isOpen && (
-        <div className={styles.overlay} onClick={() => !loading && setIsOpen(false)}>
+        <Portal>
+          <div className={styles.overlay} onClick={() => !loading && setIsOpen(false)}>
+
           <section
             className={styles.modal}
             role="dialog"
@@ -257,6 +260,7 @@ export default function ProductOptionsManager({
             )}
           </section>
         </div>
+        </Portal>
       )}
     </>
   );
