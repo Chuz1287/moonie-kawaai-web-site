@@ -22,6 +22,17 @@ type CloudinarySearchResponse = {
   error?: { message?: string };
 };
 
+function normalizeFolderPath(path: string): string {
+  return path
+    .split("/")
+    .map((segment) => segment
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("es-MX"))
+    .join("/");
+}
+
 async function fetchCloudinaryResources(): Promise<CloudinaryResource[]> {
   const privateCloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
   const publicCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
@@ -81,39 +92,75 @@ function mapImagesByProduct(
   products: Product[],
   resources: CloudinaryResource[]
 ): Record<string, string[]> {
-  const folders = new Map<string, Product[]>();
+  const productsByFolder = new Map<string, Product[]>();
+  const productsByCode = new Map<string, Product[]>();
+
   for (const product of products) {
     const folder = getProductCloudinaryFolder({
       code: product.code ?? "",
       category: product.category,
       series: product.series,
     });
-    if (!folder) continue;
-    const matchingProducts = folders.get(folder) ?? [];
-    matchingProducts.push(product);
-    folders.set(folder, matchingProducts);
+    if (folder) {
+      const folderKey = normalizeFolderPath(folder);
+      const folderProducts = productsByFolder.get(folderKey) ?? [];
+      folderProducts.push(product);
+      productsByFolder.set(folderKey, folderProducts);
+    }
+
+    const code = normalizeFolderPath(product.code ?? "");
+    if (code) {
+      const codeProducts = productsByCode.get(code) ?? [];
+      codeProducts.push(product);
+      productsByCode.set(code, codeProducts);
+    }
   }
 
-  const resourcesByFolder = new Map<string, CloudinaryResource[]>();
+  const resourcesByProduct = new Map<string, CloudinaryResource[]>();
   for (const resource of resources) {
     const folder = resource.asset_folder ?? resource.public_id.split("/").slice(0, -1).join("/");
-    if (!folders.has(folder) || !resource.secure_url) continue;
-    const matchingResources = resourcesByFolder.get(folder) ?? [];
-    matchingResources.push(resource);
-    resourcesByFolder.set(folder, matchingResources);
+    if (
+      !normalizeFolderPath(folder).startsWith("moonie-kawaii/products/") ||
+      !resource.secure_url
+    ) {
+      continue;
+    }
+
+    const exactMatches = productsByFolder.get(normalizeFolderPath(folder));
+    const folderCode = normalizeFolderPath(folder.split("/").at(-1) ?? "");
+    const codeMatches = productsByCode.get(folderCode);
+    const folderSeries = normalizeFolderPath(folder.split("/").at(-2) ?? "");
+    const seriesMatches = codeMatches?.filter(
+      (product) => normalizeFolderPath(product.series ?? "") === folderSeries
+    );
+    const matchingProducts = exactMatches ??
+      (codeMatches?.length === 1
+        ? codeMatches
+        : seriesMatches?.length === 1
+          ? seriesMatches
+          : undefined);
+    if (!matchingProducts) continue;
+
+    for (const product of matchingProducts) {
+      const productResources = resourcesByProduct.get(product.id) ?? [];
+      productResources.push(resource);
+      resourcesByProduct.set(product.id, productResources);
+    }
   }
 
   const imagesByProduct: Record<string, string[]> = {};
-  for (const [folder, matchingProducts] of folders) {
-    const folderResources = resourcesByFolder.get(folder) ?? [];
-    folderResources.sort((first, second) => {
+  for (const product of products) {
+    const productResources = resourcesByProduct.get(product.id) ?? [];
+    productResources.sort((first, second) => {
       const firstIsCover = first.public_id.split("/").at(-1)?.toLocaleLowerCase() === "cover";
       const secondIsCover = second.public_id.split("/").at(-1)?.toLocaleLowerCase() === "cover";
       if (firstIsCover !== secondIsCover) return firstIsCover ? -1 : 1;
       return first.public_id.localeCompare(second.public_id, "es-MX");
     });
-    const images = [...new Set(folderResources.map((resource) => resource.secure_url))].slice(0, 5);
-    for (const product of matchingProducts) {
+    const cloudinaryImages = [...new Set(productResources.map((resource) => resource.secure_url))];
+    const databaseImages = product.gallery.filter(Boolean);
+    const images = (cloudinaryImages.length > 0 ? cloudinaryImages : databaseImages).slice(0, 5);
+    if (images.length > 0) {
       imagesByProduct[product.id] = images;
     }
   }
