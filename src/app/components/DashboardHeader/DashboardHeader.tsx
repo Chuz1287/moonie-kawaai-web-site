@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import type { PosDashboardModel } from "@/pages/pos/pos.logic";
 import styles from "./DashboardHeader.module.scss";
-import { PenLine, Plus } from "lucide-react";
 import { SkeletonLine } from "@/components/Skeleton";
 
 export default function DashboardHeader({ model, children }: { model: PosDashboardModel; children?: ReactNode }) {
@@ -44,6 +43,7 @@ export default function DashboardHeader({ model, children }: { model: PosDashboa
               }}
               className={`${styles.eventSelect} app-enter`}
             >
+              <option value="">Venta sin evento</option>
               {model.salesChannels.map((channel) => (
                 <option key={channel.id} value={channel.id}>
                   {channel.name}
@@ -51,22 +51,6 @@ export default function DashboardHeader({ model, children }: { model: PosDashboa
               ))}
             </select>
           )}
-          <button
-            type="button"
-            onClick={() => model.setIsEventsAndExpensesModalOpen(true)}
-            className={styles.manageEventsLink}
-            aria-label="Administrar eventos"
-          >
-            <PenLine size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={() => model.setIsEventModalOpen(true)}
-            className={styles.createEventButton}
-            aria-label="Crear evento"
-          >
-            <Plus size={16} />
-          </button>
 
           {model.selectedEvent && (
             <span className={styles.activeBadge}>Evento Activo</span>

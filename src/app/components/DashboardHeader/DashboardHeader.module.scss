@@ -117,26 +117,6 @@
       transition: $transition-theme;
     }
 
-    .createEventButton {
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: var(--component-border-radius);
-      border: 1px solid var(--accent-primary);
-      padding: 0;
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--accent-primary);
-      cursor: pointer;
-      transition: $transition-theme;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        background: rgba(168, 85, 247, 0.2);
-      }
-    }
-
     .eventSelectSkeleton {
       flex: 1 1 0;
       min-width: 0;
@@ -198,27 +178,6 @@
       }
     }
 
-    .manageEventsLink {
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: var(--component-border-radius);
-      border: 1px solid var(--accent-primary);
-      background: transparent;
-      padding: 0;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--accent-primary);
-      cursor: pointer;
-      transition: $transition-theme;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        background: rgba(168, 85, 247, 0.1);
-      }
-    }
   }
 
 // ─── TABLET (768px+) ─────────────────────────────────────────────

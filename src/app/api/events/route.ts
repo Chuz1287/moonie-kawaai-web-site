@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   const client = getClient();
 
   if (!client) {
-    return NextResponse.json({ events: [] });
+    return NextResponse.json({ message: "Supabase no está configurado." }, { status: 500 });
   }
 
   try {
@@ -43,9 +43,13 @@ export async function GET(request: Request) {
       throw new Error(error.message);
     }
 
-    return NextResponse.json({ events: data ?? [] });
+    return NextResponse.json({ events: data ?? [] }, {
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    });
   } catch (error) {
-    return NextResponse.json({ events: [] });
+    const message = error instanceof Error ? error.message : "No se pudieron cargar los eventos.";
+    console.error("Event list query failed:", error);
+    return NextResponse.json({ message }, { status: 500 });
   }
 }
 

@@ -107,7 +107,7 @@ export async function POST(request: Request) {
 
     const { data: products, error: productsError } = await client
       .from("products")
-      .select("id, personaje, stock, costo, precio")
+      .select("id, personaje, serie, stock, costo, precio")
       .in("id", numericIds);
 
     if (productsError || !products) {
@@ -137,6 +137,8 @@ export async function POST(request: Request) {
       return {
         productId: String(item.productId ?? ""),
         productName: product?.personaje ?? "Producto",
+        character: product?.personaje ?? "Producto",
+        series: product?.serie ?? "",
         quantity,
         unitPrice,
         costo_unitario: productCost,
@@ -181,7 +183,7 @@ export async function POST(request: Request) {
     const legacySalePayload = {
       id: saleId,
       personaje: firstLine?.productName ?? "Venta",
-      serie: "General",
+      serie: firstLine?.series ?? "General",
       tipo: "Venta",
       cantidad: firstLine ? Number(firstLine.quantity ?? 0) : 0,
       precio_venta_unitario: firstLine ? Number(firstLine.unitPrice ?? 0) : 0,

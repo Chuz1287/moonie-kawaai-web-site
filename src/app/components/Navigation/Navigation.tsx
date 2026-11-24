@@ -1,34 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, TrendingUp, Package, Images, Moon, Sun } from "lucide-react";
+import { CalendarDays, ShoppingCart, TrendingUp, Package, Images, Moon, Sun } from "lucide-react";
 import styles from "./Navigation.module.scss";
+
+const themeChangeEvent = "moonie-theme-change";
+
+function subscribeToMount() {
+  return () => {};
+}
+
+function subscribeToTheme(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(themeChangeEvent, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(themeChangeEvent, callback);
+  };
+}
+
+function readTheme(): "light" | "dark" {
+  return localStorage.getItem("theme") === "light" ? "light" : "dark";
+}
 
 export default function Navigation() {
   const pathname = usePathname();
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [mounted, setMounted] = useState(false);
+  const theme = useSyncExternalStore(subscribeToTheme, readTheme, () => "dark");
+  const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false);
 
   useEffect(() => {
-    setMounted(true);
-    const stored = localStorage.getItem("theme") || "dark";
-    setTheme(stored as "light" | "dark");
-    
     const htmlElement = document.documentElement;
     htmlElement.classList.remove("light", "dark");
-    htmlElement.classList.add(stored);
-  }, []);
+    htmlElement.classList.add(theme);
+  }, [theme]);
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
-    
-    const htmlElement = document.documentElement;
-    htmlElement.classList.remove("light", "dark");
-    htmlElement.classList.add(newTheme);
+    window.dispatchEvent(new Event(themeChangeEvent));
   };
 
   if (!mounted) return null;
@@ -42,6 +53,15 @@ export default function Navigation() {
       >
         <ShoppingCart size={24} />
         <span className={styles.label}>POS</span>
+      </Link>
+
+      <Link
+        href="/events"
+        className={`${styles.navItem} ${pathname.includes("/events") ? styles.active : ""}`}
+        aria-current={pathname.includes("/events") ? "page" : undefined}
+      >
+        <CalendarDays size={24} />
+        <span className={styles.label}>Eventos</span>
       </Link>
 
       <Link

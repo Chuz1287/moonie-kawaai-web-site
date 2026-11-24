@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   addProductToCart,
   calculateCartTotals,
@@ -10,6 +10,7 @@ import {
   updateCartItemQuantity,
 } from "@/services/pos";
 import type { CartItem, Product } from "@/types/store";
+import type { EventPerformance } from "@/types/events";
 import { useToast } from "@/components/Toast";
 
 // Catalog utilities
@@ -68,28 +69,6 @@ export type EventOption = {
   end_date: string | null;
 };
 
-export type EventExpense = {
-  id: string;
-  event_id: string;
-  category: string;
-  description: string;
-  amount: number;
-  notes?: string;
-  created_at: string;
-};
-
-export type EventPerformance = {
-  salesTotal: number;
-  expensesTotal: number;
-  merchandiseCost: number;
-  totalInvestment: number;
-  balance: number;
-  amountToBreakEven: number;
-  incompleteSaleCount: number;
-};
-
-const expenseCategories = ["Stand / piso", "Comida", "Sueldos", "Caseta", "Gasolina"];
-
 export function formatPosCurrency(value: number) {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
@@ -103,33 +82,12 @@ export function usePosDashboard() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("Listo para vender");
-  const [eventName, setEventName] = useState("");
-  const [eventLocation, setEventLocation] = useState("");
-  const [eventStartDate, setEventStartDate] = useState("");
-  const [eventEndDate, setEventEndDate] = useState("");
   const [selectedEvent, setSelectedEvent] = useState("");
   const [salesChannels, setSalesChannels] = useState<EventOption[]>([]);
   const [eventPerformance, setEventPerformance] = useState<EventPerformance | null>(null);
   const [eventPerformanceError, setEventPerformanceError] = useState("");
   const [eventPerformanceRefresh, setEventPerformanceRefresh] = useState(0);
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-  const [isEventsAndExpensesModalOpen, setIsEventsAndExpensesModalOpen] = useState(false);
-  const [managedEventId, setManagedEventId] = useState("");
-  const [eventExpenses, setEventExpenses] = useState<EventExpense[]>([]);
-  const [expenseCategory, setExpenseCategory] = useState(expenseCategories[0]);
-  const [customExpenseCategory, setCustomExpenseCategory] = useState("");
-  const [expenseAmount, setExpenseAmount] = useState("");
-  const [eventModalStatus, setEventModalStatus] = useState("");
-  const [editingEventId, setEditingEventId] = useState("");
-  const [editingEventName, setEditingEventName] = useState("");
-  const [editingExpenseId, setEditingExpenseId] = useState("");
-  const [editingExpenseAmount, setEditingExpenseAmount] = useState("");
-  const [isSavingEvent, setIsSavingEvent] = useState(false);
-  const [isSavingExpense, setIsSavingExpense] = useState(false);
-  const [isUpdatingExpense, setIsUpdatingExpense] = useState(false);
   const [isExportingProducts, setIsExportingProducts] = useState(false);
-  const [deletingEventId, setDeletingEventId] = useState("");
-  const [editingExpenseCategory, setEditingExpenseCategory] = useState(expenseCategories[0]);
   const [productCatalog, setProductCatalog] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
@@ -186,12 +144,6 @@ export function usePosDashboard() {
             setSelectedEvent(events[0].id);
             localStorage.setItem("moonie_kawaai_selected_event", events[0].id);
           }
-          setManagedEventId((current) =>
-            current ||
-            (savedEvent && events.some((event) => event.id === savedEvent)
-              ? savedEvent
-              : events[0]?.id ?? "")
-          );
         }
       } catch (error) {
         if (!cancelled) {
@@ -284,48 +236,6 @@ export function usePosDashboard() {
     };
   }, [selectedEvent, eventPerformanceRefresh]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadEventExpenses() {
-      if (!isEventModalOpen || !managedEventId) {
-        setEventExpenses([]);
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `/api/events/${encodeURIComponent(managedEventId)}/expenses`
-        );
-        const payload = (await response.json()) as {
-          expenses?: EventExpense[];
-          message?: string;
-        };
-
-        if (!response.ok) {
-          throw new Error(payload.message ?? "No se pudieron cargar los gastos del evento.");
-        }
-
-        if (!cancelled) {
-          setEventExpenses(Array.isArray(payload.expenses) ? payload.expenses : []);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setEventModalStatus(
-            error instanceof Error
-              ? error.message
-              : "No se pudieron cargar los gastos del evento."
-          );
-        }
-      }
-    }
-
-    void loadEventExpenses();
-    return () => {
-      cancelled = true;
-    };
-  }, [isEventModalOpen, managedEventId]);
-
   const filteredProducts = useMemo(
     () => filterCatalogProducts(productCatalog, search),
     [productCatalog, search]
@@ -340,11 +250,6 @@ export function usePosDashboard() {
   );
   const hasCartItems = cart.length > 0;
   const { showToast } = useToast();
-  const totalEventExpenses = useMemo(
-    () => eventExpenses.reduce((sum, expense) => sum + Number(expense.amount ?? 0), 0),
-    [eventExpenses]
-  );
-
   const handleAddToCart = (product: { id: string; name: string; stock?: number }) => {
     const stockLimit = Math.max(0, Number(product.stock ?? 0));
 
@@ -440,232 +345,6 @@ export function usePosDashboard() {
     }
   };
 
-  const handleSaveChannel = async () => {
-    const normalized = eventName.trim();
-
-    if (!normalized || !eventStartDate || !eventEndDate || isSavingEvent) {
-      return;
-    }
-    if (eventEndDate < eventStartDate) {
-      const message = "La fecha de fin debe ser igual o posterior a la fecha de inicio.";
-      setEventModalStatus(message);
-      setStatus(message);
-      return;
-    }
-
-    setIsSavingEvent(true);
-    setEventModalStatus("");
-    try {
-      const response = await fetch("/api/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: normalized,
-          location: eventLocation.trim(),
-          start_date: eventStartDate,
-          end_date: eventEndDate,
-        }),
-      });
-      const payload = (await response.json()) as {
-        event?: EventOption;
-        message?: string;
-      };
-
-      if (!response.ok || !payload.event) {
-        throw new Error(payload.message ?? "No se pudo guardar el evento.");
-      }
-
-      setSalesChannels((current) => [
-        ...current.filter((event) => event.id !== payload.event!.id),
-        payload.event!,
-      ]);
-      setSelectedEvent(payload.event.id);
-      localStorage.setItem("moonie_kawaai_selected_event", payload.event.id);
-      setStatus(`Evento activo: ${payload.event.name}`);
-      setEventModalStatus(
-        `Evento creado y activado: ${payload.event.name}. Ahora puedes registrar sus gastos.`
-      );
-      setManagedEventId(payload.event.id);
-      setEventExpenses([]);
-      setEventName("");
-      setEventLocation("");
-      setEventStartDate("");
-      setEventEndDate("");
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "No se pudo guardar el evento.";
-      setStatus(message);
-      setEventModalStatus(message);
-    } finally {
-      setIsSavingEvent(false);
-    }
-  };
-
-  const handleRenameEvent = async (event: EventOption) => {
-    const name = editingEventName.trim();
-    if (!name || name === event.name || editingEventId !== event.id) {
-      return;
-    }
-
-    setEditingEventId("");
-    setEventModalStatus("");
-    try {
-      const response = await fetch(`/api/events/${encodeURIComponent(event.id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-      const payload = (await response.json()) as { event?: EventOption; message?: string };
-
-      if (!response.ok || !payload.event) {
-        throw new Error(payload.message ?? "No se pudo actualizar el nombre del evento.");
-      }
-
-      setSalesChannels((current) =>
-        current.map((item) => item.id === payload.event!.id ? payload.event! : item)
-      );
-      setEventModalStatus(`Nombre de evento actualizado a "${payload.event.name}".`);
-      setStatus(`Nombre de evento actualizado a "${payload.event.name}".`);
-    } catch (error) {
-      const message = error instanceof Error
-        ? error.message
-        : "No se pudo actualizar el nombre del evento.";
-      setEditingEventId(event.id);
-      setEventModalStatus(message);
-    }
-  };
-
-  const handleDeleteEvent = async (event: EventOption) => {
-    setDeletingEventId(event.id);
-    try {
-      const response = await fetch(`/api/events/${encodeURIComponent(event.id)}`, {
-        method: "DELETE",
-      });
-      const payload = (await response.json()) as { message?: string };
-
-      if (!response.ok) {
-        throw new Error(payload.message ?? "No se pudo eliminar el evento.");
-      }
-
-      setSalesChannels((current) => current.filter((item) => item.id !== event.id));
-      setEventModalStatus(`Evento "${event.name}" eliminado.`);
-      setStatus(`Evento "${event.name}" eliminado.`);
-    } catch (error) {
-      const message = error instanceof Error
-        ? error.message
-        : "No se pudo eliminar el evento.";
-      setEventModalStatus(message);
-    } finally {
-      setDeletingEventId("");
-    }
-  };
-
-  const handleSaveEventExpense = async (e: FormEvent) => {
-    e.preventDefault();
-    const category = editingExpenseCategory === "Otro" ? customExpenseCategory : editingExpenseCategory;
-    const amount = parseFloat(expenseAmount);
-
-    if (!category.trim() || !amount || amount <= 0) {
-      setEventModalStatus("Ingresa categorÃ­a y cantidad vÃ¡lidas.");
-      return;
-    }
-
-    setIsSavingExpense(true);
-    try {
-      const response = await fetch(
-        `/api/events/${encodeURIComponent(managedEventId)}/expenses`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            category,
-            description: category,
-            amount,
-          }),
-        }
-      );
-      const payload = (await response.json()) as { expense?: EventExpense; message?: string };
-
-      if (!response.ok || !payload.expense) {
-        throw new Error(payload.message ?? "No se pudo guardar el gasto.");
-      }
-
-      setEventExpenses((current) => [...current, payload.expense!]);
-      setEditingExpenseCategory(expenseCategories[0]);
-      setCustomExpenseCategory("");
-      setExpenseAmount("");
-      setEventModalStatus(`Gasto de ${category} registrado.`);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "No se pudo guardar el gasto.";
-      setEventModalStatus(message);
-    } finally {
-      setIsSavingExpense(false);
-    }
-  };
-
-  const handleSaveExpense = async (expense: EventExpense) => {
-    const amount = parseFloat(editingExpenseAmount);
-    if (!amount || amount <= 0) {
-      setEventModalStatus("Ingresa una cantidad vÃ¡lida.");
-      return;
-    }
-
-    setIsUpdatingExpense(true);
-    try {
-      const response = await fetch(
-        `/api/events/${encodeURIComponent(expense.event_id)}/expenses/${encodeURIComponent(expense.id)}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount }),
-        }
-      );
-      const payload = (await response.json()) as { expense?: EventExpense; message?: string };
-
-      if (!response.ok || !payload.expense) {
-        throw new Error(payload.message ?? "No se pudo actualizar el gasto.");
-      }
-
-      setEventExpenses((current) =>
-        current.map((item) => (item.id === payload.expense!.id ? payload.expense! : item))
-      );
-      setEditingExpenseId("");
-      setEditingExpenseAmount("");
-      setEventModalStatus("Gasto actualizado.");
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "No se pudo actualizar el gasto.";
-      setEventModalStatus(message);
-    } finally {
-      setIsUpdatingExpense(false);
-    }
-  };
-
-  const handleDeleteEventExpense = async (expense: EventExpense) => {
-    setEditingExpenseId(expense.id);
-    try {
-      const response = await fetch(
-        `/api/events/${encodeURIComponent(expense.event_id)}/expenses/${encodeURIComponent(expense.id)}`,
-        { method: "DELETE" }
-      );
-      const payload = (await response.json()) as { message?: string };
-
-      if (!response.ok) {
-        throw new Error(payload.message ?? "No se pudo eliminar el gasto.");
-      }
-
-      setEventExpenses((current) => current.filter((item) => item.id !== expense.id));
-      setEventModalStatus("Gasto eliminado.");
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "No se pudo eliminar el gasto.";
-      setEventModalStatus(message);
-    } finally {
-      setEditingExpenseId("");
-    }
-  };
-
   const handleExportProducts = async () => {
     setIsExportingProducts(true);
     try {
@@ -711,54 +390,12 @@ export function usePosDashboard() {
     setSearch,
     status,
     setStatus,
-    eventName,
-    setEventName,
-    eventLocation,
-    setEventLocation,
-    eventStartDate,
-    setEventStartDate,
-    eventEndDate,
-    setEventEndDate,
     selectedEvent,
     setSelectedEvent,
     salesChannels,
-    setSalesChannels,
     eventPerformance,
     eventPerformanceError,
-    setEventPerformanceError,
-    eventPerformanceRefresh,
-    setEventPerformanceRefresh,
-    isEventModalOpen,
-    setIsEventModalOpen,
-    isEventsAndExpensesModalOpen,
-    setIsEventsAndExpensesModalOpen,
-    managedEventId,
-    setManagedEventId,
-    eventExpenses,
-    setEventExpenses,
-    expenseCategory,
-    setExpenseCategory,
-    customExpenseCategory,
-    setCustomExpenseCategory,
-    expenseAmount,
-    setExpenseAmount,
-    eventModalStatus,
-    setEventModalStatus,
-    editingEventId,
-    setEditingEventId,
-    editingEventName,
-    setEditingEventName,
-    editingExpenseId,
-    setEditingExpenseId,
-    editingExpenseAmount,
-    setEditingExpenseAmount,
-    isSavingEvent,
-    isSavingExpense,
-    isUpdatingExpense,
     isExportingProducts,
-    deletingEventId,
-    editingExpenseCategory,
-    setEditingExpenseCategory,
     productCatalog,
     isLoadingProducts,
     isLoadingEvents,
@@ -769,19 +406,12 @@ export function usePosDashboard() {
     inventorySummary,
     totals,
     hasCartItems,
-    totalEventExpenses,
     handleAddToCart,
     handleChangeQuantity,
     handleChangePrice,
     handleChangeNote,
     handleRemove,
     handleCheckout,
-    handleSaveChannel,
-    handleRenameEvent,
-    handleDeleteEvent,
-    handleSaveEventExpense,
-    handleSaveExpense,
-    handleDeleteEventExpense,
     handleExportProducts,
   };
 }

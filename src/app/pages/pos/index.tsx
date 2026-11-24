@@ -5,9 +5,7 @@ import ProductGrid from "@/components/ProductGrid";
 import { SkeletonCardGrid } from "@/components/Skeleton";
 import DashboardHeader from "@/components/DashboardHeader";
 import Portal from "@/components/Portal";
-import EventManagementDialog from "@/components/EventManagementDialog";
 import EventPerformancePanel from "@/components/EventPerformancePanel";
-import { EventsAndExpensesModal } from "@/components/EventsAndExpensesModal";
 import { Search } from "lucide-react";
 import styles from "./pos.module.scss";
 import { usePosDashboard } from "./pos.logic";
@@ -20,15 +18,9 @@ export default function PosDashboard() {
       <div className="mx-auto max-w-7xl">
         <header className={styles.header}>
           <DashboardHeader model={model}>
-            <EventPerformancePanel model={model} />
+            {model.selectedEvent ? <EventPerformancePanel model={model} /> : null}
           </DashboardHeader>
         </header>
-
-        <Portal>
-          <EventManagementDialog model={model} />
-        </Portal>
-
-
 
         <div className={styles.workspace}>
           <section className={styles.catalogSection}>
@@ -121,9 +113,6 @@ export default function PosDashboard() {
           </Portal>
         )}
 
-        <Portal>
-          <EventsAndExpensesModal isOpen={model.isEventsAndExpensesModalOpen} onClose={() => model.setIsEventsAndExpensesModalOpen(false)} />
-        </Portal>
       </div>
     </main>
   );

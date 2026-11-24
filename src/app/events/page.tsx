@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import styles from "./events.module.scss";
 import Spinner from "@/components/Spinner";
+import EventPerformanceDashboard from "./EventPerformanceDashboard";
 
 type EventRecord = {
   id: string;
@@ -22,6 +23,8 @@ type ExpenseRecord = {
   amount: number;
   created_at: string;
 };
+
+type EventsTab = "overview" | "management";
 
 const expenseCategories = ["Stand / piso", "Comida", "Sueldos", "Caseta", "Gasolina"];
 
@@ -47,6 +50,8 @@ export default function EventsPage() {
   const [customCategory, setCustomCategory] = useState("");
   const [amount, setAmount] = useState("");
   const [status, setStatus] = useState("");
+  const [performanceRefresh, setPerformanceRefresh] = useState(0);
+  const [activeTab, setActiveTab] = useState<EventsTab>("overview");
   const [isSavingEvent, setIsSavingEvent] = useState(false);
   const [isSavingExpense, setIsSavingExpense] = useState(false);
   const [updatingEvent, setUpdatingEvent] = useState(false);
@@ -127,6 +132,26 @@ export default function EventsPage() {
     () => expenses.reduce((sum, expense) => sum + Number(expense.amount ?? 0), 0),
     [expenses]
   );
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const tabs = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const currentIndex = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true");
+    const nextIndex = event.key === "ArrowRight"
+      ? (currentIndex + 1) % tabs.length
+      : event.key === "ArrowLeft"
+        ? (currentIndex - 1 + tabs.length) % tabs.length
+        : event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? tabs.length - 1
+            : currentIndex;
+
+    if (nextIndex === currentIndex || !tabs[nextIndex]) return;
+
+    event.preventDefault();
+    const nextTab = tabs[nextIndex];
+    nextTab.focus();
+    setActiveTab(nextTab.id === "event-management-tab" ? "management" : "overview");
+  };
 
   async function handleCreateEvent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -335,6 +360,7 @@ export default function EventsPage() {
       }
 
       setExpenses((current) => [payload.expense!, ...current]);
+      setPerformanceRefresh((current) => current + 1);
       setAmount("");
       setCustomCategory("");
       setCategory(expenseCategories[0]);
@@ -378,6 +404,7 @@ export default function EventsPage() {
       setExpenses((current) =>
         current.map((item) => item.id === payload.expense!.id ? payload.expense! : item)
       );
+      setPerformanceRefresh((current) => current + 1);
       setEditingExpenseId("");
       setEditingExpenseAmount("");
       setStatus("Importe del gasto actualizado.");
@@ -393,8 +420,8 @@ export default function EventsPage() {
       <div className={styles.wrapper}>
         <header className={styles.header}>
           <div>
-            <p style={{ fontSize: "0.75rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--accent-primary)" }}>Operación</p>
-            <h1 className={styles.title}>Eventos y gastos</h1>
+            <p className={styles.eyebrow}>Operación</p>
+            <h1 className={styles.title}>Eventos</h1>
           </div>
           <div className={styles.navLinks}>
             <Link href="/sales" className={styles.navLink}>Ventas</Link>
@@ -402,9 +429,99 @@ export default function EventsPage() {
           </div>
         </header>
 
+        <section className={styles.eventToolbar} aria-label="Evento seleccionado">
+          <label className={styles.eventPicker}>
+            <span className={styles.eventPickerLabel}>Evento</span>
+            <select
+              value={selectedEventId}
+              onChange={(event) => {
+                const eventId = event.target.value;
+                const chosenEvent = events.find((item) => item.id === eventId);
+                setSelectedEventId(eventId);
+                setManagedEventName(chosenEvent?.name ?? "");
+                setManagedStartDate(chosenEvent?.start_date ?? "");
+                setManagedEndDate(chosenEvent?.end_date ?? "");
+                setEditingExpenseId("");
+                setEditingExpenseAmount("");
+                localStorage.setItem(
+                  "moonie_kawaai_selected_event",
+                  chosenEvent?.is_active ? chosenEvent.id : "default"
+                );
+              }}
+              className={styles.eventPickerSelect}
+              aria-label="Seleccionar evento para ver o administrar"
+            >
+              <option value="">Selecciona un evento</option>
+              {events.map((event) => (
+                <option key={event.id} value={event.id}>
+                  {event.name}{event.is_active ? "" : " · Cerrado"}
+                </option>
+              ))}
+            </select>
+          </label>
+          {selectedEvent && (
+            <span className={selectedEvent.is_active ? styles.statusActive : styles.statusInactive}>
+              {selectedEvent.is_active ? "En curso" : "Cerrado"}
+            </span>
+          )}
+        </section>
+
+        <div
+          className={styles.tabs}
+          role="tablist"
+          aria-label="Secciones de eventos"
+          onKeyDown={handleTabKeyDown}
+        >
+          <button
+            type="button"
+            id="event-overview-tab"
+            role="tab"
+            aria-selected={activeTab === "overview"}
+            aria-controls="event-overview-panel"
+            tabIndex={activeTab === "overview" ? 0 : -1}
+            className={`${styles.tab} ${activeTab === "overview" ? styles.activeTab : ""}`}
+            onClick={() => setActiveTab("overview")}
+          >
+            Resumen
+          </button>
+          <button
+            type="button"
+            id="event-management-tab"
+            role="tab"
+            aria-selected={activeTab === "management"}
+            aria-controls="event-management-panel"
+            tabIndex={activeTab === "management" ? 0 : -1}
+            className={`${styles.tab} ${activeTab === "management" ? styles.activeTab : ""}`}
+            onClick={() => setActiveTab("management")}
+          >
+            Administración
+          </button>
+        </div>
+
         {status && <p role="status" className={styles.statusMessage}>{status}</p>}
 
-        <section className={styles.mainContent}>
+        {activeTab === "overview" ? (
+          <section
+            id="event-overview-panel"
+            className={styles.tabPanel}
+            role="tabpanel"
+            aria-labelledby="event-overview-tab"
+            tabIndex={0}
+          >
+            <EventPerformanceDashboard
+              eventId={selectedEventId}
+              refreshKey={performanceRefresh}
+            />
+          </section>
+        ) : (
+          <section
+            id="event-management-panel"
+            className={styles.tabPanel}
+            role="tabpanel"
+            aria-labelledby="event-management-tab"
+            tabIndex={0}
+          >
+          <section className={styles.mainContent}>
           <form onSubmit={handleCreateEvent} className={styles.createEventSection}>
             <h2 className={styles.sectionTitle}>Crear evento</h2>
             <label className={styles.formGroup}>
@@ -446,26 +563,6 @@ export default function EventsPage() {
           </form>
 
           <section className={styles.managedEventSection}>
-            <label className={styles.formGroup}>
-              <span className={styles.label}>Evento para administrar</span>
-              <select value={selectedEventId} onChange={(event) => {
-                setSelectedEventId(event.target.value);
-                const chosenEvent = events.find((item) => item.id === event.target.value);
-                setManagedEventName(chosenEvent?.name ?? "");
-                setManagedStartDate(chosenEvent?.start_date ?? "");
-                setManagedEndDate(chosenEvent?.end_date ?? "");
-                setEditingExpenseId("");
-                setEditingExpenseAmount("");
-                if (chosenEvent?.is_active) {
-                  localStorage.setItem("moonie_kawaai_selected_event", chosenEvent.id);
-                }
-              }} className={styles.select}>
-                <option value="">Selecciona un evento</option>
-                {events.map((event) => <option key={event.id} value={event.id}>
-                  {event.name}{event.is_active ? "" : " (Cerrado)"}
-                </option>)}
-              </select>
-            </label>
             {selectedEvent && (
               <>
                 <div className={styles.flexWrapEnd}>
@@ -643,6 +740,8 @@ export default function EventsPage() {
             )}
           </section>
         </section>
+          </section>
+        )}
       </div>
     </main>
   );

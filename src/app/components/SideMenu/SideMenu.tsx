@@ -1,17 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, TrendingUp, Package, Images, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { CalendarDays, ShoppingCart, TrendingUp, Package, Images, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import AppVersion from "../AppVersion";
 import packageJson from "../../../../package.json";
 import styles from "./SideMenu.module.scss";
 
 const SIDEBAR_STORAGE_KEY = "moonie_kawaai_sidebar_open";
+const sidebarChangeEvent = "moonie-sidebar-change";
+
+function subscribeToMount() {
+  return () => {};
+}
+
+function subscribeToSidebar(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(sidebarChangeEvent, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(sidebarChangeEvent, callback);
+  };
+}
+
+function readSidebarState() {
+  return localStorage.getItem(SIDEBAR_STORAGE_KEY) !== "closed";
+}
 
 const menuItems = [
   { href: "/", label: "POS", match: "/pos", icon: ShoppingCart },
+  { href: "/events", label: "Eventos", match: "/events", icon: CalendarDays },
   { href: "/sales", label: "Ventas", match: "/sales", icon: TrendingUp },
   { href: "/pages/inventory", label: "Inventario", match: "/inventory", icon: Package },
   { href: "/media", label: "Imágenes", match: "/media", icon: Images },
@@ -19,18 +38,13 @@ const menuItems = [
 
 export default function SideMenu() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(true);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    setIsOpen(localStorage.getItem(SIDEBAR_STORAGE_KEY) !== "closed");
-  }, []);
+  const isOpen = useSyncExternalStore(subscribeToSidebar, readSidebarState, () => true);
+  const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false);
 
   const toggleSidebar = () => {
     const next = !isOpen;
-    setIsOpen(next);
     localStorage.setItem(SIDEBAR_STORAGE_KEY, next ? "open" : "closed");
+    window.dispatchEvent(new Event(sidebarChangeEvent));
   };
 
   if (!mounted) return null;
