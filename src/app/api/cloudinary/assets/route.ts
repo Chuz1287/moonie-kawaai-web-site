@@ -343,6 +343,61 @@ export async function PATCH(request: Request) {
   }
 }
 
+export async function POST(request: Request) {
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ message: "Solicitud no permitida." }, { status: 403 });
+  }
+
+  try {
+    const body = (await request.json()) as {
+      parentFolder?: unknown;
+      name?: unknown;
+    };
+    const parentFolder =
+      body.parentFolder === productRoot
+        ? productRoot
+        : validateProductPath(body.parentFolder);
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+
+    if (
+      !name ||
+      name.includes("/") ||
+      name.includes("\\") ||
+      name === "." ||
+      name === ".."
+    ) {
+      return NextResponse.json(
+        { message: "Escribe un nombre de carpeta válido, sin rutas." },
+        { status: 400 }
+      );
+    }
+
+    const folder = validateProductPath(`${parentFolder}/${name}`);
+    const { cloudName, apiKey, apiSecret } = getCloudinaryCredentials();
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/folders/${encodeCloudinaryPath(folder)}`,
+      {
+        method: "POST",
+        headers: { Authorization: getAuthorization(apiKey, apiSecret) },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { message: await cloudinaryError(response) },
+        { status: response.status }
+      );
+    }
+
+    return NextResponse.json({ message: "Carpeta creada correctamente.", folder });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "No se pudo crear la carpeta.";
+    return NextResponse.json({ message }, { status: getClientErrorStatus(error) });
+  }
+}
+
 export async function DELETE(request: Request) {
   if (!isSameOrigin(request)) {
     return NextResponse.json({ message: "Solicitud no permitida." }, { status: 403 });
