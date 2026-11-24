@@ -1,5 +1,6 @@
 "use client";
 
+import Portal from "@/components/Portal";
 import SaleEditDialog from "@/components/SaleEditDialog";
 import SalesFilters from "@/components/SalesFilters";
 import SalesHeader from "@/components/SalesHeader";
@@ -62,7 +63,9 @@ export default function SalesHistoryPage() {
         )}
       </div>
 
-      <SaleEditDialog model={model} />
+      <Portal>
+        <SaleEditDialog model={model} />
+      </Portal>
     </main>
   );
 }

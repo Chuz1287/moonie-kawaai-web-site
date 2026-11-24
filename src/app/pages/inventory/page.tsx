@@ -8,6 +8,7 @@ import InventorySummary from "@/components/InventorySummary";
 import InventoryCard from "@/components/InventoryCard/InventoryCard";
 import InventoryAccordionItem from "@/components/InventoryAccordionItem/InventoryAccordionItem";
 import AddInventoryModal from "@/components/AddInventoryModal/AddInventoryModal";
+import Portal from "@/components/Portal";
 import { useInventoryDashboard } from "@/components/InventoryDashboard.logic";
 import BulkProductImporter from "@/components/BulkProductImporter/BulkProductImporter";
 import ProductOptionsManager from "@/components/ProductOptionsManager/ProductOptionsManager";
@@ -221,25 +222,27 @@ export default function InventoryPage() {
       )}
 
       {showAddModal && (
-        <AddInventoryModal
-          isOpen={showAddModal}
-          onClose={() => {
-            setShowAddModal(false);
-            setEditingItemId(null);
-          }}
-          editingItem={editingItem}
-          categoryOptions={categoryOptions}
-          seriesOptions={seriesOptions}
-          onSubmit={async (item, productId) => {
-            if (productId) {
-              await model.handleEditItem(productId, item);
-            } else {
-              await model.handleAddItem(item);
-            }
-            await model.refreshInventory();
-            await refreshProductOptions();
-          }}
-        />
+        <Portal>
+          <AddInventoryModal
+            isOpen={showAddModal}
+            onClose={() => {
+              setShowAddModal(false);
+              setEditingItemId(null);
+            }}
+            editingItem={editingItem}
+            categoryOptions={categoryOptions}
+            seriesOptions={seriesOptions}
+            onSubmit={async (item, productId) => {
+              if (productId) {
+                await model.handleEditItem(productId, item);
+              } else {
+                await model.handleAddItem(item);
+              }
+              await model.refreshInventory();
+              await refreshProductOptions();
+            }}
+          />
+        </Portal>
       )}
     </div>
   );

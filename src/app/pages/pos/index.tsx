@@ -4,6 +4,7 @@ import CartPanel from "@/components/CartPanel";
 import ProductGrid from "@/components/ProductGrid";
 import { SkeletonCardGrid } from "@/components/Skeleton";
 import DashboardHeader from "@/components/DashboardHeader";
+import Portal from "@/components/Portal";
 import EventManagementDialog from "@/components/EventManagementDialog";
 import EventPerformancePanel from "@/components/EventPerformancePanel";
 import { EventsAndExpensesModal } from "@/components/EventsAndExpensesModal";
@@ -23,7 +24,9 @@ export default function PosDashboard() {
           </DashboardHeader>
         </header>
 
-        <EventManagementDialog model={model} />
+        <Portal>
+          <EventManagementDialog model={model} />
+        </Portal>
 
 
 
@@ -96,27 +99,31 @@ export default function PosDashboard() {
         </div>
 
         {model.hasCartItems && model.isCartOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl">
-              <CartPanel
-                cart={model.cart}
-                products={model.productCatalog}
-                onChangeQuantity={model.handleChangeQuantity}
-                onChangePrice={model.handleChangePrice}
-                onChangeNote={model.handleChangeNote}
-                onRemove={model.handleRemove}
-                onCheckout={model.handleCheckout}
-                isCheckingOut={model.isCheckingOut}
-                onClose={() => model.setIsCartOpen(false)}
-                subtotal={model.totals.subtotal}
-                tax={model.totals.tax}
-                total={model.totals.total}
-              />
+          <Portal>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+              <div className="w-full max-w-2xl">
+                <CartPanel
+                  cart={model.cart}
+                  products={model.productCatalog}
+                  onChangeQuantity={model.handleChangeQuantity}
+                  onChangePrice={model.handleChangePrice}
+                  onChangeNote={model.handleChangeNote}
+                  onRemove={model.handleRemove}
+                  onCheckout={model.handleCheckout}
+                  isCheckingOut={model.isCheckingOut}
+                  onClose={() => model.setIsCartOpen(false)}
+                  subtotal={model.totals.subtotal}
+                  tax={model.totals.tax}
+                  total={model.totals.total}
+                />
+              </div>
             </div>
-          </div>
+          </Portal>
         )}
 
-        <EventsAndExpensesModal isOpen={model.isEventsAndExpensesModalOpen} onClose={() => model.setIsEventsAndExpensesModalOpen(false)} />
+        <Portal>
+          <EventsAndExpensesModal isOpen={model.isEventsAndExpensesModalOpen} onClose={() => model.setIsEventsAndExpensesModalOpen(false)} />
+        </Portal>
       </div>
     </main>
   );
